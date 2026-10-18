@@ -106,6 +106,69 @@ main {
   margin: 0.25rem 0 0;
 }
 
+footer {
+    background: var(--headline);
+    color: var(--secondary);
+    text-align: center;
+    padding: 2.2rem var(--gutter);
+    font-family: 'Tanker-Regular',sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+.footer .row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+/* icônes sociales */
+.footer .row a {
+    text-decoration: none;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.footer .row a:hover{
+    transform: translateY(-5px);
+}
+
+.footer .row ul{
+    width:100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    list-style: none;
+}
+
+.footer .row ul li{
+    display:inline-block;
+    margin:0px 30px;
+}
+
+.footer .row ul li a {
+    font-family: 'Tanker-Regular',sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: #1c1a2e;
+    background-color: #e9e9e9;
+    border-radius: 100px;
+    padding: 8px 18px;
+}
+
+.footer .row ul {
+    transition: color 0.2s, transform 0.2s;
+}
+
+.footer .row ul :hover {
+    transition: color 0.2s, transform 0.2s;
+    transform: translateY(-5px);
+}
+
+.footer .row a i{
+    font-size:2em;
+    margin:0% 1%;
+}
 @media (prefers-reduced-motion: reduce) {
   .carte {
     transition: none;
