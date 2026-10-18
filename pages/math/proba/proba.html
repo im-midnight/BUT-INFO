@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Les 4 Lois de Probabilité</title>
+
+  <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Tableau de synthèse */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none; /* Évite que la souris bloque sur l'infobulle */
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Les 4 Lois de Probabilité</h1>
+  <p style="text-align: center; color: #555;">
+    <em>Passe la souris sur les <span class="terme" data-def="esperance">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. LOI BINOMIALE -->
+  <section class="loi-card">
+    <h2>1. La loi binomiale $\mathcal{B}(n, p)$ — Le comptage discret par blocs</h2>
+    <ul>
+      <li><strong>Nature :</strong> Discrète.</li>
+      <li><strong>Le problème :</strong> On répète $n$ fois de manière identique et indépendante une expérience à deux issues (succès avec probabilité $p$, échec avec $1-p$). On note $X$ le nombre total de succès obtenus.</li>
+      <li><strong>Formule :</strong>
+        $$\mathbb{P}(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \quad \text{pour } k \in \{0, 1, \dots, n\}$$
+      </li>
+      <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(X) = np$, <span class="terme" data-def="variance">Variance</span> $\mathbb{V}(X) = np(1-p)$.</li>
+      <li><strong>Exemple :</strong> Jeter une pièce 24 fois et compter le nombre de piles, ou découper une journée en 24 tranches d'une heure en observant s'il y a un spam ou non[cite: 1].</li>
+    </ul>
+  </section>
+
+  <!-- 2. LOI DE POISSON -->
+  <section class="loi-card">
+    <h2>2. La loi de Poisson $\mathcal{P}(\lambda)$ — Le comptage en temps continu</h2>
+    <ul>
+      <li><strong>Nature :</strong> Discrète.</li>
+      <li><strong>Le lien avec la binomiale :</strong> Dans la binomiale, on suppose au plus un événement par tranche de temps[cite: 1]. Si l'on affine le découpage à l'extrême ($n \to +\infty$ et $p \to 0$ tout en gardant une <span class="terme" data-def="cadence">cadence</span> moyenne $np = \lambda$ constante), la loi binomiale converge vers la <strong>loi de Poisson</strong>.</li>
+      <li><strong>Le problème :</strong> Compter le nombre d'événements indépendants et rares survenant dans un intervalle de mesure continu (temps, surface, volume).</li>
+      <li><strong>Formule :</strong>
+        $$\mathbb{P}(X = k) = e^{-\lambda} \frac{\lambda^k}{k!} \quad \text{pour } k \in \{0, 1, 2, \dots\}$$
+      </li>
+      <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(X) = \lambda$, <span class="terme" data-def="variance">Variance</span> $\mathbb{V}(X) = \lambda$.</li>
+      <li><strong>Exemple :</strong> Le nombre de clients arrivant à une caisse en 3 minutes quand le flux moyen est de 2 clients sur cette période ($\lambda = 2$)[cite: 2].</li>
+    </ul>
+  </section>
+
+  <!-- 3. LOI EXPONENTIELLE -->
+  <section class="loi-card">
+    <h2>3. La loi exponentielle $\mathcal{E}(\lambda)$ — Le temps d'attente continu</h2>
+    <ul>
+      <li><strong>Nature :</strong> Continue.</li>
+      <li><strong>Le lien avec la loi de Poisson :</strong> Elles décrivent le <strong>même processus</strong>, mais sous deux angles différents :
+        <ul>
+          <li>Poisson compte le nombre d'événements dans un temps donné ($X \in \mathbb{N}$).</li>
+          <li>L'exponentielle mesure le temps écoulé $T$ avant le prochain événement ($T \in [0, +\infty[$).</li>
+        </ul>
+        Dire que le temps d'attente $T$ dépasse $t$ équivaut à dire qu'aucun événement n'est apparu entre $0$ et $t$ dans le processus de Poisson :
+        $$\mathbb{P}(T > t) = \mathbb{P}(N_t = 0) = e^{-\lambda t} \frac{(\lambda t)^0}{0!} = e^{-\lambda t}$$
+      </li>
+      <li><strong>Formule :</strong>
+        <ul>
+          <li><span class="terme" data-def="densite">Densité</span> : $f(t) = \lambda e^{-\lambda t}$ pour $t \ge 0$.</li>
+          <li><span class="terme" data-def="repartition">Répartition</span> : $\mathbb{P}(T \le t) = 1 - e^{-\lambda t}$.</li>
+        </ul>
+      </li>
+      <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(T) = \frac{1}{\lambda}$, <span class="terme" data-def="variance">Variance</span> $\mathbb{V}(T) = \frac{1}{\lambda^2}$.</li>
+      <li><strong>Propriété remarquable :</strong> L'absence de mémoire ($\mathbb{P}(T > s+t \mid T > s) = \mathbb{P}(T > t)$). Attendre 5 minutes ne change pas la probabilité de devoir encore attendre 10 minutes supplémentaires (comme pour l'auto-stoppeur Aaron)[cite: 4].</li>
+    </ul>
+  </section>
+
+  <!-- 4. LOI NORMALE -->
+  <section class="loi-card">
+    <h2>4. La loi normale $\mathcal{N}(\mu, \sigma^2)$ — L'effet de masse (Théorème Central Limite)</h2>
+    <ul>
+      <li><strong>Nature :</strong> Continue.</li>
+      <li><strong>Le lien avec les précédentes :</strong>
+        <ul>
+          <li>Dès que $n$ devient grand et $p$ n'est pas trop proche de 0 ou 1 ($np \ge 5$ et $n(1-p) \ge 5$), la loi binomiale $\mathcal{B}(n, p)$ prend une forme en cloche et s'approxime par $\mathcal{N}(np, np(1-p))$. C'est le théorème de Moivre-Laplace.</li>
+          <li>De même, si le paramètre $\lambda$ de la loi de Poisson devient grand ($\lambda > 20$), $\mathcal{P}(\lambda)$ s'approxime par $\mathcal{N}(\lambda, \lambda)$.</li>
+          <li>Plus largement, selon le Théorème Central Limite, la somme ou la moyenne d'un grand nombre de variables aléatoires indépendantes (qu'elles soient binomiales, exponentielles ou uniformes) tend toujours vers une loi normale.</li>
+        </ul>
+      </li>
+      <li><strong>Formule :</strong>
+        <ul>
+          <li><span class="terme" data-def="densite">Densité</span> : $f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x - \mu}{\sigma}\right)^2}$</li>
+        </ul>
+      </li>
+      <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(X) = \mu$, Écart-type $\sigma$ (racine carrée de la <span class="terme" data-def="variance">variance</span>).</li>
+      <li><strong>Exemple :</strong> La taille des adultes, le cumul annuel de pluie, ou l'erreur cumulée de mesure sur un capteur.</li>
+    </ul>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Loi</th>
+          <th>Type</th>
+          <th>Que modélise-t-elle ?</th>
+          <th>Paramètres</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Binomiale</strong></td>
+          <td>Discrète</td>
+          <td>Nombre de succès sur $n$ essais séparés</td>
+          <td>$n$ (essais), $p$ (probabilité)</td>
+        </tr>
+        <tr>
+          <td><strong>Poisson</strong></td>
+          <td>Discrète</td>
+          <td>Nombre d'arrivées ponctuelles dans un intervalle continu</td>
+          <td>$\lambda$ (nombre moyen d'arrivées)</td>
+        </tr>
+        <tr>
+          <td><strong>Exponentielle</strong></td>
+          <td>Continue</td>
+          <td>Durée avant la survenue du prochain événement</td>
+          <td>$\lambda$ (<span class="terme" data-def="cadence">cadence</span> moyenne)</td>
+        </tr>
+        <tr>
+          <td><strong>Normale</strong></td>
+          <td>Continue</td>
+          <td>Somme ou moyenne d'un grand nombre d'aléas indépendants</td>
+          <td>$\mu$ (moyenne), $\sigma$ (dispersion)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES 5 DÉFINITIONS PRÉ-CHARGÉES -->
+  <div id="tooltip">
+    <div id="def-esperance" class="def-bloc">
+      <h3>Espérance ($\mathbb{E}(X)$)</h3>
+      <p>La <strong>moyenne théorique.</strong> Elle représente la valeur sur laquelle on parierait si l'on répétait l'expérience un très grand nombre de fois..</p>
+      <ul>
+        <li><strong>Discret :</strong> $\mathbb{E}(X) = \sum x_i \, \mathbb{P}(X = x_i)$</li>
+        <li><strong>Continu :</strong> $\mathbb{E}(X) = \int_{-\infty}^{+\infty} x f(x) \, \mathrm{d}x$</li>
+      </ul>
+    </div>
+
+    <div id="def-variance" class="def-bloc">
+      <h3>Variance ($\mathbb{V}(X)$)</h3>
+      <p>Mesure la <strong>dispersion</strong> des valeurs autour de l'espérance. Plus elle est élevée, plus les résultats sont étalés.</p>
+      <ul>
+        <li><strong>Formule :</strong> $\mathbb{V}(X) = \mathbb{E}(X^2) - (\mathbb{E}(X))^2$</li>
+        <li><strong>Écart-type :</strong> $\sigma = \sqrt{\mathbb{V}(X)}$ (revient à l'unité d'origine).</li>
+      </ul>
+    </div>
+
+    <div id="def-cadence" class="def-bloc">
+      <h3>Cadence ($\lambda$)</h3>
+      <p>Le <strong>rythme moyen d'apparition</strong> des événements par unité de temps[cite: 1] (ex. 0,3 signal/s[cite: 3], 40 clients/h[cite: 2]).</p>
+      <ul>
+        <li><strong>Lien avec l'attente :</strong> Le temps moyen entre deux événements est son inverse : $\mathbb{E}(T) = \frac{1}{\lambda}$.</li>
+      </ul>
+    </div>
+
+    <div id="def-densite" class="def-bloc">
+      <h3>Densité de probabilité ($f(x)$)</h3>
+      <p>Uniquement pour les lois <strong>continues</strong>. Indique la concentration des probabilités autour d'un point.</p>
+      <ul>
+        <li>La probabilité sur un intervalle correspond à l'<strong>aire sous la courbe</strong> : $\mathbb{P}(a \le X \le b) = \int_a^b f(x) \, \mathrm{d}x$.</li>
+      </ul>
+    </div>
+
+    <div id="def-repartition" class="def-bloc">
+      <h3>Fonction de répartition ($F(x)$)</h3>
+      <p>La <strong>probabilité cumulée</strong> que la variable ne dépasse pas un seuil $x$ :</p>
+      <ul>
+        <li><strong>Définition :</strong> $F(x) = \mathbb{P}(X \le x)$</li>
+        <li>Croît de $0$ à $1$. Permet de calculer facilement un intervalle : $\mathbb{P}(a < X \le b) = F(b) - F(a)$.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+
+    termes.forEach(terme => {
+      // 1. Affichage au survol
+      terme.addEventListener('mouseenter', () => {
+        const cle = terme.getAttribute('data-def');
+
+        // Masquer toutes les définitions puis activer uniquement celle demandée
+        blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+        document.getElementById('def-' + cle).classList.add('actif');
+
+        tooltip.style.display = 'block';
+      });
+
+      // 2. Suivi de la souris en temps réel
+      terme.addEventListener('mousemove', (e) => {
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        // Empêcher l'infobulle de sortir à droite de l'écran
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      // 3. Masquage quand la souris quitte le mot
+      terme.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
+    });
+  </script>
+
+</body>
+</html>
