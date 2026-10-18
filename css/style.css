@@ -148,7 +148,7 @@ footer {
 
 .footer .row ul li a {
     font-family: 'Tanker-Regular',sans-serif;
-    font-size: 1rem;
+    font-size : clamp(0.5em, 0.9rem, 1.3rem);
     letter-spacing: 1px;
     color: #1c1a2e;
     background-color: #e9e9e9;
@@ -173,4 +173,21 @@ footer {
   .carte {
     transition: none;
   }
+}
+@media (max-width:720px){
+    .footer{
+        padding:5%;
+    }
+    .footer .row a i{
+        margin:0% 3%;
+    }
+}
+
+@media (max-width: 400px) {
+    .footer {
+        gap: 1.25rem;
+    }
+    .footer .row a i {
+        font-size: 1.7em;
+    }
 }
