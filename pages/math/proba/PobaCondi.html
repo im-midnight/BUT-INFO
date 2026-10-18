@@ -17,7 +17,6 @@
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
-    /* 1. Correction globale pour la responsivité */
     *, *::before, *::after {
       box-sizing: border-box;
     }
@@ -34,17 +33,19 @@
       overflow-x: hidden;
     }
 
-    @media (min-width: 768px) {
-      body {
-        padding: 2rem;
-      }
-    }
-
     h1 {
       text-align: center;
       font-size: 1.75rem;
       margin-bottom: 0.5rem;
       color: #111;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+    }
+
+    .intro-note {
+      text-align: center;
+      color: #555;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
     }
 
     @media (min-width: 768px) {
@@ -60,7 +61,7 @@
       padding: 1rem;
       margin-bottom: 1.5rem;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      overflow-x: auto; /* Empêche les éléments larges de dépasser de la carte */
+      overflow-x: auto;
     }
 
     @media (min-width: 768px) {
@@ -72,7 +73,7 @@
     h2 {
       margin-top: 0;
       color: #1e3a8a;
-      font-size: 1.15rem;
+      font-size: clamp(1.1rem, 3vw, 1.25rem);
       border-bottom: 2px solid #e5e7eb;
       padding-bottom: 0.5rem;
     }
@@ -90,12 +91,6 @@
       margin-bottom: 0.5rem;
     }
 
-    @media (min-width: 768px) {
-      h3 {
-        font-size: 1.05rem;
-      }
-    }
-
     ul, ol {
       padding-left: 1.25rem;
     }
@@ -104,33 +99,34 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Style des mots interactifs */
+    mjx-container[jax="CHTML"][display="true"] {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding: 0.35rem 0;
+    }
+
     .terme {
       color: #2563eb;
       font-weight: 600;
       border-bottom: 2px dotted #2563eb;
       cursor: help;
       transition: background-color 0.15s;
+      display: inline;
     }
 
-    .terme:hover {
+    .terme:hover, .terme:focus {
       background-color: #dbeafe;
+      outline: none;
     }
 
-    /* Encadrés pour les démonstrations et exemples */
     .demo-box {
       background-color: #f8fafc;
       border-left: 4px solid #3b82f6;
       padding: 0.75rem 1rem;
       margin: 0.75rem 0;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       overflow-x: auto;
-    }
-
-    @media (min-width: 768px) {
-      .demo-box {
-        font-size: 0.95rem;
-      }
     }
 
     .alerte-box {
@@ -141,20 +137,18 @@
       overflow-x: auto;
     }
 
-    /* 2. Conteneur responsive pour les tableaux */
-    .table-responsive {
+    .table-wrapper {
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      margin-top: 1rem;
-      margin-bottom: 1rem;
+      margin: 1rem 0;
     }
 
     table {
       width: 100%;
+      min-width: 480px;
       border-collapse: collapse;
       background: #fff;
-      min-width: 500px; /* Force un minimum pour garder le tableau lisible avec un scroll horizontal si l'écran est trop petit */
     }
 
     th, td {
@@ -171,12 +165,11 @@
       text-align: left;
     }
 
-    /* Boîte d'infobulle (Tooltip) adaptative */
     #tooltip {
       position: absolute;
       display: none;
-      width: 320px;
-      max-width: 85vw;
+      width: 380px;
+      max-width: calc(100vw - 24px);
       background: #1f2937;
       color: #f9fafb;
       padding: 1rem 1.25rem;
@@ -192,6 +185,20 @@
       margin-bottom: 0.5rem;
       color: #60a5fa;
       font-size: 1.05rem;
+      padding-right: 1.5rem;
+    }
+
+    #close-tooltip {
+      display: none;
+      position: absolute;
+      top: 0.6rem;
+      right: 0.8rem;
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
     }
 
     .def-bloc {
@@ -201,34 +208,171 @@
     .def-bloc.actif {
       display: block;
     }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem 0.75rem 4rem 0.75rem;
+      }
+
+      .loi-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      ul, ol {
+        padding-left: 1.1rem;
+      }
+
+      th, td {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.9rem;
+      }
+
+      #tooltip {
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 12px !important;
+        top: auto !important;
+        width: auto !important;
+        max-width: none !important;
+        pointer-events: auto;
+        border: 1px solid #374151;
+      }
+
+      #close-tooltip {
+        display: block;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Les Probabilités Conditionnelles</h1>
-  <p style="text-align: center; color: #555; margin-bottom: 2rem;">
-    <em>Passe la souris sur les <span class="terme" data-def="sous-population">termes soulignés en bleu</span> pour afficher leur définition ou explication méthodologique.</em>
+  <h1>2.3 Les Probabilités Conditionnelles</h1>
+  <p class="intro-note">
+    <em>Survole (ou touche sur mobile) les <span class="terme" tabindex="0" data-def="sous-population">termes soulignés en bleu</span> pour afficher leur définition ou explication méthodologique.</em>
   </p>
 
-
-  <!-- 1. DÉFINITION 2.7 -->
+  <!-- 1. APPROCHE INTUITIVE -->
   <section class="loi-card">
-    <h2>1. Définition de la probabilité conditionnelle (Définition 2.7)</h2>
+    <h2>1. Approche intuitive : Population vs Sous-population</h2>
+    <p>
+      Le cours introduit la différence entre probabilité classique et probabilité conditionnelle en croisant la <strong>Préparation</strong> ($A$ ou <span class="terme" tabindex="0" data-def="contraire">$\overline{A}$</span>) et la <strong>Réussite</strong> ($R$ ou $\overline{R}$) sur un effectif de 500 individus :
+    </p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Réussite \ Préparation</th>
+            <th>$A$</th>
+            <th>$\overline{A}$</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>$R$</strong></td>
+            <td>68</td>
+            <td>202</td>
+            <td>270</td>
+          </tr>
+          <tr>
+            <td><strong>$\overline{R}$</strong></td>
+            <td>19</td>
+            <td>211</td>
+            <td>230</td>
+          </tr>
+          <tr>
+            <td><strong>Total</strong></td>
+            <td>87</td>
+            <td>413</td>
+            <td>500</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul>
+      <li>
+        <strong>Probabilités classiques (sur la population globale de 500) :</strong>
+        <ul>
+          <li>$\mathbb{P}(R) = \frac{270}{500} = 54\%$</li>
+          <li>$\mathbb{P}(A) = \frac{87}{500}$</li>
+          <li>Probabilité de l'<span class="terme" tabindex="0" data-def="intersection">intersection</span> : $\mathbb{P}(R \cap A) = \frac{68}{500}$</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Probabilités conditionnelles (sur une <span class="terme" tabindex="0" data-def="sous-population">sous-population</span>) :</strong>
+        <ul>
+          <li>$\mathbb{P}(R \mid A) = \frac{68}{87} \simeq 78,2\%$ <em>(on se restreint aux 87 individus ayant suivi la préparation $A$)</em>.</li>
+          <li>$\mathbb{P}(A \mid R) = \frac{68}{270}$ <em>(on se restreint aux 270 individus ayant réussi)</em>.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 2. DÉFINITION 2.7 -->
+  <section class="loi-card">
+    <h2>2. Définition de la probabilité conditionnelle (Définition 2.7)</h2>
     <ul>
       <li>
         <strong>Définition 2.7 :</strong> On définit la probabilité de « $A$ sachant $B$ » (aussi notée $\mathbb{P}_B(A)$) par :
         $$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}$$
       </li>
       <li>
-        <strong>Application au calcul d'une <span class="terme" data-def="intersection">intersection</span> :</strong> On exploite régulièrement cette écriture sous forme de produit pour déterminer la probabilité de l'intersection de deux événements :
+        <strong>Application au calcul d'une <span class="terme" tabindex="0" data-def="intersection">intersection</span> :</strong> On exploite régulièrement cette écriture sous forme de produit pour déterminer la probabilité de l'intersection de deux événements :
         $$\mathbb{P}(A \cap B) = \mathbb{P}(B) \times \mathbb{P}(A \mid B)$$
       </li>
     </ul>
   </section>
 
-  <!-- 2. INDÉPENDANCE ET INCOMPATIBILITÉ -->
+  <!-- 3. ARBRE ET EXEMPLE DES USINES -->
   <section class="loi-card">
-    <h2>2. Indépendance et Incompatibilité (Définition 2.8 & Théorème 2.9)</h2>
+    <h2>3. Représentation par un arbre et les 3 questions types</h2>
+    <p>
+      <strong>Exemple du cours (Usines de pièces auto) :</strong> Une pièce est fabriquée dans trois usines $A$, $B$ et $C$.
+      $50\%$ de la production est réalisée dans $A$, $20\%$ dans $B$ et $30\%$ dans $C$.
+      On détecte en moyenne $1\%$ de pièces défectueuses (événement $D$) dans $A$, $2\%$ dans $B$ et $5\%$ dans $C$.
+    </p>
+
+    <h3>Règles de construction de l'<span class="terme" tabindex="0" data-def="arbre">arbre pondéré</span> :</h3>
+    <ul>
+      <li><strong>Choix du 1ᵉʳ nœud :</strong> Ici, c'est l'usine qui conditionne la probabilité de défectuosité. Les branches du 1ᵉʳ nœud supportent donc tous les cas possibles quant à l'usine de fabrication ($\mathbb{P}(A) = 50\%$, $\mathbb{P}(B) = 20\%$, $\mathbb{P}(C) = 30\%$).</li>
+      <li><strong>Loi des nœuds :</strong> La somme des probabilités des branches supportées par chaque nœud doit être égale à $1$ :
+        <ul>
+          <li>Depuis $A$ : $\mathbb{P}(D \mid A) = 1\%$ et $\mathbb{P}(\overline{D} \mid A) = 99\%$.</li>
+          <li>Depuis $B$ : $\mathbb{P}(D \mid B) = 2\%$ et $\mathbb{P}(\overline{D} \mid B) = 98\%$.</li>
+          <li>Depuis $C$ : $\mathbb{P}(D \mid C) = 5\%$ et $\mathbb{P}(\overline{D} \mid C) = 95\%$.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>Les 3 questions types résolues avec l'arbre :</h3>
+    <ol>
+      <li>
+        <strong>Question simple (probabilité d'un chemin / intersection) :</strong><br>
+        <em>« Quelle est la probabilité que la pièce provienne de $B$ et ne soit pas défectueuse ? »</em>
+        $$\mathbb{P}(B \cap \overline{D}) = \mathbb{P}(B) \times \mathbb{P}_B(\overline{D}) = 0,20 \times 0,98 = 0,196$$
+      </li>
+      <li>
+        <strong>Question sur l'événement final (probabilités totales) :</strong><br>
+        <em>« Quelle est la probabilité que la pièce prélevée soit défectueuse ? »</em>
+        $$\mathbb{P}(D) = \mathbb{P}(A \cap D) + \mathbb{P}(B \cap D) + \mathbb{P}(C \cap D)$$
+        $$\mathbb{P}(D) = \mathbb{P}(A)\mathbb{P}_A(D) + \mathbb{P}(B)\mathbb{P}_B(D) + \mathbb{P}(C)\mathbb{P}_C(D) = 0,005 + 0,004 + 0,015 = 0,024$$
+      </li>
+      <li>
+        <strong>Question sur <span class="terme" tabindex="0" data-def="inversion">conditionnement inversé</span> :</strong><br>
+        <em>« La pièce prélevée est défectueuse. Quelle est la probabilité qu'elle provienne de l'usine $C$ ? »</em><br>
+        L'étude se restreint aux pièces défectueuses, on cherche donc $\mathbb{P}(C \mid D)$ (notée $\mathbb{P}_D(C)$) en revenant à la définition :
+        $$\mathbb{P}_D(C) = \frac{\mathbb{P}(C \cap D)}{\mathbb{P}(D)} = \frac{0,015}{0,024} = 0,625$$
+      </li>
+    </ol>
+  </section>
+
+  <!-- 4. INDÉPENDANCE ET INCOMPATIBILITÉ -->
+  <section class="loi-card">
+    <h2>4. Indépendance et Incompatibilité (Définition 2.8 & Théorème 2.9)</h2>
     <ul>
       <li>
         <strong>Définition 2.8 (Indépendance) :</strong> Deux événements $A$ et $B$ sont dits indépendants si :
@@ -246,10 +390,10 @@
     </div>
 
     <div class="alerte-box">
-      <strong>Attention : Il ne faut pas confondre indépendance et <span class="terme" data-def="incompatibles">incompatibilité</span> !!</strong>
+      <strong>Attention : Il ne faut pas confondre indépendance et <span class="terme" tabindex="0" data-def="incompatibles">incompatibilité</span> !!</strong>
       <ul>
         <li>$A$ et $B$ <strong>indépendants</strong> $\iff \mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B)$</li>
-        <li>$A$ et $B$ <strong><span class="terme" data-def="incompatibles">incompatibles</span></strong> $\iff A \cap B = \emptyset \implies \mathbb{P}(A \cap B) = 0$</li>
+        <li>$A$ et $B$ <strong><span class="terme" tabindex="0" data-def="incompatibles">incompatibles</span></strong> $\iff A \cap B = \emptyset \implies \mathbb{P}(A \cap B) = 0$</li>
       </ul>
       <p style="margin-bottom: 0;"><strong>Deux exemples à retenir :</strong></p>
       <ul style="margin-top: 0.25rem;">
@@ -259,16 +403,16 @@
     </div>
   </section>
 
-  <!-- 3. PROBABILITÉS COMPOSÉES -->
+  <!-- 5. PROBABILITÉS COMPOSÉES -->
   <section class="loi-card">
-    <h2>3. Théorème des probabilités composées (Théorème 2.10)</h2>
+    <h2>5. Théorème des probabilités composées (Théorème 2.10)</h2>
     <p>
       <strong>Théorème 2.10 :</strong> Soient $A_1, A_2, \dots, A_{n-1}, A_n$ des événements, alors :
       $$\mathbb{P}(A_1 \cap A_2 \cap \dots \cap A_n) = \mathbb{P}(A_n \mid A_{n-1} \cap \dots \cap A_2 \cap A_1) \times \dots \times \mathbb{P}(A_2 \mid A_1) \times \mathbb{P}(A_1)$$
     </p>
 
     <div class="demo-box">
-      <strong>Démonstration (par <span class="terme" data-def="recurrence">récurrence</span> sur $n$) :</strong><br>
+      <strong>Démonstration (par <span class="terme" tabindex="0" data-def="recurrence">récurrence</span> sur $n$) :</strong><br>
       Soit la proposition $\mathcal{P}_n$ correspondant à la formule pour $n$ événements :
       <ul>
         <li><strong>Rang initial ($n=2$) :</strong> $\mathcal{P}_2$ découle directement de la définition : $\mathbb{P}(A_1 \cap A_2) = \mathbb{P}(A_2 \mid A_1) \times \mathbb{P}(A_1) \iff \mathbb{P}(A_2 \mid A_1) = \frac{\mathbb{P}(A_2 \cap A_1)}{\mathbb{P}(A_1)}$.</li>
@@ -291,18 +435,18 @@
     </ul>
   </section>
 
-  <!-- 4. PROBABILITÉS TOTALES -->
+  <!-- 6. PROBABILITÉS TOTALES -->
   <section class="loi-card">
-    <h2>4. Théorème des probabilités totales (Théorème 2.11)</h2>
+    <h2>6. Théorème des probabilités totales (Théorème 2.11)</h2>
     <p>
-      <strong>Théorème 2.11 :</strong> Soient $A_1, A_2, \dots, A_{n-1}, A_n$ des événements formant une <span class="terme" data-def="partition">partition de $\Omega$</span> et $B$ un autre événement, alors :
+      <strong>Théorème 2.11 :</strong> Soient $A_1, A_2, \dots, A_{n-1}, A_n$ des événements formant une <span class="terme" tabindex="0" data-def="partition">partition de $\Omega$</span> et $B$ un autre événement, alors :
       $$\mathbb{P}(B) = \mathbb{P}(B \mid A_1)\mathbb{P}(A_1) + \mathbb{P}(B \mid A_2)\mathbb{P}(A_2) + \dots + \mathbb{P}(B \mid A_n)\mathbb{P}(A_n) = \sum_{k=1}^{n} \mathbb{P}(B \mid A_k) \times \mathbb{P}(A_k)$$
     </p>
 
     <div class="demo-box">
       <strong>Justification / Démonstration :</strong>
       <ol>
-        <li>Les ensembles $A_i$ formant une <span class="terme" data-def="partition">partition de $\Omega$</span>, les ensembles $B \cap A_i$ forment une partition de $B$ (y compris le caractère disjoint deux à deux), ce qui permet d'écrire :
+        <li>Les ensembles $A_i$ formant une <span class="terme" tabindex="0" data-def="partition">partition de $\Omega$</span>, les ensembles $B \cap A_i$ forment une partition de $B$ (y compris le caractère disjoint deux à deux), ce qui permet d'écrire :
           $$\mathbb{P}(B) = \mathbb{P}(B \cap A_1) + \mathbb{P}(B \cap A_2) + \dots + \mathbb{P}(B \cap A_n)$$
         </li>
         <li>D'après le théorème des probabilités composées appliqué à chaque terme, on obtient :
@@ -315,7 +459,7 @@
   <!-- SYNTHÈSE -->
   <section class="loi-card">
     <h2>Synthèse : Quel outil utiliser selon le problème ?</h2>
-    <div class="table-responsive">
+    <div class="table-wrapper">
       <table>
         <thead>
           <tr>
@@ -337,7 +481,7 @@
           </tr>
           <tr>
             <td class="left-align"><strong>Probabilités totales</strong> (Th. 2.11)</td>
-            <td class="left-align">Calculer la probabilité d'un événement final $B$ accessible par plusieurs chemins formant une <span class="terme" data-def="partition">partition</span>.</td>
+            <td class="left-align">Calculer la probabilité d'un événement final $B$ accessible par plusieurs chemins formant une <span class="terme" tabindex="0" data-def="partition">partition</span>.</td>
             <td class="left-align">$\mathbb{P}(B) = \sum_{k=1}^n \mathbb{P}(B \mid A_k)\mathbb{P}(A_k)$</td>
           </tr>
           <tr>
@@ -351,7 +495,9 @@
   </section>
 
   <!-- INFOBULLE CONTENANT LES DÉFINITIONS PRÉ-CHARGÉES -->
-  <div id="tooltip">
+  <div id="tooltip" role="tooltip">
+    <button id="close-tooltip" aria-label="Fermer la définition">&times;</button>
+
     <div id="def-sous-population" class="def-bloc">
       <h3>Sous-population (Conditionnement)</h3>
       <p>Passer d'une probabilité classique $\mathbb{P}(R)$ à une probabilité conditionnelle $\mathbb{P}(R \mid A)$ revient à <strong>changer d'ensemble de référence</strong>.</p>
@@ -372,7 +518,6 @@
     <div id="def-intersection" class="def-bloc">
       <h3>Intersection ($A \cap B$)</h3>
       <p>Correspond à la conjonction logique <strong>« ET »</strong> : l'événement $A \cap B$ est réalisé si les deux événements $A$ et $B$ se réalisent tous les deux.</p>
-      
     </div>
 
     <div id="def-arbre" class="def-bloc">
@@ -423,40 +568,70 @@
 
   <script>
     const tooltip = document.getElementById('tooltip');
+    const closeBtn = document.getElementById('close-tooltip');
     const termes = document.querySelectorAll('.terme');
     const blocsDef = document.querySelectorAll('.def-bloc');
 
-    termes.forEach(terme => {
-      // 1. Affichage au survol
-      terme.addEventListener('mouseenter', () => {
-        const cle = terme.getAttribute('data-def');
+    const estMobile = () => window.innerWidth <= 640;
 
-        // Masquer toutes les définitions puis activer uniquement celle demandée
-        blocsDef.forEach(bloc => bloc.classList.remove('actif'));
-        document.getElementById('def-' + cle).classList.add('actif');
-
+    function afficherDefinition(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
         tooltip.style.display = 'block';
-      });
+      }
+    }
 
-      // 2. Suivi de la souris en temps réel
-      terme.addEventListener('mousemove', (e) => {
-        const decalage = 15;
-        let x = e.pageX + decalage;
-        let y = e.pageY + decalage;
+    function positionnerTooltip(e) {
+      if (estMobile()) return;
 
-        // Empêcher l'infobulle de sortir à droite de l'écran
-        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
-          x = e.pageX - tooltip.offsetWidth - decalage;
+      const decalage = 15;
+      let x = e.pageX + decalage;
+      let y = e.pageY + decalage;
+
+      if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+        x = e.pageX - tooltip.offsetWidth - decalage;
+      }
+      if (x < 10) {
+        x = 10;
+      }
+
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    }
+
+    termes.forEach(terme => {
+      terme.addEventListener('mouseenter', (e) => {
+        if (!estMobile()) {
+          afficherDefinition(terme.getAttribute('data-def'));
+          positionnerTooltip(e);
         }
-
-        tooltip.style.left = x + 'px';
-        tooltip.style.top = y + 'px';
       });
 
-      // 3. Masquage quand la souris quitte le mot
+      terme.addEventListener('mousemove', positionnerTooltip);
+
       terme.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none';
+        if (!estMobile()) {
+          tooltip.style.display = 'none';
+        }
       });
+
+      terme.addEventListener('click', (e) => {
+        e.stopPropagation();
+        afficherDefinition(terme.getAttribute('data-def'));
+        positionnerTooltip(e);
+      });
+    });
+
+    closeBtn.addEventListener('click', () => {
+      tooltip.style.display = 'none';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!tooltip.contains(e.target)) {
+        tooltip.style.display = 'none';
+      }
     });
   </script>
 
