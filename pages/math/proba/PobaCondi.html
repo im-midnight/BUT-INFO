@@ -17,47 +17,86 @@
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
+    /* 1. Correction globale pour la responsivité */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: system-ui, -apple-system, sans-serif;
       line-height: 1.6;
       max-width: 850px;
+      width: 100%;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 1rem;
       color: #222;
       background-color: #f9fafb;
+      overflow-x: hidden;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 2rem;
+      }
     }
 
     h1 {
       text-align: center;
+      font-size: 1.75rem;
       margin-bottom: 0.5rem;
       color: #111;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 2.25rem;
+      }
     }
 
     .loi-card {
       background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 8px;
-      padding: 1.25rem 1.5rem;
+      padding: 1rem;
       margin-bottom: 1.5rem;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto; /* Empêche les éléments larges de dépasser de la carte */
+    }
+
+    @media (min-width: 768px) {
+      .loi-card {
+        padding: 1.25rem 1.5rem;
+      }
     }
 
     h2 {
       margin-top: 0;
       color: #1e3a8a;
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       border-bottom: 2px solid #e5e7eb;
       padding-bottom: 0.5rem;
     }
 
+    @media (min-width: 768px) {
+      h2 {
+        font-size: 1.25rem;
+      }
+    }
+
     h3 {
       color: #374151;
-      font-size: 1.05rem;
+      font-size: 1rem;
       margin-top: 1.25rem;
       margin-bottom: 0.5rem;
     }
 
-    ul {
+    @media (min-width: 768px) {
+      h3 {
+        font-size: 1.05rem;
+      }
+    }
+
+    ul, ol {
       padding-left: 1.25rem;
     }
 
@@ -84,7 +123,14 @@
       border-left: 4px solid #3b82f6;
       padding: 0.75rem 1rem;
       margin: 0.75rem 0;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      overflow-x: auto;
+    }
+
+    @media (min-width: 768px) {
+      .demo-box {
+        font-size: 0.95rem;
+      }
     }
 
     .alerte-box {
@@ -92,15 +138,23 @@
       border-left: 4px solid #ef4444;
       padding: 0.75rem 1rem;
       margin: 0.75rem 0;
+      overflow-x: auto;
     }
 
-    /* Tableaux */
+    /* 2. Conteneur responsive pour les tableaux */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      margin-top: 1rem;
-      margin-bottom: 1rem;
+      min-width: 500px; /* Force un minimum pour garder le tableau lisible avec un scroll horizontal si l'écran est trop petit */
     }
 
     th, td {
@@ -117,12 +171,12 @@
       text-align: left;
     }
 
-    /* Boîte d'infobulle (Tooltip) */
+    /* Boîte d'infobulle (Tooltip) adaptative */
     #tooltip {
       position: absolute;
       display: none;
-      width: 380px;
-      max-width: 90vw;
+      width: 320px;
+      max-width: 85vw;
       background: #1f2937;
       color: #f9fafb;
       padding: 1rem 1.25rem;
@@ -151,175 +205,76 @@
 </head>
 <body>
 
-  <h1>2.3 Les Probabilités Conditionnelles</h1>
+  <h1>Les Probabilités Conditionnelles</h1>
   <p style="text-align: center; color: #555; margin-bottom: 2rem;">
     <em>Passe la souris sur les <span class="terme" data-def="sous-population">termes soulignés en bleu</span> pour afficher leur définition ou explication méthodologique.</em>
   </p>
 
-  <!-- 1. APPROCHE INTUITIVE -->
+
+  <!-- 1. DÉFINITION 2.7 -->
   <section class="loi-card">
-    <h2>1. Approche intuitive : Population vs Sous-population</h2>
-    <p>
-      Le cours introduit la différence entre probabilité classique et probabilité conditionnelle en croisant la <strong>Préparation</strong> ($A$ ou <span class="terme" data-def="contraire">$\overline{A}$</span>) et la <strong>Réussite</strong> ($R$ ou $\overline{R}$) sur un effectif de 500 individus :
-    </p>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Réussite \ Préparation</th>
-          <th>$A$</th>
-          <th>$\overline{A}$</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>$R$</strong></td>
-          <td>68</td>
-          <td>202</td>
-          <td>270</td>
-        </tr>
-        <tr>
-          <td><strong>$\overline{R}$</strong></td>
-          <td>19</td>
-          <td>211</td>
-          <td>230</td>
-        </tr>
-        <tr>
-          <td><strong>Total</strong></td>
-          <td>87</td>
-          <td>413</td>
-          <td>500</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <ul>
-      <li>
-        <strong>Probabilités classiques (sur la population globale de 500) :</strong>
-        <ul>
-          <li>$\mathbb{P}(R) = \frac{270}{500} = 54\%$[cite: 16]</li>
-          <li>$\mathbb{P}(A) = \frac{87}{500}$[cite: 16]</li>
-          <li>Probabilité de l'<span class="terme" data-def="intersection">intersection</span> : $\mathbb{P}(R \cap A) = \frac{68}{500}$[cite: 16]</li>
-        </ul>
-      </li>
-      <li>
-        <strong>Probabilités conditionnelles (sur une <span class="terme" data-def="sous-population">sous-population</span>)[cite: 16] :</strong>
-        <ul>
-          <li>$\mathbb{P}(R \mid A) = \frac{68}{87} \simeq 78,2\%$ <em>(on se restreint aux 87 individus ayant suivi la préparation $A$)</em>[cite: 16].</li>
-          <li>$\mathbb{P}(A \mid R) = \frac{68}{270}$ <em>(on se restreint aux 270 individus ayant réussi)</em>[cite: 16].</li>
-        </ul>
-      </li>
-    </ul>
-  </section>
-
-  <!-- 2. DÉFINITION 2.7 -->
-  <section class="loi-card">
-    <h2>2. Définition de la probabilité conditionnelle (Définition 2.7)</h2>
+    <h2>1. Définition de la probabilité conditionnelle (Définition 2.7)</h2>
     <ul>
       <li>
         <strong>Définition 2.7 :</strong> On définit la probabilité de « $A$ sachant $B$ » (aussi notée $\mathbb{P}_B(A)$) par :
         $$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}$$
       </li>
       <li>
-        <strong>Application au calcul d'une <span class="terme" data-def="intersection">intersection</span> :</strong> On exploite régulièrement cette écriture sous forme de produit pour déterminer la probabilité de l'intersection de deux événements[cite: 16] :
+        <strong>Application au calcul d'une <span class="terme" data-def="intersection">intersection</span> :</strong> On exploite régulièrement cette écriture sous forme de produit pour déterminer la probabilité de l'intersection de deux événements :
         $$\mathbb{P}(A \cap B) = \mathbb{P}(B) \times \mathbb{P}(A \mid B)$$
       </li>
     </ul>
   </section>
 
-  <!-- 3. ARBRE ET EXEMPLE DES USINES -->
+  <!-- 2. INDÉPENDANCE ET INCOMPATIBILITÉ -->
   <section class="loi-card">
-    <h2>3. Représentation par un arbre et les 3 questions types</h2>
-    <p>
-      <strong>Exemple du cours (Usines de pièces auto)[cite: 16] :</strong> Une pièce est fabriquée dans trois usines $A$, $B$ et $C$[cite: 16].
-      $50\%$ de la production est réalisée dans $A$, $20\%$ dans $B$ et $30\%$ dans $C$[cite: 16].
-      On détecte en moyenne $1\%$ de pièces défectueuses (événement $D$) dans $A$, $2\%$ dans $B$ et $5\%$ dans $C$[cite: 16].
-    </p>
-
-    <h3>Règles de construction de l'<span class="terme" data-def="arbre">arbre pondéré</span> :</h3>
-    <ul>
-      <li><strong>Choix du 1ᵉʳ nœud :</strong> Ici, c'est l'usine qui conditionne la probabilité de défectuosité[cite: 17]. Les branches du 1ᵉʳ nœud supportent donc tous les cas possibles quant à l'usine de fabrication ($\mathbb{P}(A) = 50\%$, $\mathbb{P}(B) = 20\%$, $\mathbb{P}(C) = 30\%$)[cite: 17].</li>
-      <li><strong>Loi des nœuds :</strong> La somme des probabilités des branches supportées par chaque nœud doit être égale à $1$[cite: 17] :
-        <ul>
-          <li>Depuis $A$ : $\mathbb{P}(D \mid A) = 1\%$ et $\mathbb{P}(\overline{D} \mid A) = 99\%$[cite: 17].</li>
-          <li>Depuis $B$ : $\mathbb{P}(D \mid B) = 2\%$ et $\mathbb{P}(\overline{D} \mid B) = 98\%$[cite: 17].</li>
-          <li>Depuis $C$ : $\mathbb{P}(D \mid C) = 5\%$ et $\mathbb{P}(\overline{D} \mid C) = 95\%$[cite: 17].</li>
-        </ul>
-      </li>
-    </ul>
-
-    <h3>Les 3 questions types résolues avec l'arbre :</h3>
-    <ol>
-      <li>
-        <strong>Question simple (probabilité d'un chemin / intersection)[cite: 17] :</strong><br>
-        <em>« Quelle est la probabilité que la pièce provienne de $B$ et ne soit pas défectueuse ? »</em>[cite: 17]
-        $$\mathbb{P}(B \cap \overline{D}) = \mathbb{P}(B) \times \mathbb{P}_B(\overline{D}) = 0,20 \times 0,98 = 0,196$$
-      </li>
-      <li>
-        <strong>Question sur l'événement final (probabilités totales)[cite: 17, 18] :</strong><br>
-        <em>« Quelle est la probabilité que la pièce prélevée soit défectueuse ? »</em>[cite: 17]
-        $$\mathbb{P}(D) = \mathbb{P}(A \cap D) + \mathbb{P}(B \cap D) + \mathbb{P}(C \cap D)$$
-        $$\mathbb{P}(D) = \mathbb{P}(A)\mathbb{P}_A(D) + \mathbb{P}(B)\mathbb{P}_B(D) + \mathbb{P}(C)\mathbb{P}_C(D) = 0,005 + 0,004 + 0,015 = 0,024$$
-      </li>
-      <li>
-        <strong>Question sur <span class="terme" data-def="inversion">conditionnement inversé</span>[cite: 18] :</strong><br>
-        <em>« La pièce prélevée est défectueuse. Quelle est la probabilité qu'elle provienne de l'usine $C$ ? »</em>[cite: 18]<br>
-        L'étude se restreint aux pièces défectueuses, on cherche donc $\mathbb{P}(C \mid D)$ (notée $\mathbb{P}_D(C)$) en revenant à la définition[cite: 18] :
-        $$\mathbb{P}_D(C) = \frac{\mathbb{P}(C \cap D)}{\mathbb{P}(D)} = \frac{0,015}{0,024} = 0,625$$
-      </li>
-    </ol>
-  </section>
-
-  <!-- 4. INDÉPENDANCE ET INCOMPATIBILITÉ -->
-  <section class="loi-card">
-    <h2>4. Indépendance et Incompatibilité (Définition 2.8 & Théorème 2.9)</h2>
+    <h2>2. Indépendance et Incompatibilité (Définition 2.8 & Théorème 2.9)</h2>
     <ul>
       <li>
-        <strong>Définition 2.8 (Indépendance) :</strong> Deux événements $A$ et $B$ sont dits indépendants si[cite: 16] :
+        <strong>Définition 2.8 (Indépendance) :</strong> Deux événements $A$ et $B$ sont dits indépendants si :
         $$\mathbb{P}(A \mid B) = \mathbb{P}(A)$$
       </li>
       <li>
-        <strong>Théorème 2.9 :</strong> Soient $A$ et $B$ deux événements non vides, alors[cite: 18] :
+        <strong>Théorème 2.9 :</strong> Soient $A$ et $B$ deux événements non vides, alors :
         $$A \text{ et } B \text{ indépendants} \iff \mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B)$$
       </li>
     </ul>
 
     <div class="demo-box">
-      <strong>Démonstration du Théorème 2.9[cite: 18] :</strong>
+      <strong>Démonstration du Théorème 2.9 :</strong>
       $$A \text{ et } B \text{ indépendants} \iff \mathbb{P}(A \mid B) = \mathbb{P}(A) \iff \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)} = \mathbb{P}(A) \iff \mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B)$$
     </div>
 
     <div class="alerte-box">
       <strong>Attention : Il ne faut pas confondre indépendance et <span class="terme" data-def="incompatibles">incompatibilité</span> !!</strong>
       <ul>
-        <li>$A$ et $B$ <strong>indépendants</strong> $\iff \mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B)$[cite: 19]</li>
-        <li>$A$ et $B$ <strong><span class="terme" data-def="incompatibles">incompatibles</span></strong> $\iff A \cap B = \emptyset \implies \mathbb{P}(A \cap B) = 0$[cite: 19]</li>
+        <li>$A$ et $B$ <strong>indépendants</strong> $\iff \mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B)$</li>
+        <li>$A$ et $B$ <strong><span class="terme" data-def="incompatibles">incompatibles</span></strong> $\iff A \cap B = \emptyset \implies \mathbb{P}(A \cap B) = 0$</li>
       </ul>
-      <p style="margin-bottom: 0;"><strong>Deux exemples à retenir[cite: 19] :</strong></p>
+      <p style="margin-bottom: 0;"><strong>Deux exemples à retenir :</strong></p>
       <ul style="margin-top: 0.25rem;">
-        <li>Si $A$ et $B$ sont incompatibles et de probabilités non nulles, ils <strong>ne sont pas indépendants</strong> puisque $\mathbb{P}(A) \times \mathbb{P}(B) \neq 0 = \mathbb{P}(A \cap B)$[cite: 19].</li>
-        <li>Le fait d'aimer le pesto et le fait d'aimer jouer au tennis sont deux événements indépendants mais pas incompatibles[cite: 19].</li>
+        <li>Si $A$ et $B$ sont incompatibles et de probabilités non nulles, ils <strong>ne sont pas indépendants</strong> puisque $\mathbb{P}(A) \times \mathbb{P}(B) \neq 0 = \mathbb{P}(A \cap B)$.</li>
+        <li>Le fait d'aimer le pesto et le fait d'aimer jouer au tennis sont deux événements indépendants mais pas incompatibles.</li>
       </ul>
     </div>
   </section>
 
-  <!-- 5. PROBABILITÉS COMPOSÉES -->
+  <!-- 3. PROBABILITÉS COMPOSÉES -->
   <section class="loi-card">
-    <h2>5. Théorème des probabilités composées (Théorème 2.10)</h2>
+    <h2>3. Théorème des probabilités composées (Théorème 2.10)</h2>
     <p>
-      <strong>Théorème 2.10 :</strong> Soient $A_1, A_2, \dots, A_{n-1}, A_n$ des événements, alors[cite: 20] :
+      <strong>Théorème 2.10 :</strong> Soient $A_1, A_2, \dots, A_{n-1}, A_n$ des événements, alors :
       $$\mathbb{P}(A_1 \cap A_2 \cap \dots \cap A_n) = \mathbb{P}(A_n \mid A_{n-1} \cap \dots \cap A_2 \cap A_1) \times \dots \times \mathbb{P}(A_2 \mid A_1) \times \mathbb{P}(A_1)$$
     </p>
 
     <div class="demo-box">
-      <strong>Démonstration (par <span class="terme" data-def="recurrence">récurrence</span> sur $n$)[cite: 20] :</strong><br>
-      Soit la proposition $\mathcal{P}_n$ correspondant à la formule pour $n$ événements[cite: 20] :
+      <strong>Démonstration (par <span class="terme" data-def="recurrence">récurrence</span> sur $n$) :</strong><br>
+      Soit la proposition $\mathcal{P}_n$ correspondant à la formule pour $n$ événements :
       <ul>
-        <li><strong>Rang initial ($n=2$) :</strong> $\mathcal{P}_2$ découle directement de la définition : $\mathbb{P}(A_1 \cap A_2) = \mathbb{P}(A_2 \mid A_1) \times \mathbb{P}(A_1) \iff \mathbb{P}(A_2 \mid A_1) = \frac{\mathbb{P}(A_2 \cap A_1)}{\mathbb{P}(A_1)}$[cite: 20].</li>
-        <li><strong>Passage $\mathcal{P}_n \implies \mathcal{P}_{n+1}$ :</strong> On considère les événements $A_{n+1}$ et $B = A_n \cap A_{n-1} \cap \dots \cap A_2 \cap A_1$[cite: 20].<br>
-          On a $\mathbb{P}(A_{n+1} \cap B) = \mathbb{P}(A_{n+1} \mid B) \times \mathbb{P}(B)$[cite: 20].<br>
-          En remplaçant $B$ par son expression en fonction des $A_i$ et en appliquant $\mathcal{P}_n$ à $\mathbb{P}(A_1 \cap \dots \cap A_n)$[cite: 20] :
+        <li><strong>Rang initial ($n=2$) :</strong> $\mathcal{P}_2$ découle directement de la définition : $\mathbb{P}(A_1 \cap A_2) = \mathbb{P}(A_2 \mid A_1) \times \mathbb{P}(A_1) \iff \mathbb{P}(A_2 \mid A_1) = \frac{\mathbb{P}(A_2 \cap A_1)}{\mathbb{P}(A_1)}$.</li>
+        <li><strong>Passage $\mathcal{P}_n \implies \mathcal{P}_{n+1}$ :</strong> On considère les événements $A_{n+1}$ et $B = A_n \cap A_{n-1} \cap \dots \cap A_2 \cap A_1$.<br>
+          On a $\mathbb{P}(A_{n+1} \cap B) = \mathbb{P}(A_{n+1} \mid B) \times \mathbb{P}(B)$.<br>
+          En remplaçant $B$ par son expression en fonction des $A_i$ et en appliquant $\mathcal{P}_n$ à $\mathbb{P}(A_1 \cap \dots \cap A_n)$ :
           $$\mathbb{P}(A_{n+1} \cap B) = \mathbb{P}(A_{n+1} \mid A_n \cap \dots \cap A_1) \times \mathbb{P}(A_n \mid A_{n-1} \cap \dots \cap A_1) \times \dots \times \mathbb{P}(A_2 \mid A_1) \times \mathbb{P}(A_1)$$
         </li>
       </ul>
@@ -327,30 +282,30 @@
 
     <h3>Exemple : La pizza Chorizo / Pesto</h3>
     <p>
-      On considère les événements $C$ : « J'aime le chorizo », $E$ : « J'aime le pesto », et $I$ : « J'aime la pizza au chorizo et pesto »[cite: 21].<br>
-      <strong>Données :</strong> $\mathbb{P}(C) = 0,8$ ; $\mathbb{P}(E \mid C) = 0,7$ ; $\mathbb{P}(I \mid E \cap C) = 0,95$ ; $\mathbb{P}(E \mid \overline{C}) = 0,4$ ; $\mathbb{P}(\overline{I} \mid \overline{E} \cap \overline{C}) = 1$[cite: 21].
+      On considère les événements $C$ : « J'aime le chorizo », $E$ : « J'aime le pesto », et $I$ : « J'aime la pizza au chorizo et pesto ».<br>
+      <strong>Données :</strong> $\mathbb{P}(C) = 0,8$ ; $\mathbb{P}(E \mid C) = 0,7$ ; $\mathbb{P}(I \mid E \cap C) = 0,95$ ; $\mathbb{P}(E \mid \overline{C}) = 0,4$ ; $\mathbb{P}(\overline{I} \mid \overline{E} \cap \overline{C}) = 1$.
     </p>
     <ul>
-      <li>$\mathbb{P}(C \cap E \cap I) = \mathbb{P}(I \mid E \cap C) \times \mathbb{P}(E \mid C) \times \mathbb{P}(C) = 0,95 \times 0,7 \times 0,8 = 0,532$[cite: 21]</li>
-      <li>$\mathbb{P}(\overline{C} \cap \overline{E} \cap I) = (1 - \mathbb{P}(\overline{I} \mid \overline{E} \cap \overline{C})) \times (1 - \mathbb{P}(E \mid \overline{C})) \times (1 - \mathbb{P}(C)) = 0 \times 0,6 \times 0,2 = 0$[cite: 21]</li>
+      <li>$\mathbb{P}(C \cap E \cap I) = \mathbb{P}(I \mid E \cap C) \times \mathbb{P}(E \mid C) \times \mathbb{P}(C) = 0,95 \times 0,7 \times 0,8 = 0,532$</li>
+      <li>$\mathbb{P}(\overline{C} \cap \overline{E} \cap I) = (1 - \mathbb{P}(\overline{I} \mid \overline{E} \cap \overline{C})) \times (1 - \mathbb{P}(E \mid \overline{C})) \times (1 - \mathbb{P}(C)) = 0 \times 0,6 \times 0,2 = 0$</li>
     </ul>
   </section>
 
-  <!-- 6. PROBABILITÉS TOTALES -->
+  <!-- 4. PROBABILITÉS TOTALES -->
   <section class="loi-card">
-    <h2>6. Théorème des probabilités totales (Théorème 2.11)</h2>
+    <h2>4. Théorème des probabilités totales (Théorème 2.11)</h2>
     <p>
-      <strong>Théorème 2.11 :</strong> Soient $A_1, A_2, \dots, A_{n-1}, A_n$ des événements formant une <span class="terme" data-def="partition">partition de $\Omega$</span> et $B$ un autre événement, alors[cite: 21] :
+      <strong>Théorème 2.11 :</strong> Soient $A_1, A_2, \dots, A_{n-1}, A_n$ des événements formant une <span class="terme" data-def="partition">partition de $\Omega$</span> et $B$ un autre événement, alors :
       $$\mathbb{P}(B) = \mathbb{P}(B \mid A_1)\mathbb{P}(A_1) + \mathbb{P}(B \mid A_2)\mathbb{P}(A_2) + \dots + \mathbb{P}(B \mid A_n)\mathbb{P}(A_n) = \sum_{k=1}^{n} \mathbb{P}(B \mid A_k) \times \mathbb{P}(A_k)$$
     </p>
 
     <div class="demo-box">
-      <strong>Justification / Démonstration[cite: 21] :</strong>
+      <strong>Justification / Démonstration :</strong>
       <ol>
-        <li>Les ensembles $A_i$ formant une <span class="terme" data-def="partition">partition de $\Omega$</span>, les ensembles $B \cap A_i$ forment une partition de $B$ (y compris le caractère disjoint deux à deux), ce qui permet d'écrire[cite: 21] :
+        <li>Les ensembles $A_i$ formant une <span class="terme" data-def="partition">partition de $\Omega$</span>, les ensembles $B \cap A_i$ forment une partition de $B$ (y compris le caractère disjoint deux à deux), ce qui permet d'écrire :
           $$\mathbb{P}(B) = \mathbb{P}(B \cap A_1) + \mathbb{P}(B \cap A_2) + \dots + \mathbb{P}(B \cap A_n)$$
         </li>
-        <li>D'après le théorème des probabilités composées appliqué à chaque terme, on obtient[cite: 21] :
+        <li>D'après le théorème des probabilités composées appliqué à chaque terme, on obtient :
           $$\mathbb{P}(B) = \mathbb{P}(B \mid A_1) \times \mathbb{P}(A_1) + \dots + \mathbb{P}(B \mid A_n) \times \mathbb{P}(A_n)$$
         </li>
       </ol>
@@ -360,108 +315,108 @@
   <!-- SYNTHÈSE -->
   <section class="loi-card">
     <h2>Synthèse : Quel outil utiliser selon le problème ?</h2>
-    <table>
-      <thead>
-        <tr>
-          <th class="left-align">Outil du cours</th>
-          <th class="left-align">Quand l'utiliser ?</th>
-          <th class="left-align">Formule clé</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="left-align"><strong>Probabilité conditionnelle</strong> (Déf. 2.7)[cite: 16]</td>
-          <td class="left-align">Calculer la probabilité de $A$ en sachant que $B$ est réalisé (ou pour inverser un conditionnement)[cite: 16, 18].</td>
-          <td class="left-align">$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}$[cite: 16]</td>
-        </tr>
-        <tr>
-          <td class="left-align"><strong>Probabilités composées</strong> (Th. 2.10)[cite: 20]</td>
-          <td class="left-align">Calculer la probabilité d'un chemin complet (intersection d'événements successifs)[cite: 17, 20].</td>
-          <td class="left-align">$\mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B \mid A)$[cite: 16, 20]</td>
-        </tr>
-        <tr>
-          <td class="left-align"><strong>Probabilités totales</strong> (Th. 2.11)[cite: 21]</td>
-          <td class="left-align">Calculer la probabilité d'un événement final $B$ accessible par plusieurs chemins formant une <span class="terme" data-def="partition">partition</span>[cite: 18, 21].</td>
-          <td class="left-align">$\mathbb{P}(B) = \sum_{k=1}^n \mathbb{P}(B \mid A_k)\mathbb{P}(A_k)$[cite: 21]</td>
-        </tr>
-        <tr>
-          <td class="left-align"><strong>Indépendance</strong> (Déf. 2.8 & Th. 2.9)[cite: 16, 18]</td>
-          <td class="left-align">Vérifier que la réalisation de $B$ n'a aucune influence sur la probabilité de $A$[cite: 16, 18].</td>
-          <td class="left-align">$\mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B)$[cite: 18]</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th class="left-align">Outil du cours</th>
+            <th class="left-align">Quand l'utiliser ?</th>
+            <th class="left-align">Formule clé</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="left-align"><strong>Probabilité conditionnelle</strong> (Déf. 2.7)</td>
+            <td class="left-align">Calculer la probabilité de $A$ en sachant que $B$ est réalisé (ou pour inverser un conditionnement).</td>
+            <td class="left-align">$\mathbb{P}(A \mid B) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}$</td>
+          </tr>
+          <tr>
+            <td class="left-align"><strong>Probabilités composées</strong> (Th. 2.10)</td>
+            <td class="left-align">Calculer la probabilité d'un chemin complet (intersection d'événements successifs).</td>
+            <td class="left-align">$\mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B \mid A)$</td>
+          </tr>
+          <tr>
+            <td class="left-align"><strong>Probabilités totales</strong> (Th. 2.11)</td>
+            <td class="left-align">Calculer la probabilité d'un événement final $B$ accessible par plusieurs chemins formant une <span class="terme" data-def="partition">partition</span>.</td>
+            <td class="left-align">$\mathbb{P}(B) = \sum_{k=1}^n \mathbb{P}(B \mid A_k)\mathbb{P}(A_k)$</td>
+          </tr>
+          <tr>
+            <td class="left-align"><strong>Indépendance</strong> (Déf. 2.8 & Th. 2.9)</td>
+            <td class="left-align">Vérifier que la réalisation de $B$ n'a aucune influence sur la probabilité de $A$.</td>
+            <td class="left-align">$\mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B)$</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <!-- INFOBULLE CONTENANT LES DÉFINITIONS PRÉ-CHARGÉES -->
   <div id="tooltip">
     <div id="def-sous-population" class="def-bloc">
       <h3>Sous-population (Conditionnement)</h3>
-      <p>Passer d'une probabilité classique $\mathbb{P}(R)$ à une probabilité conditionnelle $\mathbb{P}(R \mid A)$ revient à <strong>changer d'ensemble de référence</strong>[cite: 16, 18].</p>
+      <p>Passer d'une probabilité classique $\mathbb{P}(R)$ à une probabilité conditionnelle $\mathbb{P}(R \mid A)$ revient à <strong>changer d'ensemble de référence</strong>.</p>
       <ul>
-        <li>Au lieu de diviser par l'effectif total de l'univers ($500$), on restreint l'étude à la sous-population qui vérifie la condition $A$ ($87$)[cite: 16].</li>
+        <li>Au lieu de diviser par l'effectif total de l'univers ($500$), on restreint l'étude à la sous-population qui vérifie la condition $A$ ($87$).</li>
       </ul>
     </div>
 
     <div id="def-contraire" class="def-bloc">
       <h3>Événement contraire ($\overline{A}$)</h3>
-      <p>Aussi appelé complémentaire : il contient tous les résultats de l'univers $\Omega$ qui n'appartiennent pas à $A$[cite: 5, 6].</p>
+      <p>Aussi appelé complémentaire : il contient tous les résultats de l'univers $\Omega$ qui n'appartiennent pas à $A$.</p>
       <ul>
-        <li><strong>Propriété :</strong> $\mathbb{P}(\overline{A}) = 1 - \mathbb{P}(A)$[cite: 12].</li>
-        <li><strong>Sous une même condition $B$ :</strong> $\mathbb{P}(\overline{A} \mid B) = 1 - \mathbb{P}(A \mid B)$[cite: 17, 21].</li>
+        <li><strong>Propriété :</strong> $\mathbb{P}(\overline{A}) = 1 - \mathbb{P}(A)$.</li>
+        <li><strong>Sous une même condition $B$ :</strong> $\mathbb{P}(\overline{A} \mid B) = 1 - \mathbb{P}(A \mid B)$.</li>
       </ul>
     </div>
 
     <div id="def-intersection" class="def-bloc">
       <h3>Intersection ($A \cap B$)</h3>
-      <p>Correspond à la conjonction logique <strong>« ET »</strong> : l'événement $A \cap B$ est réalisé si les deux événements $A$ et $B$ se réalisent tous les deux[cite: 5, 6].</p>
-      <ul>
-        <li>Sur un arbre, l'intersection correspond au parcours d'un chemin complet et se calcule en multipliant les probabilités des branches traversées[cite: 17, 20].</li>
-      </ul>
+      <p>Correspond à la conjonction logique <strong>« ET »</strong> : l'événement $A \cap B$ est réalisé si les deux événements $A$ et $B$ se réalisent tous les deux.</p>
+      
     </div>
 
     <div id="def-arbre" class="def-bloc">
       <h3>Arbre pondéré et loi des nœuds</h3>
-      <p>Outil visuel modélisant des expériences successives[cite: 17] :</p>
+      <p>Outil visuel modélisant des expériences successives :</p>
       <ul>
-        <li><strong>1ᵉʳ niveau :</strong> Probabilités simples de la cause initiale ($\mathbb{P}(A), \mathbb{P}(B), \dots$)[cite: 17].</li>
-        <li><strong>Niveaux suivants :</strong> Probabilités conditionnelles sachant le chemin parcouru en amont[cite: 17, 20].</li>
-        <li><strong>Loi des nœuds :</strong> La somme des probabilités des branches partant d'un même nœud vaut toujours $1$[cite: 17].</li>
+        <li><strong>1ᵉʳ niveau :</strong> Probabilités simples de la cause initiale ($\mathbb{P}(A), \mathbb{P}(B), \dots$).</li>
+        <li><strong>Niveaux suivants :</strong> Probabilités conditionnelles sachant le chemin parcouru en amont.</li>
+        <li><strong>Loi des nœuds :</strong> La somme des probabilités des branches partant d'un même nœud vaut toujours $1$.</li>
       </ul>
     </div>
 
     <div id="def-inversion" class="def-bloc">
       <h3>Conditionnement inversé (Formule de Bayes)</h3>
-      <p>Situation où l'énoncé donne les probabilités selon une cause (ex. : taux de défaut selon l'usine $\mathbb{P}_C(D)$), mais demande la probabilité de la cause sachant la conséquence finale ($\mathbb{P}_D(C)$)[cite: 18].</p>
+      <p>Situation où l'énoncé donne les probabilités selon une cause (ex. : taux de défaut selon l'usine $\mathbb{P}_C(D)$), mais demande la probabilité de la cause sachant la conséquence finale ($\mathbb{P}_D(C)$).</p>
       <ul>
-        <li><strong>Méthode :</strong> Utiliser $\mathbb{P}_D(C) = \frac{\mathbb{P}(C \cap D)}{\mathbb{P}(D)}$ en calculant $\mathbb{P}(D)$ avec les probabilités totales[cite: 18].</li>
+        <li><strong>Méthode :</strong> Utiliser $\mathbb{P}_D(C) = \frac{\mathbb{P}(C \cap D)}{\mathbb{P}(D)}$ en calculant $\mathbb{P}(D)$ avec les probabilités totales.</li>
       </ul>
     </div>
 
     <div id="def-incompatibles" class="def-bloc">
       <h3>Événements incompatibles (Disjoints)</h3>
-      <p>Deux événements $A$ et $B$ sont incompatibles s'ils ne peuvent <strong>jamais se produire simultanément</strong> ($A \cap B = \emptyset$)[cite: 11, 19].</p>
+      <p>Deux événements $A$ et $B$ sont incompatibles s'ils ne peuvent <strong>jamais se produire simultanément</strong> ($A \cap B = \emptyset$).</p>
       <ul>
-        <li>Leur probabilité d'intersection est nulle : $\mathbb{P}(A \cap B) = 0$[cite: 19].</li>
-        <li>La probabilité de leur union est la somme de leurs probabilités : $\mathbb{P}(A \cup B) = \mathbb{P}(A) + \mathbb{P}(B)$[cite: 11].</li>
+        <li>Leur probabilité d'intersection est nulle : $\mathbb{P}(A \cap B) = 0$.</li>
+        <li>La probabilité de leur union est la somme de leurs probabilités : $\mathbb{P}(A \cup B) = \mathbb{P}(A) + \mathbb{P}(B)$.</li>
       </ul>
     </div>
 
     <div id="def-recurrence" class="def-bloc">
       <h3>Raisonnement par récurrence</h3>
-      <p>Méthode de démonstration permettant de prouver qu'une propriété $\mathcal{P}_n$ est vraie pour tout entier $n \ge 2$[cite: 20] :</p>
+      <p>Méthode de démonstration permettant de prouver qu'une propriété $\mathcal{P}_n$ est vraie pour tout entier $n \ge 2$ :</p>
       <ul>
-        <li><strong>Initialisation :</strong> On vérifie que la formule est vraie pour $n = 2$[cite: 20].</li>
-        <li><strong>Hérédité :</strong> On suppose la formule vraie au rang $n$, et on démontre qu'elle reste vraie au rang $n+1$ en regroupant les $n$ premiers événements en un seul événement $B = A_n \cap \dots \cap A_1$[cite: 20].</li>
+        <li><strong>Initialisation :</strong> On vérifie que la formule est vraie pour $n = 2$.</li>
+        <li><strong>Hérédité :</strong> On suppose la formule vraie au rang $n$, et on démontre qu'elle reste vraie au rang $n+1$ en regroupant les $n$ premiers événements en un seul événement $B = A_n \cap \dots \cap A_1$.</li>
       </ul>
     </div>
 
     <div id="def-partition" class="def-bloc">
       <h3>Partition de l'univers ($\Omega$)</h3>
-      <p>Des événements $A_1, A_2, \dots, A_n$ forment une partition de $\Omega$ s'ils découpent l'univers complet sans chevauchement[cite: 9, 11, 21] :</p>
+      <p>Des événements $A_1, A_2, \dots, A_n$ forment une partition de $\Omega$ s'ils découpent l'univers complet sans chevauchement :</p>
       <ul>
-        <li>Ils sont <strong>disjoints deux à deux</strong> ($A_i \cap A_j = \emptyset$ pour $i \neq j$)[cite: 11, 21].</li>
-        <li>Leur réunion recouvre tout l'univers ($A_1 \cup A_2 \cup \dots \cup A_n = \Omega$), donc la somme de leurs probabilités vaut $1$[cite: 9, 11, 21].</li>
+        <li>Ils sont <strong>disjoints deux à deux</strong> ($A_i \cap A_j = \emptyset$ pour $i \neq j$).</li>
+        <li>Leur réunion recouvre tout l'univers ($A_1 \cup A_2 \cup \dots \cup A_n = \Omega$), donc la somme de leurs probabilités vaut $1$.</li>
       </ul>
     </div>
   </div>
