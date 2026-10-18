@@ -1,0 +1,128 @@
+:root {
+  --fond: #fffffe;
+  --texte: #2b2c34;
+  --trait: color-mix(in srgb, var(--texte) 22%, var(--fond));
+  --survol: color-mix(in srgb, var(--texte) 5%, var(--fond));
+  --discret: color-mix(in srgb, var(--texte) 82%, var(--fond));
+  --marge: clamp(1rem, 4vw, 2rem);
+  --police: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #2b2c34;
+    --texte: #fffffe;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.conteneur {
+  width: min(100% - 2 * var(--marge), 60rem);
+  margin-inline: auto;
+}
+
+.entete {
+  padding-top: clamp(1.5rem, 6vw, 2.25rem);
+}
+
+.entete .conteneur {
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--trait);
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.sous-titre {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--discret);
+}
+
+main {
+  padding-block: 1.5rem clamp(2rem, 8vw, 4rem);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.carte {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  align-content: start;
+  height: 100%;
+  padding: 0.875rem 1rem;
+  border-left: 4px solid var(--texte);
+  background: var(--fond);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.carte:hover,
+.carte:focus-visible {
+  background: var(--survol);
+}
+
+.carte:focus-visible {
+  outline: 3px solid var(--texte);
+  outline-offset: 2px;
+}
+
+.carte__icone {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1.5px solid var(--trait);
+  border-radius: 999px;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.carte__titre {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.carte__texte {
+  margin: 0.25rem 0 0;
+  color: var(--discret);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carte {
+    transition: none;
+  }
+}
