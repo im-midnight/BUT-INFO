@@ -415,7 +415,7 @@ footer {
 .footer .row a i{
     font-size:2em;
     margin:0% 1%;
-}
+}   
 /* ── Responsive ── */
 @media screen and (max-width: 1012px) {
     nav {
