@@ -3,7 +3,7 @@ const matieres = [
   {
     id: "mathematiques",
     titre: "Mathématiques",
-    description: "Probabilités, lois usuelles et chaînes de Markov.",
+    description: "Probabilités, lois usuelles.",
     lien: "pages/math/indexMath.html",
   },
 ];
