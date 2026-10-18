@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Choisir la bonne loi de probabilité</title>
+<style>
+:root{--bg:#fffffe;--fg:#2b2c34;--mut:#5d5e69;--pn:#fffffe;--bd:#cfd0d6;--ac:#2b2c34;--lo:#d3d4da;--ok:#2b2c34;--no:#2b2c34;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 "Avenir Next","Segoe UI",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:0 18px 60px}
+h1{font-size:clamp(1.9rem,6vw,3rem);line-height:1.08;letter-spacing:-.03em;font-weight:800;margin:36px 0 8px}
+h2{font-size:1.6rem;letter-spacing:-.02em;margin:28px 0 4px}
+h3{font-size:1.05rem;margin:0 0 6px}
+.sub{color:var(--mut);max-width:60ch;margin:0 0 20px}
+nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--bd);padding-bottom:10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:2;padding-top:8px}
+nav button,.btns button{font:inherit;font-size:.95rem;border:1.5px solid var(--bd);background:var(--pn);color:var(--fg);padding:6px 14px;border-radius:999px;cursor:pointer}
+nav button.on{background:var(--ac);border-color:var(--ac);color:var(--bg);font-weight:700}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns button:hover{border-color:var(--ac)}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:14px 0}
+.bx{border-left:4px solid var(--ac);background:var(--pn);padding:12px 16px;margin:14px 0}
+.g2 .bx{margin:0}
+ul{margin:4px 0;padding-left:20px}
+li{margin:3px 0}
+code,pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem}
+pre{background:var(--pn);border:1px solid var(--bd);padding:10px 14px;overflow-x:auto;margin:10px 0}
+.w{background:var(--pn);border:1px solid var(--bd);padding:14px 16px;margin:10px 0}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 18px}
+.ctl label{display:flex;flex-direction:column;font-size:.9rem;color:var(--mut)}
+.ctl b{color:var(--fg)}
+input[type=range]{width:100%;accent-color:var(--ac)}
+.out{display:flex;flex-wrap:wrap;gap:8px 26px;margin:14px 0 6px}
+.out div{display:flex;flex-direction:column;font-size:.85rem;color:var(--mut)}
+.out strong{font-size:1.35rem;color:var(--fg);letter-spacing:-.01em}
+.w svg{width:100%;height:auto;display:block}
+.w svg text{fill:var(--mut);font-size:11px}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;margin:.7em 0!important}
+.hi{fill:var(--ac)}.lo{fill:var(--lo)}
+path.hi{opacity:.35}
+table{border-collapse:collapse;width:100%;font-size:.92rem;display:block;overflow-x:auto}
+th,td{border-bottom:1px solid var(--bd);padding:7px 10px;text-align:left;white-space:nowrap}
+.fb{margin:8px 0 0;min-height:1.4em;font-size:.93rem}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--no)}
+.q p{margin:0 0 10px}
+.q .bx{margin:12px 0}
+.eq,.m{font-family:"Cambria Math","STIX Two Math","Latin Modern Math",Cambria,"Times New Roman",serif;font-style:italic}
+.eq{display:block;text-align:center;margin:.7em 0;font-size:1.25rem;overflow-x:auto;white-space:nowrap;padding:4px 0}
+.m{font-size:1.12em;white-space:nowrap}
+.r{font-style:normal}
+fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em}
+nu{display:block;border-bottom:1.5px solid currentColor;padding:0 .3em .05em}
+de{display:block;padding:.05em .3em 0}
+bn{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.15;padding:0 .45em;border:solid currentColor;border-width:0 1.5px;border-radius:.9em/55%;margin:0 .1em}
+bn>nu{border:0;padding:0}bn>de{padding:0}
+cs{display:inline-flex;align-items:center;vertical-align:middle}
+cs::before{content:"{";font-size:3.2em;font-weight:100;line-height:.9;margin-right:.1em;font-style:normal}
+rw{display:inline-grid;grid-template-columns:auto auto;gap:.3em 1.4em;text-align:left;align-items:center}
+c{display:block}
+.pp{font-size:2em;line-height:.7;vertical-align:middle;font-weight:200;font-style:normal}
+.lm{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;margin-right:.3em}
+.lm sub{line-height:1;font-size:.75em;vertical-align:baseline}
+</style>
+</head>
+<body>
+<main>
+<h1>Quelle loi pour quel problème ?</h1>
+<p class="sub">Binomiale, Poisson, exponentielle, uniforme : critères, modélisation et simulateurs, avec les exemples et les notations du cours de probabilités BUT Info 2 (IUT de Nantes).</p>
+<nav>
+<button class="on" data-t="choisir">Choisir</button>
+<button data-t="bin">Binomiale</button>
+<button data-t="poi">Poisson</button>
+<button data-t="exp">Exponentielle</button>
+<button data-t="uni">Uniforme</button>
+</nav>
+
+<section class="p" id="choisir">
+<h2>Trois questions pour décider</h2>
+<div class="bx"><ol>
+<li><b>Je compte ou je mesure ?</b> Un nombre entier (0, 1, 2…) donne une loi discrète. Une durée ou une longueur donne une loi continue.</li>
+<li><b>Discrète : le nombre d'essais n est-il fixé ?</b> Oui : binomiale. Non, on compte des événements dans un intervalle de temps ou d'espace : Poisson.</li>
+<li><b>Continue : y a-t-il une zone privilégiée ?</b> Aucune, tout l'intervalle est équiprobable : uniforme. C'est un temps d'attente sans mémoire : exponentielle.</li>
+</ol></div>
+<table>
+<tr><th>Loi</th><th>Type</th><th>On modélise</th><th>Paramètre(s)</th><th>E(X)</th><th>V(X)</th></tr>
+<tr><td>Bernoulli</td><td>discrète</td><td>un succès (1) ou un échec (0)</td><td>p</td><td>p</td><td>p(1−p)</td></tr>
+<tr><td>Binomiale</td><td>discrète</td><td>nb de succès sur n essais</td><td>n, p</td><td>np</td><td>np(1−p)</td></tr>
+<tr><td>Poisson</td><td>discrète</td><td>nb d'événements par intervalle</td><td>λ</td><td>λ</td><td>λ</td></tr>
+<tr><td>Exponentielle</td><td>continue</td><td>temps d'attente, durée de vie</td><td>λ</td><td><span class="m"><fr><nu>1</nu><de>λ</de></fr></span></td><td><span class="m"><fr><nu>1</nu><de>λ<sup>2</sup></de></fr></span></td></tr>
+<tr><td>Uniforme discrète</td><td>discrète</td><td>valeur parmi a, …, b (un dé)</td><td>a, b</td><td><span class="m"><fr><nu>a + b</nu><de>2</de></fr></span></td><td><span class="m"><fr><nu>n<sup>2</sup> − 1</nu><de>12</de></fr></span></td></tr>
+<tr><td>Uniforme continue</td><td>continue</td><td>valeur au hasard dans [a, b]</td><td>a, b</td><td><span class="m"><fr><nu>a + b</nu><de>2</de></fr></span></td><td><span class="m"><fr><nu>(b − a)<sup>2</sup></nu><de>12</de></fr></span></td></tr>
+</table>
+<h2>Modéliser, étape par étape</h2>
+<div class="bx"><ol>
+<li>Définir X avec précision : « X = nombre de … » ou « X = temps avant … ».</li>
+<li>Vérifier les critères de la loi (indépendance, p ou taux constant).</li>
+<li>Estimer les paramètres : p̂ = fréquence des succès, λ̂ = moyenne observée (Poisson), λ̂ = 1/moyenne (exponentielle), a = min et b = max (uniforme).</li>
+<li>Calculer les probabilités demandées.</li>
+<li>Valider avec les données : moyenne ≈ variance pour Poisson, test du χ² d'adéquation.</li>
+</ol></div>
+<h2>Liens entre les lois</h2>
+<ul>
+<li>B(n, p) ≈ P(np) quand n est grand et p petit (n ≥ 30, p ≤ 0,1, np ≤ 10).</li>
+<li>Si le nombre d'événements suit une loi de Poisson de taux λ, le temps entre deux événements suit E(λ).</li>
+<li>Somme de deux Poisson indépendantes : P(λ) + P(μ) donne P(λ+μ).</li>
+<li>Pour λ grand, P(λ) se rapproche d'une loi normale (approximation vue en cours).</li>
+</ul>
+<h2>À toi de jouer</h2>
+<p class="sub">Quelle loi utiliser dans chaque situation ?</p>
+<div class="q" id="quiz"></div>
+</section>
+
+<section class="p" id="bin" hidden>
+<h2>Loi binomiale B(n, p)</h2>
+<p class="sub">Nombre de succès lors de n répétitions indépendantes d'une loi de Bernoulli de paramètre p.</p>
+<div class="g2">
+<div class="bx"><h3>Critères</h3><ul><li>n fixé à l'avance</li><li>deux issues : succès ou échec</li><li>p constant</li><li>épreuves indépendantes (avec remise, ou population très grande devant n)</li></ul></div>
+<div class="bx"><h3>Formules</h3><div class="eq">P(X = k) = <bn><nu>n</nu><de>k</de></bn> p<sup>k</sup> (1 − p)<sup>n−k</sup></div><div class="eq"><bn><nu>n</nu><de>k</de></bn> = <fr><nu>n!</nu><de>k! (n − k)!</de></fr></div><div class="eq"><span class="r">E</span>(X) = np &emsp; <span class="r">Var</span>(X) = np(1 − p)</div></div>
+</div>
+<div class="bx"><h3>Exemple du cours</h3>Une urne contient 4 boules rouges et 6 bleues. On tire 6 boules avec remise et X = nombre de rouges, donc X ~ B(6 ; 0,4).<br>P(X=2) ≈ 0,311, E(X) = 6 × 0,4 = 2,4 et Var(X) = 6 × 0,4 × 0,6 = 1,44.<br>Avec n = 1, on retrouve la loi de Bernoulli de paramètre p.</div>
+<h3>Simulateur</h3>
+<div class="w" id="w-bin"></div>
+<pre>from scipy.stats import binom
+binom.pmf(6, 20, 0.3)   # P(X = 6)
+binom.cdf(6, 20, 0.3)   # P(X ≤ 6)</pre>
+</section>
+
+<section class="p" id="poi" hidden>
+<h2>Loi de Poisson P(λ)</h2>
+<p class="sub">On compte des événements, souvent rares, dans un intervalle de temps, de longueur ou de surface.</p>
+<div class="g2">
+<div class="bx"><h3>Critères</h3><ul><li>événements indépendants</li><li>taux moyen constant</li><li>pas deux événements au même instant</li><li>pas de maximum naturel : on ne connaît pas n</li></ul></div>
+<div class="bx"><h3>Formules</h3><div class="eq">P(X = k) = e<sup>−λ</sup> <fr><nu>λ<sup>k</sup></nu><de>k!</de></fr>, &ensp; k ∈ ℕ</div><div class="eq"><span class="r">E</span>(X) = <span class="r">Var</span>(X) = λ</div>Cadence c, durée t : <span class="m">λ = c·t</span>. Limite de la binomiale :<div class="eq"><span class="lm"><span class="r">lim</span><sub>n→+∞</sub></span> <bn><nu>n</nu><de>k</de></bn> <span class="pp">(</span><fr><nu>λ</nu><de>n</de></fr><span class="pp">)</span><sup>k</sup> <span class="pp">(</span>1 − <fr><nu>λ</nu><de>n</de></fr><span class="pp">)</span><sup>n−k</sup> = e<sup>−λ</sup> <fr><nu>λ<sup>k</sup></nu><de>k!</de></fr></div></div>
+</div>
+<div class="bx"><h3>Exemple du cours</h3>Une boîte mail reçoit en moyenne 12 spams par jour : X ~ P(12) et <span class="m">P(X = 10) = e<sup>−12</sup> <fr><nu>12<sup>10</sup></nu><de>10!</de></fr> ≈ 0,105</span>.<br>En 1 h (λ = 0,5) : P(Y=1) ≈ 0,30. En 2 jours (λ = 24) : P(Z=20) ≈ 6,2 %.<br>Un standard qui reçoit 2 appels par quart d'heure donne λ = 2 × 4 = 8 pour une heure.</div>
+<h3>Simulateur</h3>
+<div class="w" id="w-poi"></div>
+<pre>from scipy.stats import poisson
+poisson.pmf(5, 4)   # P(X = 5) avec λ = 4
+poisson.cdf(5, 4)   # P(X ≤ 5)</pre>
+</section>
+
+<section class="p" id="exp" hidden>
+<h2>Loi exponentielle E(λ)</h2>
+<p class="sub">Le temps d'attente avant le prochain événement, ou la durée de vie d'un objet qui ne s'use pas.</p>
+<div class="g2">
+<div class="bx"><h3>Critères</h3><ul><li>variable continue positive</li><li>sans mémoire : <span class="m">P(X &gt; s+t | X &gt; s) = P(X &gt; t)</span></li><li>temps entre deux événements d'un processus de Poisson de taux λ</li><li>à éviter si l'objet vieillit (usure)</li></ul></div>
+<div class="bx"><h3>Formules</h3><div class="eq">f(t) = <cs><rw><c>λe<sup>−λt</sup></c><c>si t ≥ 0</c><c>0</c><c>si t &lt; 0</c></rw></cs></div><div class="eq">F(x) = 1 − e<sup>−λx</sup>, &ensp; x ≥ 0</div><div class="eq"><span class="r">E</span>(X) = <fr><nu>1</nu><de>λ</de></fr> &emsp; <span class="r">Var</span>(X) = <fr><nu>1</nu><de>λ<sup>2</sup></de></fr></div></div>
+</div>
+<div class="bx"><h3>Exemple du cours</h3>Un guichet reçoit en moyenne un client toutes les 10 minutes : X ~ E(0,1), avec λ = 1/μ.<br><span class="m">P(9 ≤ X ≤ 12) = F(12) − F(9) = e<sup>−0,9</sup> − e<sup>−1,2</sup> ≈ 0,105</span>.<br>Un client toutes les 20 s en moyenne (μ = 1/3 min) donne λ = 3 par minute.</div>
+<h3>Simulateur</h3>
+<div class="w" id="w-exp"></div>
+<pre>from scipy.stats import expon
+expon.cdf(3, scale=1/0.5)   # P(X ≤ 3) avec λ = 0.5 (scale = 1/λ)</pre>
+</section>
+
+<section class="p" id="uni" hidden>
+<h2>Loi uniforme continue Uc(a, b)</h2>
+<p class="sub">Une valeur tombe au hasard dans [a, b], sans zone privilégiée.</p>
+<div class="g2">
+<div class="bx"><h3>Critères</h3><ul><li>bornes a et b connues</li><li>probabilité proportionnelle à la longueur de l'intervalle</li></ul></div>
+<div class="bx"><h3>Formules</h3><div class="eq">f(t) = <cs><rw><c><fr><nu>1</nu><de>b − a</de></fr></c><c>si t ∈ [a, b]</c><c>0</c><c>sinon</c></rw></cs></div><div class="eq">F(x) = <cs><rw><c>0</c><c>si x &lt; a</c><c><fr><nu>x − a</nu><de>b − a</de></fr></c><c>si x ∈ [a, b]</c><c>1</c><c>si x &gt; b</c></rw></cs></div><div class="eq"><span class="r">E</span>(X) = <fr><nu>a + b</nu><de>2</de></fr> &emsp; <span class="r">Var</span>(X) = <fr><nu>(b − a)<sup>2</sup></nu><de>12</de></fr></div></div>
+</div>
+<div class="bx"><h3>Exemple du cours</h3>Un programme attend le prochain tick d'une horloge (1 tick par ns) : X ~ Uc(0, 1) et P(0,5 ≤ X ≤ 0,7) = F(0,7) − F(0,5) = 0,2.<br>Version discrète : un dé équilibré suit U(1, 6), avec <span class="m"><span class="r">E</span>(X) = 3,5</span> et <span class="m"><span class="r">Var</span>(X) = <fr><nu>n<sup>2</sup> − 1</nu><de>12</de></fr></span>, n = 1 + b − a.</div>
+<h3>Simulateur</h3>
+<div class="w" id="w-uni"></div>
+<pre>from scipy.stats import uniform
+uniform.cdf(7, loc=0, scale=10)   # loc = a, scale = b − a</pre>
+</section>
+</main>
+<script>
+const fr=(x,d=4)=>(+x).toFixed(d).replace('.',','),W=600,H=240,M=30;
+function widget(id,defs,render){
+const root=document.getElementById(id);
+root.innerHTML='<div class="ctl">'+defs.map(d=>`<label>${d[0]} = <b></b><input type="range" min="${d[1]}" max="${d[2]}" step="${d[4]}" value="${d[3]}"></label>`).join('')+'</div><div class="out"></div><svg viewBox="0 0 600 240" role="img"></svg>';
+const ins=[...root.querySelectorAll('input')],bs=root.querySelectorAll('b'),out=root.querySelector('.out'),svg=root.querySelector('svg');
+const run=()=>{render(ins.map(e=>+e.value),out,svg,ins);ins.forEach((e,i)=>bs[i].textContent=String(e.value).replace('.',','))};
+ins.forEach(e=>e.oninput=run);run();
+}
+const stat=a=>a.map(([l,v])=>`<div><span>${l}</span><strong>${v}</strong></div>`).join('');
+const axis=t=>`<line x1="${M}" x2="${W-M}" y1="${H-M}" y2="${H-M}" stroke="var(--bd)"/>`+t.map(([x,l])=>`<text x="${x}" y="${H-10}" text-anchor="middle">${l}</text>`).join('');
+function bars(svg,ys,k){
+const n=ys.length,mx=Math.max(...ys),bw=(W-2*M)/n,st=Math.ceil(n/10);let s='';
+ys.forEach((y,i)=>{const h=(H-2*M)*y/mx;s+=`<rect x="${M+i*bw+1}" y="${H-M-h}" width="${Math.max(bw-2,1)}" height="${h}" class="${i<=k?'hi':'lo'}"><title>P(X=${i}) = ${fr(y)}</title></rect>`});
+const t=[];for(let i=0;i<n;i+=st)t.push([M+(i+.5)*bw,i]);
+svg.innerHTML=s+axis(t);
+}
+function curve(svg,fn,x0,x1,a,b){
+const N=300,px=x=>M+(x-x0)/(x1-x0)*(W-2*M),pts=[];let mx=0;
+for(let i=0;i<=N;i++){const x=x0+(x1-x0)*i/N,y=fn(x);pts.push([x,y]);mx=Math.max(mx,y)}
+const py=y=>H-M-(H-2*M)*y/(mx*1.1),P=([x,y])=>px(x).toFixed(1)+' '+py(y).toFixed(1);
+const line=pts.map((p,i)=>(i?'L':'M')+P(p)).join(''),sh=pts.filter(([x])=>x>=a&&x<=b);
+let area='';if(sh.length>1)area=`<path class="hi" d="M${px(sh[0][0]).toFixed(1)} ${py(0)}`+sh.map(p=>'L'+P(p)).join('')+`L${px(sh[sh.length-1][0]).toFixed(1)} ${py(0)}Z"/>`;
+const t=[];for(let i=0;i<=5;i++){const x=x0+(x1-x0)*i/5;t.push([px(x),+x.toFixed(1)])}
+svg.innerHTML=area+`<path d="${line}" fill="none" stroke="var(--ac)" stroke-width="2.5"/>`+axis(t);
+}
+widget('w-bin',[['n',1,100,6,1],['p',.01,.99,.4,.01],['k',0,100,2,1]],([n,p],out,svg,ins)=>{
+ins[2].max=n;const k=+ins[2].value,ys=[Math.pow(1-p,n)];
+for(let i=1;i<=n;i++)ys.push(ys[i-1]*(n-i+1)/i*p/(1-p));
+const c=ys.slice(0,k+1).reduce((a,b)=>a+b,0);
+out.innerHTML=stat([['P(X = k)',fr(ys[k])],['P(X ≤ k)',fr(c)],['P(X ≥ k)',fr(1-c+ys[k])],['E(X)',fr(n*p,2)],['Var(X)',fr(n*p*(1-p),2)]]);
+bars(svg,ys,k);
+});
+widget('w-poi',[['λ',.5,20,12,.5],['k',0,40,10,1]],([l,k],out,svg)=>{
+const N=Math.max(Math.ceil(l+4*Math.sqrt(l)+5),k+2),ys=[Math.exp(-l)];
+for(let i=1;i<=N;i++)ys.push(ys[i-1]*l/i);
+const c=ys.slice(0,k+1).reduce((a,b)=>a+b,0);
+out.innerHTML=stat([['P(X = k)',fr(ys[k])],['P(X ≤ k)',fr(c)],['P(X ≥ k)',fr(1-c+ys[k])],['E(X) = Var(X)',fr(l,1)]]);
+bars(svg,ys,k);
+});
+widget('w-exp',[['λ',.1,5,.1,.1],['x',0,20,12,.1]],([l,x],out,svg)=>{
+const F=1-Math.exp(-l*x);
+out.innerHTML=stat([['P(X ≤ x)',fr(F)],['P(X > x)',fr(1-F)],['E(X)',fr(1/l,2)],['Var(X)',fr(1/(l*l),2)]]);
+curve(svg,t=>l*Math.exp(-l*t),0,Math.max(5/l,x*1.2,1),0,x);
+});
+widget('w-uni',[['a',0,10,0,.5],['b',1,30,1,.5],['c',0,30,.5,.1],['d',0,30,.7,.1]],([a],out,svg,ins)=>{
+ins[1].min=a+1;const b=+ins[1].value;ins[2].max=b;ins[3].max=b;ins[3].min=ins[2].value;const c=+ins[2].value,d=+ins[3].value,L=b-a;
+const pr=Math.max(0,Math.min(d,b)-Math.max(c,a))/L;
+out.innerHTML=stat([['P(c ≤ X ≤ d)',fr(pr)],['E(X)',fr((a+b)/2,2)],['Var(X)',fr(L*L/12,2)]]);
+curve(svg,t=>t>=a&&t<=b?1/L:0,a-L*.25,b+L*.25,c,d);
+});
+const Q=[
+['Une urne contient 4 boules rouges et 6 bleues. On tire 6 boules successivement avec remise. X = nombre de boules rouges.',0,'6 essais indépendants (avec remise), p = 0,4 : B(6 ; 0,4).'],
+['Une boîte mail reçoit en moyenne 12 spams par jour. X = nombre de spams reçus en un jour.',1,'Processus de Poisson de cadence 12 par jour : P(12).'],
+['Même boîte mail : X = temps entre deux spams consécutifs.',2,'Les espacements d\'un processus de Poisson suivent une loi exponentielle de paramètre λ = 12 (par jour).'],
+['Un programme attend le prochain tick d\'une horloge (un tick par nanoseconde). X = temps d\'attente.',3,'Uniforme continue Uc(0, 1).'],
+['Un standard reçoit en moyenne 2 appels par quart d\'heure. X = nombre d\'appels en une heure.',1,'λ = 2 × 4 = 8 : P(8).'],
+['Un guichet reçoit un client toutes les 10 minutes en moyenne. X = temps avant le premier client.',2,'Exponentielle de paramètre λ = 1/10 = 0,1.'],
+['Hatem tente 2 lancers francs, chacun réussi avec la probabilité 3/5. X = nombre de lancers réussis.',0,'2 essais indépendants de même p = 3/5 : B(2 ; 3/5).']
+],L=['Binomiale','Poisson','Exponentielle','Uniforme'],qz=document.getElementById('quiz');
+qz.innerHTML=Q.map((q,i)=>`<div class="bx"><p>${q[0]}</p><div class="btns">${L.map((l,j)=>`<button data-i="${i}" data-j="${j}">${l}</button>`).join('')}</div><p class="fb"></p></div>`).join('');
+qz.onclick=e=>{const b=e.target.closest('button');if(!b)return;const q=Q[+b.dataset.i],ok=+b.dataset.j===q[1],f=b.closest('.bx').querySelector('.fb');f.className='fb '+(ok?'ok':'no');f.textContent=(ok?'Correct. ':'Pas tout à fait. ')+q[2]};
+const tabs=document.querySelectorAll('nav button');
+tabs.forEach(b=>b.onclick=()=>{tabs.forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.p').forEach(p=>p.hidden=p.id!==b.dataset.t)});
+</script>
+</body>
+</html>

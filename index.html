@@ -8,6 +8,16 @@
   <script src="js/script.js" defer></script>
 </head>
 <body>
+  <!--
+    ARCHITECTURE DU PROJET
+    menu-but-info/
+    ├── index.html            ce sommaire (ne change pas)
+    ├── css/style.css         palette, grille et cartes
+    ├── js/script.js          tableau des matières : c'est le SEUL fichier à modifier
+    └── pages/                une page par matière
+        ├── mathematiques.html
+        └── architecture.html
+  -->
   <header class="entete">
     <div class="conteneur">
       <h1>MENU BUT INFO</h1>
@@ -15,6 +25,8 @@
     </div>
   </header>
   <main class="conteneur">
+    <!-- Liste volontairement vide : js/script.js y crée un <li> par matière.
+         Pour ajouter une matière, ne rien écrire ici, voir le tableau `matieres`. -->
     <ul class="grille" id="liste-matieres"></ul>
   </main>
 </body>
