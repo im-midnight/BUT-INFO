@@ -134,12 +134,12 @@
     <h2>1. La loi binomiale $\mathcal{B}(n, p)$ — Le comptage discret par blocs</h2>
     <ul>
       <li><strong>Nature :</strong> Discrète.</li>
-      <li><strong>Le problème :</strong> On répète $n$ fois de manière identique et indépendante une expérience à deux issues (succès avec probabilité $p$, échec avec $1-p$). On note $X$ le nombre total de succès obtenus.</li>
+      <li><strong>Le problème :</strong> On répète $n$ fois de manière identique et indépendante une expérience à deux issues (succès avec probabilité $p$, échec avec $1-p$). On note $X$ le ...</li>
       <li><strong>Formule :</strong>
         $$\mathbb{P}(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \quad \text{pour } k \in \{0, 1, \dots, n\}$$
       </li>
       <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(X) = np$, <span class="terme" data-def="variance">Variance</span> $\mathbb{V}(X) = np(1-p)$.</li>
-      <li><strong>Exemple :</strong> Jeter une pièce 24 fois et compter le nombre de piles, ou découper une journée en 24 tranches d'une heure en observant s'il y a un spam ou non[cite: 1].</li>
+      <li><strong>Exemple :</strong> Jeter une pièce 24 fois et compter le nombre de piles, ou découper une journée en 24 tranches d'une heure en observant s'il y a un spam ou non.</li>
     </ul>
   </section>
 
@@ -148,13 +148,13 @@
     <h2>2. La loi de Poisson $\mathcal{P}(\lambda)$ — Le comptage en temps continu</h2>
     <ul>
       <li><strong>Nature :</strong> Discrète.</li>
-      <li><strong>Le lien avec la binomiale :</strong> Dans la binomiale, on suppose au plus un événement par tranche de temps[cite: 1]. Si l'on affine le découpage à l'extrême ($n \to +\infty$ et $p \to 0$ tout en gardant une <span class="terme" data-def="cadence">cadence</span> moyenne $np = \lambda$ constante), la loi binomiale converge vers la <strong>loi de Poisson</strong>.</li>
+      <li><strong>Le lien avec la binomiale :</strong> Dans la binomiale, on suppose au plus un événement par tranche de temps. Si l'on affine le découpage à l'extrême ($n \to +\infty$ et $p \to 0$ avec $np=\lambda$), la binomiale tend vers la loi de Poisson.</li>
       <li><strong>Le problème :</strong> Compter le nombre d'événements indépendants et rares survenant dans un intervalle de mesure continu (temps, surface, volume).</li>
       <li><strong>Formule :</strong>
         $$\mathbb{P}(X = k) = e^{-\lambda} \frac{\lambda^k}{k!} \quad \text{pour } k \in \{0, 1, 2, \dots\}$$
       </li>
       <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(X) = \lambda$, <span class="terme" data-def="variance">Variance</span> $\mathbb{V}(X) = \lambda$.</li>
-      <li><strong>Exemple :</strong> Le nombre de clients arrivant à une caisse en 3 minutes quand le flux moyen est de 2 clients sur cette période ($\lambda = 2$)[cite: 2].</li>
+      <li><strong>Exemple :</strong> Le nombre de clients arrivant à une caisse en 3 minutes quand le flux moyen est de 2 clients sur cette période ($\lambda = 2$).</li>
     </ul>
   </section>
 
@@ -178,29 +178,29 @@
         </ul>
       </li>
       <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(T) = \frac{1}{\lambda}$, <span class="terme" data-def="variance">Variance</span> $\mathbb{V}(T) = \frac{1}{\lambda^2}$.</li>
-      <li><strong>Propriété remarquable :</strong> L'absence de mémoire ($\mathbb{P}(T > s+t \mid T > s) = \mathbb{P}(T > t)$). Attendre 5 minutes ne change pas la probabilité de devoir encore attendre 10 minutes supplémentaires (comme pour l'auto-stoppeur Aaron)[cite: 4].</li>
+      <li><strong>Propriété remarquable :</strong> L'absence de mémoire ($\mathbb{P}(T > s+t \mid T > s) = \mathbb{P}(T > t)$). Attendre 5 minutes ne change pas la probabilité de devoir encore attendre 3 minutes.</li>
     </ul>
   </section>
 
-  <!-- 4. LOI NORMALE -->
+  <!-- 4. LOI UNIFORME -->
   <section class="loi-card">
-    <h2>4. La loi normale $\mathcal{N}(\mu, \sigma^2)$ — L'effet de masse (Théorème Central Limite)</h2>
+    <h2>4. La loi uniforme $\mathcal{U}(a, b)$ — La répartition égale sur un intervalle</h2>
     <ul>
       <li><strong>Nature :</strong> Continue.</li>
-      <li><strong>Le lien avec les précédentes :</strong>
-        <ul>
-          <li>Dès que $n$ devient grand et $p$ n'est pas trop proche de 0 ou 1 ($np \ge 5$ et $n(1-p) \ge 5$), la loi binomiale $\mathcal{B}(n, p)$ prend une forme en cloche et s'approxime par $\mathcal{N}(np, np(1-p))$. C'est le théorème de Moivre-Laplace.</li>
-          <li>De même, si le paramètre $\lambda$ de la loi de Poisson devient grand ($\lambda > 20$), $\mathcal{P}(\lambda)$ s'approxime par $\mathcal{N}(\lambda, \lambda)$.</li>
-          <li>Plus largement, selon le Théorème Central Limite, la somme ou la moyenne d'un grand nombre de variables aléatoires indépendantes (qu'elles soient binomiales, exponentielles ou uniformes) tend toujours vers une loi normale.</li>
-        </ul>
-      </li>
+      <li><strong>Le problème :</strong> Modéliser une variable aléatoire dont toutes les valeurs d'un intervalle $[a, b]$ sont équiprobables — il n'y a pas de préférence pour une sous-partie de l'intervalle.</li>
       <li><strong>Formule :</strong>
         <ul>
-          <li><span class="terme" data-def="densite">Densité</span> : $f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x - \mu}{\sigma}\right)^2}$</li>
+          <li><span class="terme" data-def="densite">Densité</span> :
+            $$f(x) = \begin{cases}\frac{1}{b-a} & \text{si } a \le x \le b, \\ 0 & \text{sinon.}\end{cases}$$
+          </li>
+          <li><span class="terme" data-def="repartition">Répartition</span> :
+            $$F(x) = \begin{cases}0 & \text{si } x < a, \\ \frac{x-a}{b-a} & \text{si } a \le x \le b, \\ 1 & \text{si } x > b.\end{cases}$$
+          </li>
         </ul>
       </li>
-      <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(X) = \mu$, Écart-type $\sigma$ (racine carrée de la <span class="terme" data-def="variance">variance</span>).</li>
-      <li><strong>Exemple :</strong> La taille des adultes, le cumul annuel de pluie, ou l'erreur cumulée de mesure sur un capteur.</li>
+      <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(X) = \frac{a+b}{2}$, <span class="terme" data-def="variance">Variance</span> $\mathbb{V}(X) = \frac{(b-a)^2}{12}$.</li>
+      <li><strong>Propriété remarquable :</strong> Toutes les sous-intervalles de même longueur ont la même probabilité. La loi uniforme est souvent utilisée comme modèle de départ lorsqu'on manque d'information préférentielle.</li>
+      <li><strong>Exemple :</strong> Tirer au hasard un point sur une longueur de corde de 1 mètre donne la loi uniforme sur $[0, 1]$ pour la position du point.</li>
     </ul>
   </section>
 
@@ -236,10 +236,10 @@
           <td>$\lambda$ (<span class="terme" data-def="cadence">cadence</span> moyenne)</td>
         </tr>
         <tr>
-          <td><strong>Normale</strong></td>
+          <td><strong>Uniforme</strong></td>
           <td>Continue</td>
-          <td>Somme ou moyenne d'un grand nombre d'aléas indépendants</td>
-          <td>$\mu$ (moyenne), $\sigma$ (dispersion)</td>
+          <td>Valeur choisie de façon équitable sur un intervalle</td>
+          <td>$a$ (borne inf.), $b$ (borne sup.)</td>
         </tr>
       </tbody>
     </table>
@@ -249,7 +249,7 @@
   <div id="tooltip">
     <div id="def-esperance" class="def-bloc">
       <h3>Espérance ($\mathbb{E}(X)$)</h3>
-      <p>La <strong>moyenne théorique.</strong> Elle représente la valeur sur laquelle on parierait si l'on répétait l'expérience un très grand nombre de fois..</p>
+      <p>La <strong>moyenne théorique.</strong> Elle représente la valeur sur laquelle on parierait si l'on répétait l'expérience un très grand nombre de fois.</p>
       <ul>
         <li><strong>Discret :</strong> $\mathbb{E}(X) = \sum x_i \, \mathbb{P}(X = x_i)$</li>
         <li><strong>Continu :</strong> $\mathbb{E}(X) = \int_{-\infty}^{+\infty} x f(x) \, \mathrm{d}x$</li>
@@ -267,7 +267,7 @@
 
     <div id="def-cadence" class="def-bloc">
       <h3>Cadence ($\lambda$)</h3>
-      <p>Le <strong>rythme moyen d'apparition</strong> des événements par unité de temps[cite: 1] (ex. 0,3 signal/s[cite: 3], 40 clients/h[cite: 2]).</p>
+      <p>Le <strong>rythme moyen d'apparition</strong> des événements par unité de temps (ex. 0,3 signal/s, 40 clients/h).</p>
       <ul>
         <li><strong>Lien avec l'attente :</strong> Le temps moyen entre deux événements est son inverse : $\mathbb{E}(T) = \frac{1}{\lambda}$.</li>
       </ul>
