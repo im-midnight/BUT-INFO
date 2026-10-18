@@ -5,21 +5,15 @@ const matieres = [
     titre: "Mathématiques",
     description: "Probabilités, lois usuelles et chaînes de Markov.",
     lien: "mathematiques.html",
-    icone: "∑",
   },
 ];
 
-function creerCarte({ id, titre, description, lien, icone }) {
+function creerCarte({ id, titre, description, lien }) {
   const item = document.createElement("li");
   const carte = document.createElement("a");
   carte.className = "carte";
   carte.id = `matiere-${id}`;
   carte.href = lien;
-
-  const pictogramme = document.createElement("span");
-  pictogramme.className = "carte__icone";
-  pictogramme.setAttribute("aria-hidden", "true");
-  pictogramme.textContent = icone;
 
   const nom = document.createElement("h2");
   nom.className = "carte__titre";
@@ -29,7 +23,7 @@ function creerCarte({ id, titre, description, lien, icone }) {
   resume.className = "carte__texte";
   resume.textContent = description;
 
-  carte.append(pictogramme, nom, resume);
+  carte.append(nom, resume);
   item.append(carte);
   return item;
 }
