@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dénombrement, Probabilités & Variables Aléatoires — BUT Info</title>
+
+  <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 0.5rem;
+      color: #111;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      color: #1e40af;
+      font-size: 1.05rem;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    ul, ol {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Blocs de code et d'astuces */
+    pre {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      margin: 0.75rem 0;
+    }
+
+    .astuce {
+      background-color: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.95rem;
+    }
+
+    .piege {
+      background-color: #fef2f2;
+      border-left: 4px solid #ef4444;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.95rem;
+    }
+
+    /* Tableaux de synthèse */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 400px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Dénombrement, Probabilités & Variables Aléatoires</h1>
+  <p class="subtitle">
+    <em>Support de révision BUT Informatique — Passe la souris sur les <span class="terme" data-def="cardinal">termes soulignés en bleu</span> pour afficher leur explication concrète.</em>
+  </p>
+
+  <!-- 1. LOGIQUE ET ENSEMBLES -->
+  <section class="loi-card">
+    <h2>1. Logique des ensembles et règles de comptage (« ET », « OU », « Contraire »)</h2>
+    <p>Dénombrer, c'est calculer le <span class="terme" data-def="cardinal">cardinal</span> d'un ensemble fini. Pour traduire un énoncé en calcul, on découpe la phrase selon trois mots-clés :</p>
+    <ul>
+      <li><strong>Le « ET » (Étapes successives / <span class="terme" data-def="produit-cartesien">Produit cartésien</span>) $\longrightarrow$ ON MULTIPLIE :</strong>
+        $$\text{Card}(A \times B) = \text{Card}(A) \times \text{Card}(B)$$
+      </li>
+      <li><strong>Le « OU » (<span class="terme" data-def="union-intersection">Union</span> d'événements) $\longrightarrow$ ON ADDITIONNE :</strong>
+        <ul>
+          <li>Si les cas sont <span class="terme" data-def="incompatibles">incompatibles</span> ($A \cap B = \emptyset$) : $\text{Card}(A \cup B) = \text{Card}(A) + \text{Card}(B)$.</li>
+          <li>S'ils peuvent se chevaucher (<strong>Loi de la mesure</strong>) :
+            $$\text{Card}(A \cup B) = \text{Card}(A) + \text{Card}(B) - \text{Card}(A \cap B)$$
+          </li>
+        </ul>
+      </li>
+      <li><strong>Le « AU MOINS UN » (<span class="terme" data-def="complementaire">Événement contraire</span> $\overline{A}$) $\longrightarrow$ ON SOUSTRAIT AU TOTAL :</strong>
+        $$\text{Card}(\text{Au moins un}) = \text{Card}(\Omega) - \text{Card}(\text{Aucun})$$
+      </li>
+      <li><strong>Lois de <span class="terme" data-def="demorgan">De Morgan</span> et Différence :</strong>
+        $$\overline{A \cap B} = \overline{A} \cup \overline{B} \quad ; \quad \overline{A \cup B} = \overline{A} \cap \overline{B} \quad ; \quad \text{Card}(A \setminus B) = \text{Card}(A \cap \overline{B})$$
+      </li>
+    </ul>
+
+    <div class="astuce">
+      <strong>Exemple type (Les maillots de Chouchou) :</strong> 3 motifs possibles <strong>ET</strong> [sans flocage (1 choix) <strong>OU</strong> avec flocage (4 noms <strong>ET</strong> 5 styles)].<br>
+      $\longrightarrow \text{Total} = 3 \times (1 + 4 \times 5) = 3 \times 21 = 63 \text{ maillots}$ (dont $3 \times 1 \times 5 = 15$ au nom de Zézé).
+    </div>
+  </section>
+
+  <!-- 2. LES 3 OUTILS DE TIRAGE -->
+  <section class="loi-card">
+    <h2>2. Les 3 modèles de tirages ($p$ éléments parmi $n$)</h2>
+    <p>Face à un tirage, pose-toi toujours ces deux questions : <strong>1. L'ordre compte-t-il ?</strong> <strong>2. Y a-t-il remise ?</strong></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Type de tirage</th>
+          <th>Ordre ?</th>
+          <th>Remise ?</th>
+          <th>Outil mathématique</th>
+          <th>Formule & Méthode de calcul</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Successif avec remise</strong></td>
+          <td>OUI</td>
+          <td>OUI</td>
+          <td><span class="terme" data-def="puplet">$p$-uplet</span></td>
+          <td>$$n^p = \underbrace{n \times n \times \dots \times n}_{p \text{ fois}}$$</td>
+        </tr>
+        <tr>
+          <td><strong>Successif sans remise</strong></td>
+          <td>OUI</td>
+          <td>NON</td>
+          <td><span class="terme" data-def="arrangement">Arrangement</span> ($A_n^p$)</td>
+          <td>$$A_n^p = \frac{n!}{(n-p)!} = \underbrace{n \times (n-1) \times \dots}_{p \text{ facteurs en descendant}}$$</td>
+        </tr>
+        <tr>
+          <td><strong>Simultané (poignée)</strong></td>
+          <td>NON</td>
+          <td>NON</td>
+          <td><span class="terme" data-def="combinaison">Combinaison</span> ($\binom{n}{p}$ ou $C_n^p$)</td>
+          <td>$$\binom{n}{p} = \frac{A_n^p}{p!} = \frac{n!}{(n-p)! \times p!}$$</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top: 1rem;">
+      <strong>Le lien fondamental :</strong> Dans une combinaison, on divise l'arrangement $A_n^p$ par <span class="terme" data-def="factorielle">la factorielle $p!$</span> pour « casser l'ordre » (car 1 poignée de 3 lettres <code>{J,U,L}</code> regroupe $3! = 6$ mots ordonnés : <code>JUL, JLU, UJL, ULJ, LJU, LUJ</code>).
+    </p>
+
+    <div class="piege">
+      <strong>Les 2 pièges mortels en contrôle :</strong>
+      <ol style="margin-bottom: 0;">
+        <li><strong>Oublier les emplacements en tirage ordonné :</strong> Pour tirer 2 Rouges (parmi 4) et 1 Bleue (parmi 6) sans remise, avec des combinaisons on écrit $\binom{4}{2} \times \binom{6}{1} = 36$. Mais avec des arrangements (ordre), la bleue peut sortir en 1er (<code>BRR</code>), 2e (<code>RBR</code>) ou 3e (<code>RRB</code>) : il faut multiplier par 3 configurations $\rightarrow 3 \times (4 \times 3 \times 6) = 216$.</li>
+        <li><strong>Attribution globale vs nominative :</strong> Si on tire 4 maillots pour un groupe de 4 amis sans préciser qui porte quoi $\rightarrow$ Combinaisons $\binom{63}{4}$. Si on attribue un maillot précis à Chouchou, un à Tad, etc. $\rightarrow$ L'ordre compte (Arrangements).</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3. ESPACE PROBABILISÉ & ÉQUIPROBABILITÉ -->
+  <section class="loi-card">
+    <h2>3. Espace probabilisé et Équiprobabilité</h2>
+    <ul>
+      <li><strong>Modélisation :</strong> Toute expérience aléatoire est modélisée par un <span class="terme" data-def="espace-proba">espace probabilisé</span> $(\Omega, \mathcal{A}, \mathbb{P})$ composé de :
+        <ul>
+          <li>L'<span class="terme" data-def="univers">univers $\Omega$</span> : l'ensemble de toutes les issues possibles.</li>
+          <li>La <span class="terme" data-def="tribu">tribu $\mathcal{A}$</span> : l'ensemble des événements (parties de $\Omega$).</li>
+          <li>La <strong>mesure de probabilité $\mathbb{P}$</strong> : fonction de $\mathcal{A}$ vers $[0, 1]$ telle que $\mathbb{P}(\Omega) = 1$ et $\mathbb{P}(A \cup B) = \mathbb{P}(A) + \mathbb{P}(B)$ si $A \cap B = \emptyset$.</li>
+        </ul>
+      </li>
+      <li><strong>Théorème d'<span class="terme" data-def="equiprobabilite">équiprobabilité</span> :</strong> Si toutes les issues de $\Omega$ ont la même chance de sortir, alors :
+        $$\mathbb{P}(A) = \frac{\text{Card}(A)}{\text{Card}(\Omega)} = \frac{\text{Nombre de cas favorables}}{\text{Nombre de cas possibles}}$$
+      </li>
+      <li><strong>Exemple de calcul détaillé (4 maillots de Zézé parmi 4 tirés) :</strong>
+        $$\mathbb{P}(Z) = \frac{\binom{15}{4}}{\binom{63}{4}} = \frac{15 \times 14 \times 13 \times 12}{63 \times 62 \times 61 \times 60} = \frac{13}{5673} \approx 0,00229$$
+      </li>
+    </ul>
+  </section>
+
+  <!-- 4. VARIABLES ALÉATOIRES & RÉPARTITION -->
+  <section class="loi-card">
+    <h2>4. Variables aléatoires discrètes et Fonction de répartition</h2>
+    <ul>
+      <li><strong>Qu'est-ce qu'une <span class="terme" data-def="va">variable aléatoire $X$</span> ?</strong> Ce n'est pas un nombre, mais une <strong>fonction</strong> $X : \Omega \to \mathbb{R}$ qui traduit chaque issue concrète $\omega$ (ex. <code>(Pile, Face)</code>) en un score numérique (ex. $1$).</li>
+      <li><strong>L'<span class="terme" data-def="univers-image">univers image $X(\Omega)$</span> :</strong> C'est l'ensemble de toutes les valeurs numériques que peut prendre $X$, noté <span class="terme" data-def="comprehension">en compréhension</span> :
+        $$X(\Omega) = \{X(\omega) \mid \omega \in \Omega\}$$
+        <pre><code># Équivalent exact en Python (Set Comprehension qui élimine les doublons) :
+univers_image = { X(omega) for omega in Omega }</code></pre>
+      </li>
+      <li><strong>Loi de probabilité de $X$ :</strong> C'est le tableau donnant la probabilité $\mathbb{P}(X = k)$ pour chaque valeur $k \in X(\Omega)$. La somme des probabilités vaut toujours $1$.</li>
+      <li><strong><span class="terme" data-def="repartition">Fonction de répartition $F(t)$</span> :</strong> C'est le cumul des probabilités jusqu'au seuil $t$ :
+        $$F(t) = \mathbb{P}(X \le t)$$
+        <ul>
+          <li>En discret, son graphique est une <strong>courbe en escalier</strong> qui commence à $0$ en $-\infty$ et finit à $1$ en $+\infty$.</li>
+          <li>La hauteur de chaque marche en $k$ vaut $\mathbb{P}(X = k)$.</li>
+          <li>Probabilité sur un intervalle : $\mathbb{P}(a < X \le b) = F(b) - F(a)$.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 5. ESPÉRANCE, VARIANCE ET ÉCART-TYPE -->
+  <section class="loi-card">
+    <h2>5. Espérance, Variance et Écart-type (sans bloquer sur le symbole $\sum$)</h2>
+    <p>En informatique, le symbole mathématique <span class="terme" data-def="somme">somme $\sum$</span> n'est rien d'autre qu'une <strong>boucle <code>for</code></strong> qui accumule un total.</p>
+
+    <h3>1. L'<span class="terme" data-def="esperance">Espérance $\mathbb{E}(X)$</span> : la moyenne pondérée</h3>
+    <p>On multiplie chaque valeur possible par sa probabilité, puis on additionne tout :</p>
+    $$\mathbb{E}(X) = \sum_{k \in X(\Omega)} k \times \mathbb{P}(X = k)$$
+    <pre><code>esperance = 0
+for k, proba in loi_de_X:
+    esperance += k * proba</code></pre>
+    <p><strong>Propriété de <span class="terme" data-def="linearite">linéarité</span> (gain de temps énorme) :</strong> $\mathbb{E}(aX + b) = a\mathbb{E}(X) + b$.</p>
+
+    <h3>2. La <span class="terme" data-def="variance">Variance $\mathbb{V}ar(X)$</span> : mesurer la dispersion</h3>
+    <p>Elle mesure à quel point les valeurs s'écartent de la moyenne $\mu = \mathbb{E}(X)$. On met les écarts au carré pour éviter que les écarts négatifs et positifs ne s'annulent :</p>
+    $$\mathbb{V}ar(X) = \sum_{k \in X(\Omega)} (k - \mu)^2 \times \mathbb{P}(X = k) \quad \text{ou par } \mathbf{Koenig} : \quad \mathbb{V}ar(X) = \mathbb{E}(X^2) - (\mathbb{E}(X))^2$$
+    <pre><code>variance = 0
+for k, proba in loi_de_X:
+    ecart = k - esperance
+    variance += (ecart ** 2) * proba</code></pre>
+    <p><strong>Attention à la non-linéarité :</strong> $\mathbb{V}ar(aX + b) = a^2 \mathbb{V}ar(X)$ (le $+b$ disparaît, le facteur $a$ sort au carré).</p>
+
+    <h3>3. L'<span class="terme" data-def="ecart-type">Écart-type $\sigma_X$</span> : revenir à l'unité de départ</h3>
+    <p>Comme la variance a mis les unités au carré (des $€^2$ ou des $\text{ms}^2$), on prend sa <strong>racine carrée</strong> pour retrouver une dispersion dans l'unité réelle :</p>
+    $$\sigma_X = \sqrt{\mathbb{V}ar(X)}$$
+  </section>
+
+  <!-- INFOBULLE CONTENANT TOUTES LES DÉFINITIONS CONCRÈTES -->
+  <div id="tooltip">
+    <div id="def-cardinal" class="def-bloc">
+      <h3>Cardinal ($\text{Card}(A)$ ou $|A|$)</h3>
+      <p>Tout simplement le <strong>nombre d'éléments</strong> contenus dans un ensemble fini (équivalent de <code>len(A)</code> en Python).</p>
+      <ul>
+        <li>Exemple : Si $A = \{2, 4, 6\}$, alors $\text{Card}(A) = 3$.</li>
+      </ul>
+    </div>
+
+    <div id="def-produit-cartesien" class="def-bloc">
+      <h3>Produit cartésien ($A \times B$)</h3>
+      <p>Ensemble de tous les couples $(a, b)$ possibles où $a \in A$ et $b \in B$.</p>
+      <ul>
+        <li>Représente deux choix faits l'un après l'autre (deux boucles <code>for</code> imbriquées).</li>
+        <li>Si $A$ a 3 éléments et $B$ en a 5, $A \times B$ contient $3 \times 5 = 15$ couples.</li>
+      </ul>
+    </div>
+
+    <div id="def-union-intersection" class="def-bloc">
+      <h3>Union ($\cup$) et Intersection ($\cap$)</h3>
+      <ul>
+        <li><strong>Union $A \cup B$ (« OU ») :</strong> Éléments qui sont dans $A$, dans $B$, ou dans les deux (<code>A || B</code>).</li>
+        <li><strong>Intersection $A \cap B$ (« ET ») :</strong> Éléments qui sont simultanément dans $A$ et dans $B$ (<code>A && B</code>).</li>
+      </ul>
+    </div>
+
+    <div id="def-incompatibles" class="def-bloc">
+      <h3>Événements incompatibles (disjoints)</h3>
+      <p>Deux événements qui <strong>ne peuvent jamais se produire en même temps</strong> ($A \cap B = \emptyset$, donc $\mathbb{P}(A \cap B) = 0$).</p>
+      <ul>
+        <li><em>Ne pas confondre avec indépendants !</em> Indépendants signifie que l'un n'influence pas la probabilité de l'autre ($\mathbb{P}(A \cap B) = \mathbb{P}(A)\mathbb{P}(B)$).</li>
+      </ul>
+    </div>
+
+    <div id="def-complementaire" class="def-bloc">
+      <h3>Événement contraire ($\overline{A}$)</h3>
+      <p>Contient toutes les issues de l'univers $\Omega$ qui ne sont pas dans $A$ (opérateur logique <code>NOT A</code>).</p>
+      <ul>
+        <li>$\mathbb{P}(\overline{A}) = 1 - \mathbb{P}(A)$.</li>
+        <li>Contraire de « au moins un » = « aucun ».</li>
+      </ul>
+    </div>
+
+    <div id="def-demorgan" class="def-bloc">
+      <h3>Lois de De Morgan</h3>
+      <p>Règles permettant de nier une condition composée :</p>
+      <ul>
+        <li>$\overline{A \cup B} = \overline{A} \cap \overline{B}$ : « Ni $A$ ni $B$ » équivaut à « Non $A$ ET Non $B$ ».</li>
+        <li>$\overline{A \cap B} = \overline{A} \cup \overline{B}$ : Ne pas avoir les deux à la fois équivaut à manquer $A$ OU manquer $B$.</li>
+      </ul>
+    </div>
+
+    <div id="def-puplet" class="def-bloc">
+      <h3>$p$-uplet (ou $p$-liste)</h3>
+      <p>Suite <strong>ordonnée</strong> de $p$ éléments $(x_1, \dots, x_p)$ où les répétitions sont autorisées.</p>
+      <ul>
+        <li>Exemple : Un code PIN à 4 chiffres parmi 10 est un 4-uplet ($10^4 = 10\,000$ codes).</li>
+      </ul>
+    </div>
+
+    <div id="def-arrangement" class="def-bloc">
+      <h3>Arrangement ($A_n^p$)</h3>
+      <p>Tirage <strong>ordonné et sans remise</strong> de $p$ éléments parmi $n$.</p>
+      <ul>
+        <li>Exemple : Le podium (Or, Argent, Bronze) d'une course de 10 coureurs $\rightarrow 10 \times 9 \times 8 = 720$ podiums possibles.</li>
+      </ul>
+    </div>
+
+    <div id="def-combinaison" class="def-bloc">
+      <h3>Combinaison ($\binom{n}{p}$ ou $C_n^p$)</h3>
+      <p>Sous-ensemble <strong>sans ordre et sans remise</strong> de $p$ éléments choisis simultanément parmi $n$.</p>
+      <ul>
+        <li>Astuce de calcul : pour $\binom{10}{3}$, on pose 3 nombres en descendant en haut et $3!$ en bas : $\frac{10 \times 9 \times 8}{3 \times 2 \times 1} = 120$.</li>
+      </ul>
+    </div>
+
+    <div id="def-factorielle" class="def-bloc">
+      <h3>Factorielle ($p!$)</h3>
+      <p>Produit de tous les entiers de $1$ à $p$ : $p! = p \times (p-1) \times \dots \times 1$ (avec $0! = 1$).</p>
+      <ul>
+        <li>Représente le nombre de façons de mélanger (permuter) $p$ objets distincts.</li>
+      </ul>
+    </div>
+
+    <div id="def-espace-proba" class="def-bloc">
+      <h3>Espace probabilisé $(\Omega, \mathcal{A}, \mathbb{P})$</h3>
+      <p>Le cadre mathématique complet d'une expérience aléatoire réunissant :</p>
+      <ul>
+        <li>L'univers des possibles $\Omega$,</li>
+        <li>Les événements $\mathcal{A}$,</li>
+        <li>La fonction de probabilité $\mathbb{P}$.</li>
+      </ul>
+    </div>
+
+    <div id="def-univers" class="def-bloc">
+      <h3>Univers ($\Omega$)</h3>
+      <p>L'ensemble de <strong>tous les résultats élémentaires possibles</strong> d'une expérience.</p>
+      <ul>
+        <li>Exemple : Pour un dé à 6 faces, $\Omega = \{1, 2, 3, 4, 5, 6\}$.</li>
+      </ul>
+    </div>
+
+    <div id="def-tribu" class="def-bloc">
+      <h3>Tribu ($\mathcal{A}$ ou $\mathcal{F}$)</h3>
+      <p>Collection de tous les événements (sous-ensembles de $\Omega$) auxquels on peut attribuer une probabilité.</p>
+      <ul>
+        <li>Dans un univers fini, c'est simplement l'ensemble de toutes les parties possibles $\mathcal{P}(\Omega)$.</li>
+      </ul>
+    </div>
+
+    <div id="def-equiprobabilite" class="def-bloc">
+      <h3>Équiprobabilité</h3>
+      <p>Situation où chaque issue élémentaire $\omega \in \Omega$ a exactement la même probabilité $\frac{1}{\text{Card}(\Omega)}$.</p>
+      <ul>
+        <li>Astuce du cours : Même si des boules de même couleur semblent identiques, on les imagine numérotées (discernables) pour conserver l'équiprobabilité !</li>
+      </ul>
+    </div>
+
+    <div id="def-va" class="def-bloc">
+      <h3>Variable aléatoire ($X$)</h3>
+      <p>Une <strong>fonction</strong> $X : \Omega \to \mathbb{R}$ qui associe un nombre réel (un gain, un compteur, une durée) à chaque résultat de l'expérience.</p>
+    </div>
+
+    <div id="def-univers-image" class="def-bloc">
+      <h3>Univers image ($X(\Omega)$)</h3>
+      <p>L'ensemble de toutes les <strong>valeurs numériques distinctes</strong> que peut renvoyer la fonction $X$.</p>
+      <ul>
+        <li>Exemple : Si on compte le nombre de Piles sur 2 lancers, $X(\Omega) = \{0, 1, 2\}$.</li>
+      </ul>
+    </div>
+
+    <div id="def-comprehension" class="def-bloc">
+      <h3>Notation en compréhension</h3>
+      <p>Dans $\{X(\omega) \mid \omega \in \Omega\}$ :</p>
+      <ul>
+        <li>Les accolades $\{\dots\}$ créent un ensemble sans doublons.</li>
+        <li>La barre verticale $\mid$ se lit <strong>« tel que »</strong> (ou « pour tout $\omega$ appartenant à $\Omega$ »).</li>
+      </ul>
+    </div>
+
+    <div id="def-repartition" class="def-bloc">
+      <h3>Fonction de répartition ($F(t)$)</h3>
+      <p>Donne la <strong>probabilité cumulée</strong> que $X$ ne dépasse pas $t$ : $F(t) = \mathbb{P}(X \le t)$.</p>
+      <ul>
+        <li>Croît par paliers de $0$ à $1$ pour une variable discrète.</li>
+      </ul>
+    </div>
+
+    <div id="def-somme" class="def-bloc">
+      <h3>Symbole Somme ($\sum$)</h3>
+      <p>Équivalent mathématique d'une boucle <code>for</code> qui additionne des termes :</p>
+      <ul>
+        <li>$\sum_{k \in X(\Omega)}$ se lit : « Pour chaque valeur $k$ dans l'univers image, calculer l'expression à droite et tout additionner ».</li>
+      </ul>
+    </div>
+
+    <div id="def-esperance" class="def-bloc">
+      <h3>Espérance ($\mathbb{E}(X)$)</h3>
+      <p>La <strong>moyenne théorique</strong> (comme une moyenne de notes avec coefficients, où les coefficients sont les probabilités).</p>
+      <ul>
+        <li>Indique la valeur moyenne obtenue si on répète l'expérience un très grand nombre de fois.</li>
+      </ul>
+    </div>
+
+    <div id="def-linearite" class="def-bloc">
+      <h3>Linéarité de l'espérance</h3>
+      <p>Si chaque point $X$ rapporte $2\text{ €}$ mais que la partie coûte $12\text{ €}$ ($Y = 2X - 12$), inutile de refaire tout le tableau :</p>
+      <ul>
+        <li>$\mathbb{E}(2X - 12) = 2\mathbb{E}(X) - 12$.</li>
+      </ul>
+    </div>
+
+    <div id="def-variance" class="def-bloc">
+      <h3>Variance ($\mathbb{V}ar(X)$)</h3>
+      <p>Moyenne des carrés des écarts à l'espérance. Mesure l'<strong>étalement (dispersion)</strong> des valeurs autour de la moyenne.</p>
+      <ul>
+        <li>Son unité est au carré (ex. $€^2$), d'où le besoin de passer à l'écart-type.</li>
+      </ul>
+    </div>
+
+    <div id="def-ecart-type" class="def-bloc">
+      <h3>Écart-type ($\sigma_X$)</h3>
+      <p>La <strong>racine carrée de la variance</strong> ($\sigma_X = \sqrt{\mathbb{V}ar(X)}$).</p>
+      <ul>
+        <li>Mesure l'écart moyen autour de l'espérance dans la <strong>même unité</strong> que $X$ (euros, millisecondes, points).</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+
+    termes.forEach(terme => {
+      // 1. Affichage au survol
+      terme.addEventListener('mouseenter', () => {
+        const cle = terme.getAttribute('data-def');
+
+        // Masquer toutes les définitions puis activer uniquement celle demandée
+        blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+        const cible = document.getElementById('def-' + cle);
+        if (cible) {
+          cible.classList.add('actif');
+          tooltip.style.display = 'block';
+        }
+      });
+
+      // 2. Suivi de la souris en temps réel
+      terme.addEventListener('mousemove', (e) => {
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        // Empêcher l'infobulle de sortir à droite de l'écran
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      // 3. Masquage quand la souris quitte le mot
+      terme.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
+    });
+  </script>
+
+</body>
+</html>
