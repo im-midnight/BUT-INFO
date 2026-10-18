@@ -66,7 +66,7 @@ c{display:block}
 <body>
 <main>
 <h1>Quelle loi pour quel problème ?</h1>
-<p class="sub">Binomiale, Poisson, exponentielle, uniforme : critères, modélisation et simulateurs, avec les exemples et les notations du cours de probabilités BUT Info 2 (IUT de Nantes).</p>
+<p class="sub">Binomiale, Poisson, exponentielle, uniforme : critères, modélisation et simulateurs, avec les exemples et les notations du cours.</p>
 <nav>
 <button class="on" data-t="choisir">Choisir</button>
 <button data-t="bin">Binomiale</button>
@@ -95,16 +95,15 @@ c{display:block}
 <div class="bx"><ol>
 <li>Définir X avec précision : « X = nombre de … » ou « X = temps avant … ».</li>
 <li>Vérifier les critères de la loi (indépendance, p ou taux constant).</li>
-<li>Estimer les paramètres : p̂ = fréquence des succès, λ̂ = moyenne observée (Poisson), λ̂ = 1/moyenne (exponentielle), a = min et b = max (uniforme).</li>
+<li>Estimer les paramètres : p = fréquence des succès, λ = moyenne observée (Poisson), λ = 1/moyenne (exponentielle), a = min et b = max (uniforme).</li>
 <li>Calculer les probabilités demandées.</li>
-<li>Valider avec les données : moyenne ≈ variance pour Poisson, test du χ² d'adéquation.</li>
+<li>Valider avec les données : moyenne ≈ variance pour Poisson.</li>
 </ol></div>
 <h2>Liens entre les lois</h2>
 <ul>
 <li>B(n, p) ≈ P(np) quand n est grand et p petit (n ≥ 30, p ≤ 0,1, np ≤ 10).</li>
 <li>Si le nombre d'événements suit une loi de Poisson de taux λ, le temps entre deux événements suit E(λ).</li>
-<li>Somme de deux Poisson indépendantes : P(λ) + P(μ) donne P(λ+μ).</li>
-<li>Pour λ grand, P(λ) se rapproche d'une loi normale (approximation vue en cours).</li>
+<li>Pour λ grand, P(λ) se rapproche d'une loi normale (approximation dans le cours).</li>
 </ul>
 <h2>À toi de jouer</h2>
 <p class="sub">Quelle loi utiliser dans chaque situation ?</p>
@@ -121,9 +120,6 @@ c{display:block}
 <div class="bx"><h3>Exemple du cours</h3>Une urne contient 4 boules rouges et 6 bleues. On tire 6 boules avec remise et X = nombre de rouges, donc X ~ B(6 ; 0,4).<br>P(X=2) ≈ 0,311, E(X) = 6 × 0,4 = 2,4 et Var(X) = 6 × 0,4 × 0,6 = 1,44.<br>Avec n = 1, on retrouve la loi de Bernoulli de paramètre p.</div>
 <h3>Simulateur</h3>
 <div class="w" id="w-bin"></div>
-<pre>from scipy.stats import binom
-binom.pmf(6, 20, 0.3)   # P(X = 6)
-binom.cdf(6, 20, 0.3)   # P(X ≤ 6)</pre>
 </section>
 
 <section class="p" id="poi" hidden>
@@ -136,9 +132,6 @@ binom.cdf(6, 20, 0.3)   # P(X ≤ 6)</pre>
 <div class="bx"><h3>Exemple du cours</h3>Une boîte mail reçoit en moyenne 12 spams par jour : X ~ P(12) et <span class="m">P(X = 10) = e<sup>−12</sup> <fr><nu>12<sup>10</sup></nu><de>10!</de></fr> ≈ 0,105</span>.<br>En 1 h (λ = 0,5) : P(Y=1) ≈ 0,30. En 2 jours (λ = 24) : P(Z=20) ≈ 6,2 %.<br>Un standard qui reçoit 2 appels par quart d'heure donne λ = 2 × 4 = 8 pour une heure.</div>
 <h3>Simulateur</h3>
 <div class="w" id="w-poi"></div>
-<pre>from scipy.stats import poisson
-poisson.pmf(5, 4)   # P(X = 5) avec λ = 4
-poisson.cdf(5, 4)   # P(X ≤ 5)</pre>
 </section>
 
 <section class="p" id="exp" hidden>
@@ -151,8 +144,6 @@ poisson.cdf(5, 4)   # P(X ≤ 5)</pre>
 <div class="bx"><h3>Exemple du cours</h3>Un guichet reçoit en moyenne un client toutes les 10 minutes : X ~ E(0,1), avec λ = 1/μ.<br><span class="m">P(9 ≤ X ≤ 12) = F(12) − F(9) = e<sup>−0,9</sup> − e<sup>−1,2</sup> ≈ 0,105</span>.<br>Un client toutes les 20 s en moyenne (μ = 1/3 min) donne λ = 3 par minute.</div>
 <h3>Simulateur</h3>
 <div class="w" id="w-exp"></div>
-<pre>from scipy.stats import expon
-expon.cdf(3, scale=1/0.5)   # P(X ≤ 3) avec λ = 0.5 (scale = 1/λ)</pre>
 </section>
 
 <section class="p" id="uni" hidden>
@@ -165,8 +156,6 @@ expon.cdf(3, scale=1/0.5)   # P(X ≤ 3) avec λ = 0.5 (scale = 1/λ)</pre>
 <div class="bx"><h3>Exemple du cours</h3>Un programme attend le prochain tick d'une horloge (1 tick par ns) : X ~ Uc(0, 1) et P(0,5 ≤ X ≤ 0,7) = F(0,7) − F(0,5) = 0,2.<br>Version discrète : un dé équilibré suit U(1, 6), avec <span class="m"><span class="r">E</span>(X) = 3,5</span> et <span class="m"><span class="r">Var</span>(X) = <fr><nu>n<sup>2</sup> − 1</nu><de>12</de></fr></span>, n = 1 + b − a.</div>
 <h3>Simulateur</h3>
 <div class="w" id="w-uni"></div>
-<pre>from scipy.stats import uniform
-uniform.cdf(7, loc=0, scale=10)   # loc = a, scale = b − a</pre>
 </section>
 </main>
 <script>

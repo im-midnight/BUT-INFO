@@ -1,9 +1,9 @@
 /* PALETTE : toutes les couleurs sont ici, nulle part ailleurs.
    Changer la palette = modifier ces variables. */
 :root {
-  --fond: #fffffe;
-  --titre: #094067;
-  --paragraphe: #5f6c7b;
+  --fond: #f9fafb;
+  --titre: #2b2c34;
+  --paragraphe: #2b2c34;
   --accent: #3da9fc;
   --secondaire: #90b4ce;
   --survol: color-mix(in srgb, var(--accent) 10%, var(--fond));
