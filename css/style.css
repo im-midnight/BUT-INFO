@@ -106,88 +106,109 @@ main {
   margin: 0.25rem 0 0;
 }
 
+/* ── À AJOUTER aux règles existantes (footer collé en bas de page) ──
+   body { min-height: 100dvh; display: flex; flex-direction: column; }
+   main { flex: 1; }
+*/
+
+/* ── Footer : remplace tout depuis l'ancien "footer {" jusqu'à la fin du fichier ── */
+/* ── Footer collé en bas de page ──
+   À mettre APRÈS tes règles body et main existantes (en fin de fichier suffit). */
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* ── Footer ── */
 footer {
-    background: var(--headline);
-    color: var(--secondary);
-    text-align: center;
-    padding: 2.2rem var(--gutter);
-    font-family: 'Tanker-Regular',sans-serif;
-    font-size: 1rem;
-    letter-spacing: 1px;
+  background: #272343;
+  color: var(--fond);
+  padding: 1.5rem var(--marge);
+  font-family: var(--police);
+  text-align: center;
 }
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  width: min(100%, 60rem);
+  margin-inline: auto;
+}
+
 .footer .row {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* icônes sociales */
-.footer .row a {
-    text-decoration: none;
-    transition: color 0.2s, transform 0.2s;
+/* ligne du copyright */
+.footer .row:last-child {
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
 }
 
-.footer .row a:hover{
-    transform: translateY(-5px);
-}
-
-.footer .row ul{
-    width:100%;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    list-style: none;
-}
-
-.footer .row ul li{
-    display:inline-block;
-    margin:0px 30px;
+/* liens */
+.footer .row ul {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .footer .row ul li a {
-    font-family: 'Tanker-Regular',sans-serif;
-    font-size : clamp(0.5em, 0.9rem, 1.3rem);
-    letter-spacing: 1px;
-    color: #1c1a2e;
-    background-color: #e9e9e9;
-    border-radius: 100px;
-    padding: 8px 18px;
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 100px;
+  background: var(--fond);
+  color: var(--titre);
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.footer .row ul {
-    transition: color 0.2s, transform 0.2s;
+.footer .row ul li a:hover,
+.footer .row ul li a:focus-visible {
+  background: var(--accent);
+  transform: translateY(-3px);
 }
 
-.footer .row ul :hover {
-    transition: color 0.2s, transform 0.2s;
-    transform: translateY(-5px);
+.footer .row ul li a:focus-visible {
+  outline: 3px solid var(--fond);
+  outline-offset: 3px;
 }
 
-.footer .row a i{
-    font-size:2em;
-    margin:0% 1%;
+@media (prefers-reduced-motion: reduce) {
+  .carte,
+  .footer .row ul li a {
+    transition: none;
+  }
+  .footer .row ul li a:hover,
+  .footer .row ul li a:focus-visible {
+    transform: none;
+  }
+}
+
+@media (max-width: 720px) {
+  footer {
+    padding: 1.5rem var(--marge);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .carte {
     transition: none;
   }
-}
-@media (max-width:720px){
-    .footer{
-        padding:5%;
-    }
-    .footer .row a i{
-        margin:0% 3%;
-    }
-}
-
-@media (max-width: 400px) {
-    .footer {
-        gap: 1.25rem;
-    }
-    .footer .row a i {
-        font-size: 1.7em;
-    }
 }

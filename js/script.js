@@ -2,9 +2,9 @@ const matieres = [
   // Pour ajouter une matière : ajouter un objet ici, sans toucher au HTML ni au CSS.
   {
     id: "mathematiques",
-    titre: "Mathématiques",
+    titre: "R308-Probabilités",
     description: "Probabilités, lois usuelles.",
-    lien: "pages/math/indexMath.html",
+    lien: "pages/math/proba/indexProba.html",
   },
 ];
 
