@@ -228,6 +228,10 @@
         font-size: 0.9rem;
       }
 
+    }
+
+    /* Panneau fixe en bas, uniquement sur appareils tactiles */
+    @media (hover: none) {
       #tooltip {
         position: fixed !important;
         left: 12px !important;
@@ -236,6 +240,8 @@
         top: auto !important;
         width: auto !important;
         max-width: none !important;
+        max-height: 60vh;
+        overflow-y: auto;
         pointer-events: auto;
         border: 1px solid #374151;
       }
@@ -250,9 +256,9 @@
 
   <h1>2.3 Les Probabilités Conditionnelles</h1>
   <p class="intro-note">
-    <em>Survole (ou touche sur mobile) les <span class="terme" tabindex="0" data-def="sous-population">termes soulignés en bleu</span> pour afficher leur définition ou explication méthodologique.</em>
+    <em>Passe la souris sur les <span class="terme" tabindex="0">termes soulignés en bleu</span> pour afficher leur définition ou explication méthodologique.</em>
   </p>
-
+  
   <!-- 1. APPROCHE INTUITIVE -->
   <section class="loi-card">
     <h2>1. Approche intuitive : Population vs Sous-population</h2>
@@ -393,7 +399,7 @@
       <strong>Attention : Il ne faut pas confondre indépendance et <span class="terme" tabindex="0" data-def="incompatibles">incompatibilité</span> !!</strong>
       <ul>
         <li>$A$ et $B$ <strong>indépendants</strong> $\iff \mathbb{P}(A \cap B) = \mathbb{P}(A) \times \mathbb{P}(B)$</li>
-        <li>$A$ et $B$ <strong><span class="terme" tabindex="0" data-def="incompatibles">incompatibles</span></strong> $\iff A \cap B = \emptyset \implies \mathbb{P}(A \cap B) = 0$</li>
+        <li>$A$ et $B$ <strong><span >incompatibles</span></strong> $\iff A \cap B = \emptyset \implies \mathbb{P}(A \cap B) = 0$</li>
       </ul>
       <p style="margin-bottom: 0;"><strong>Deux exemples à retenir :</strong></p>
       <ul style="margin-top: 0.25rem;">
@@ -568,70 +574,71 @@
 
   <script>
     const tooltip = document.getElementById('tooltip');
-    const closeBtn = document.getElementById('close-tooltip');
     const termes = document.querySelectorAll('.terme');
     const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
 
-    const estMobile = () => window.innerWidth <= 640;
-
-    function afficherDefinition(cle) {
+    function afficher(cle) {
+      // Masquer toutes les définitions puis activer uniquement celle demandée
       blocsDef.forEach(bloc => bloc.classList.remove('actif'));
-      const cible = document.getElementById('def-' + cle);
-      if (cible) {
-        cible.classList.add('actif');
-        tooltip.style.display = 'block';
-      }
+      document.getElementById('def-' + cle).classList.add('actif');
+      tooltip.style.display = 'block';
     }
 
-    function positionnerTooltip(e) {
-      if (estMobile()) return;
-
-      const decalage = 15;
-      let x = e.pageX + decalage;
-      let y = e.pageY + decalage;
-
-      if (x + tooltip.offsetWidth > window.innerWidth - 20) {
-        x = e.pageX - tooltip.offsetWidth - decalage;
-      }
-      if (x < 10) {
-        x = 10;
-      }
-
-      tooltip.style.left = x + 'px';
-      tooltip.style.top = y + 'px';
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
     }
 
     termes.forEach(terme => {
-      terme.addEventListener('mouseenter', (e) => {
-        if (!estMobile()) {
-          afficherDefinition(terme.getAttribute('data-def'));
-          positionnerTooltip(e);
-        }
+      const cle = terme.getAttribute('data-def');
+
+      // 1. Souris : affichage au survol
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
       });
 
-      terme.addEventListener('mousemove', positionnerTooltip);
+      // 2. Souris : suivi en temps réel
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
 
+        // Empêcher l'infobulle de sortir à droite, puis à gauche de l'écran
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      // 3. Souris : masquage quand la souris quitte le mot
       terme.addEventListener('mouseleave', () => {
-        if (!estMobile()) {
-          tooltip.style.display = 'none';
-        }
+        if (tactile.matches) return;
+        masquer();
       });
 
+      // 4. Tactile : un appui ouvre, un second appui sur le même mot ferme
       terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
         e.stopPropagation();
-        afficherDefinition(terme.getAttribute('data-def'));
-        positionnerTooltip(e);
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
       });
     });
 
-    closeBtn.addEventListener('click', () => {
-      tooltip.style.display = 'none';
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!tooltip.contains(e.target)) {
-        tooltip.style.display = 'none';
-      }
+    // 5. Tactile : un appui n'importe où ailleurs ferme l'infobulle
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
     });
   </script>
 

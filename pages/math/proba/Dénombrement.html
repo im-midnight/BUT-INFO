@@ -164,13 +164,38 @@
     .def-bloc.actif {
       display: block;
     }
+
+    .terme { -webkit-tap-highlight-color: transparent; }
+    .astuce-tactile { display: none; }
+
+    /* Appareils sans survol (téléphones, tablettes) */
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+
+      #tooltip {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+    }
   </style>
 </head>
 <body>
 
   <h1>Dénombrement, Probabilités & Variables Aléatoires</h1>
   <p class="subtitle">
-    <em>Support de révision BUT Informatique — Passe la souris sur les <span class="terme" data-def="cardinal">termes soulignés en bleu</span> pour afficher leur explication concrète.</em>
+    <em>Support de révision BUT Informatique — Passe la souris sur les <span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="esperance">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
   <!-- 1. LOGIQUE ET ENSEMBLES -->
@@ -519,40 +544,69 @@ for k, proba in loi_de_X:
     const tooltip = document.getElementById('tooltip');
     const termes = document.querySelectorAll('.terme');
     const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      // Masquer toutes les définitions puis activer uniquement celle demandée
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      document.getElementById('def-' + cle).classList.add('actif');
+      tooltip.style.display = 'block';
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
 
     termes.forEach(terme => {
-      // 1. Affichage au survol
-      terme.addEventListener('mouseenter', () => {
-        const cle = terme.getAttribute('data-def');
+      const cle = terme.getAttribute('data-def');
 
-        // Masquer toutes les définitions puis activer uniquement celle demandée
-        blocsDef.forEach(bloc => bloc.classList.remove('actif'));
-        const cible = document.getElementById('def-' + cle);
-        if (cible) {
-          cible.classList.add('actif');
-          tooltip.style.display = 'block';
-        }
+      // 1. Souris : affichage au survol
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
       });
 
-      // 2. Suivi de la souris en temps réel
+      // 2. Souris : suivi en temps réel
       terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
         const decalage = 15;
         let x = e.pageX + decalage;
         let y = e.pageY + decalage;
 
-        // Empêcher l'infobulle de sortir à droite de l'écran
+        // Empêcher l'infobulle de sortir à droite, puis à gauche de l'écran
         if (x + tooltip.offsetWidth > window.innerWidth - 20) {
           x = e.pageX - tooltip.offsetWidth - decalage;
         }
+        if (x < 10) x = 10;
 
         tooltip.style.left = x + 'px';
         tooltip.style.top = y + 'px';
       });
 
-      // 3. Masquage quand la souris quitte le mot
+      // 3. Souris : masquage quand la souris quitte le mot
       terme.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none';
+        if (tactile.matches) return;
+        masquer();
       });
+
+      // 4. Tactile : un appui ouvre, un second appui sur le même mot ferme
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    // 5. Tactile : un appui n'importe où ailleurs ferme l'infobulle
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
     });
   </script>
 
