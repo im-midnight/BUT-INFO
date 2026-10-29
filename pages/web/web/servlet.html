@@ -130,6 +130,7 @@
       line-height: 1.45;
     }
 
+    
     code {
       font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
       color: #b91c1c;
@@ -188,6 +189,10 @@
     .def-bloc.actif {
       display: block;
     }
+
+
+
+    
   </style>
 </head>
 <body>
@@ -327,11 +332,34 @@ Les principales méthodes HTTP sont : <br>
       // 2. Suivi de la souris
       terme.addEventListener('mousemove', (e) => {
         const decalage = 15;
+        const marge = 12; // Marge minimale par rapport aux bords de l'écran
+
+        // Largeur réelle de l'infobulle
+        const tipWidth = tooltip.offsetWidth;
+        
+        // Position initiale : à droite du curseur
         let x = e.pageX + decalage;
         let y = e.pageY + decalage;
 
-        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
-          x = e.pageX - tooltip.offsetWidth - decalage;
+        // Calcul par rapport au viewport (fenêtre visible)
+        const clientX = e.clientX;
+
+        // 1. Si ça dépasse à droite, on essaie de la mettre à gauche du curseur
+        if (clientX + decalage + tipWidth > window.innerWidth - marge) {
+          x = e.pageX - tipWidth - decalage;
+        }
+
+        // 2. CORRECTION CLÉ : Si en la mettant à gauche, elle sort par la gauche (< marge),
+        // on la cale proprement au bord gauche visible
+        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+        if (x < scrollX + marge) {
+          x = scrollX + marge;
+        }
+
+        // 3. (Bonus) Sécurité verticale : si elle dépasse en bas de l'écran
+        const tipHeight = tooltip.offsetHeight;
+        if (e.clientY + decalage + tipHeight > window.innerHeight - marge) {
+          y = e.pageY - tipHeight - decalage;
         }
 
         tooltip.style.left = x + 'px';
