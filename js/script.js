@@ -2,10 +2,18 @@ const matieres = [
   // Pour ajouter une matière : ajouter un objet ici, sans toucher au HTML ni au CSS.
   {
     id: "mathematiques",
-    titre: "R308-Probabilités",
+    titre: "R308 - Probabilités",
     description: "Probabilités, lois usuelles.",
     lien: "pages/math/proba/indexProba.html",
   },
+
+  {
+    id: "dev-web",
+    titre: "R301 - Développement web",
+    description: "Syntaxe Java, Servlets...",
+    lien: "pages/web/web/indexWeb.html",
+  },
+  
 ];
 
 function creerCarte({ id, titre, description, lien }) {

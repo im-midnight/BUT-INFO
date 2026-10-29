@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprendre les Servlets Java</title>
+
+  <!-- MathJax pour les notations formelles et schémas relationnels -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      color: #1f2937;
+      font-size: 1.05rem;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Mise en page texte + image pour la section 1 */
+    .card-content {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .card-text {
+      flex: 1 1 58%;
+      margin: 0;
+    }
+
+    .card-image {
+      flex: 1 1 42%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card-image img {
+      width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+      height: auto;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .card-content {
+        flex-direction: column;
+      }
+      .card-text, .card-image {
+        width: 100%;
+      }
+      .card-image img {
+        max-height: 220px;
+      }
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Blocs de code / démonstrations */
+    pre {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      color: #b91c1c;
+      font-size: 0.9em;
+    }
+
+    pre code {
+      color: #111827;
+    }
+
+    /* Tableau de synthèse */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Introduction aux Servlets Java</h1>
+  <p style="text-align: center; color: #555;">
+    <em>Passez la souris sur les <span class="terme" data-def="conteneur">termes soulignés en bleu</span> pour afficher leur explication vulgarisée.</em>
+  </p>
+
+  <!-- 1. DÉFINITION & RÔLE -->
+  <section class="card">
+    <h2>1. Qu'est-ce qu'une Servlet ?</h2>
+    <div class="card-content">
+      <ul class="card-text">
+        <li><strong>Nature :</strong> Un composant logiciel Java (une classe) exécuté côté serveur.</li>
+        <li><strong>Le problème d'origine :</strong> À l'origine, un serveur Web ne savait que délivrer des fichiers statiques existant déjà sur son disque dur. Pour afficher une page sur mesure (ex. la météo en direct), il fallait un programme capable de fabriquer la réponse à la demande.</li>
+        <li><strong>Le rôle :</strong> Intercepter la <span class="terme" data-def="requete-http">requête HTTP</span> envoyée par le navigateur, calculer la réponse (lire une base de données, vérifier des identifiants) et renvoyer le résultat.</li>
+        <div class="card-image">
+        <img src="img/ExcalidrawServlet.png" alt="Schéma explicatif d'une Servlet">
+      </div>
+        
+      
+    </div>
+  </section>
+
+  <!-- 2. L'INTERMÉDIAIRE CLÉ : LE CONTENEUR -->
+  <section class="card">
+    <h2>2. Pourquoi la servlet ne parle pas directement au client ?</h2>
+    <p>Une servlet ne s’occupe jamais directement de la connexion physique ni des ports réseau d'une machine, car elle n'ouvre aucune <span class="terme" data-def="socket">socket</span> pour écouter les messages qui arrivent sur Internet. En réalité, elle confie entièrement cette tâche technique à un <span class="terme" data-def="conteneur">conteneur</span> comme Apache Tomcat, qui se charge de capter les requêtes des internautes, de les traduire en objets Java faciles à manipuler, puis de les transmettre à la servlet pour qu'elle puisse simplement exécuter son code et renvoyer la bonne page web.</p>
+    
+    <h3>Le travail d'orchestration :</h3>
+    <ul>
+      <li>Le conteneur écoute les requêtes brutes qui arrivent d'Internet via le <span class="terme" data-def="protocole-http">protocole HTTP</span>.</li>
+      <li>Il traduit ces données texte en deux objets Java maniables : <code>HttpServletRequest</code> (la commande du client) et <code>HttpServletResponse</code> (la feuille blanche où écrire la réponse).</li>
+      <li>Il trouve la bonne servlet grâce à son <span class="terme" data-def="routage">routage URL</span>, l'exécute, puis transforme la réponse en signaux réseau renvoyés au client.</li>
+    </ul>
+  </section>
+
+  <!-- 3. CYCLE DE VIE -->
+  <section class="card">
+    <h2>3. Le cycle de vie d'une Servlet</h2>
+    <p>Une servlet ne possède pas de méthode principale <code>main()</code>. C'est le serveur qui contrôle entièrement son existence à travers 3 étapes :</p>
+    <ul>
+      <li><strong>1. Initialisation (<code>init()</code>) :</strong> Exécutée une seule et unique fois lors de la création de la servlet. Elle sert aux préparatifs lourds (ouvrir la connexion à la base de données, lire des fichiers de réglages).</li>
+      <li><strong>2. Service (<code>service()</code> / <code>doGet()</code> / <code>doPost()</code>) :</strong> Exécutée à <strong>chaque</strong> requête entrante. La servlet reçoit la demande, fait le calcul et écrit la réponse.</li>
+      <li><strong>3. Destruction (<code>destroy()</code>) :</strong> Appelée juste avant l'extinction du serveur pour fermer proprement les connexions et libérer la mémoire.</li>
+      <li><strong>Le piège du multithread :</strong> La servlet est généralement un <span class="terme" data-def="singleton">singleton</span> (une seule instance en mémoire pour tout le monde). Chaque visiteur est pris en charge par un <span class="terme" data-def="thread">thread distinct</span>.<br>
+
+      </li>
+    </ul>
+  </section>
+
+  <!-- 4. QUE FABRIQUE UNE SERVLET ? -->
+  <section class="card">
+    <h2>4. Que produit une Servlet ? </h2>
+    <p>Une servlet est neutre vis-à-vis du format de données : elle renvoie simplement un flux d'octets. C'est le développeur qui spécifie l'étiquette appelée <span class="terme" data-def="mime-type">type MIME</span> :</p>
+    <ul>
+      <li><strong>Du texte balisé (HTML) :</strong> Générer des pages complètes via <code>response.getWriter()</code> (avec le type <code>text/html</code>).</li>
+      <li><strong>Des données structurées (API JSON / XML) :</strong> Envoyer des données brutes pour les applications mobiles ou les sites modernes via <code>application/json</code>.</li>
+      <li><strong>Des fichiers binaires :</strong> Transmettre directement des octets bruts (images à la volée, factures PDF, fichiers ZIP) via <code>response.getOutputStream()</code> avec le type <code>application/pdf</code> ou <code>image/png</code>.</li>
+    </ul>
+  </section>
+
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS VULGARISÉES -->
+  <div id="tooltip">
+    <div id="def-conteneur" class="def-bloc">
+      <h3>Conteneur de servlets (ou gestionnaire de servlets)</h3>
+      <p>Le <strong>moteur d'exécution</strong> (ex. Tomcat, Jetty). C'est lui qui héberge la servlet, gère les connexions Internet, applique la sécurité et lance les calculs au bon moment.</p>
+    </div>
+
+
+    <div id="def-requete-http" class="def-bloc">
+      <h3>Requête HTTP</h3>
+      <p>Le <strong>message envoyé par le navigateur</strong> pour demander une ressource (ex. « Donne-moi la page /produits » ou « Enregistre ce formulaire »).</p>
+    </div>
+
+    <div id="def-socket" class="def-bloc">
+      <h3>Socket (Prise réseau)</h3>
+      <p>Le <strong>point d'attache virtuel</strong> entre deux machines communicantes sur un réseau, composé d'une adresse IP et d'un numéro de port (ex. 80 pour le Web).</p>
+    </div>
+
+    <div id="def-protocole-http" class="def-bloc">
+      <h3>Protocole HTTP</h3>
+      <p>Est un <strong>protocole de communication </strong> de la couche application qui permet l'échange de contenus en ligne, tels que des pages web, des images ou du texte.</p>
+      <p>
+Les principales méthodes HTTP sont : <br>
+
+<strong>• GET </strong>: Demander la récupération d'une ressource.<br>
+<strong>• POST </strong>: Envoyer des données pour créer ou modifier une ressource.<br>
+<strong>• PUT : </strong>Remplacer ou mettre à jour une ressource.<br>
+<strong>• DELETE : </strong>Supprimer une ressource.<br>
+<strong>• HEAD : </strong>Demander uniquement les en-têtes d'une ressource.<br>
+<strong>• PATCH : </strong>Appliquer une modification partielle à une ressource.</p>
+      
+    </div>
+
+    <div id="def-routage" class="def-bloc">
+      <h3>Routage URL</h3>
+      <p>L'<strong>aiguillage</strong> du serveur : associer une adresse demandée (ex. <code>/panier</code>) au programme Java spécifique chargé de la traiter.</p>
+    </div>
+
+    <div id="def-singleton" class="def-bloc">
+      <h3>Singleton</h3>
+      <p>Un composant dont il n'existe qu'<strong>un seul exemplaire</strong> actif en mémoire pour toute l'application, partagé par tous les utilisateurs.</p>
+    </div>
+
+    <div id="def-thread" class="def-bloc">
+      <h3>Thread (Fil d'exécution)</h3>
+      <p>Un thread distinct (ou fil d'exécution séparé) <strong>est une séquence d'instructions</strong> exécutée de manière autonome et indépendante par le processeur, au sein d'un même programme, afin de permettre l'exécution simultanée de plusieurs tâches sans bloquer les autres.</p>
+    </div>
+
+    <div id="def-mime-type" class="def-bloc">
+      <h3>Type MIME (Content-Type)</h3>
+      <p>L'<strong>étiquette standardisée</strong> qui indique au navigateur ce qu'il reçoit pour savoir comment l'ouvrir (ex. une vidéo, une page web ou un document PDF).</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+
+    termes.forEach(terme => {
+      // 1. Affichage au survol
+      terme.addEventListener('mouseenter', () => {
+        const cle = terme.getAttribute('data-def');
+
+        blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+        const cible = document.getElementById('def-' + cle);
+        if (cible) {
+          cible.classList.add('actif');
+          tooltip.style.display = 'block';
+        }
+      });
+
+      // 2. Suivi de la souris
+      terme.addEventListener('mousemove', (e) => {
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      // 3. Masquage à la sortie
+      terme.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
+    });
+  </script>
+
+</body>
+</html>

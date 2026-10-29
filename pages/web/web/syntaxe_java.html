@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Les Fondations du Langage Java</title>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Style des blocs de code */
+    pre {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      margin: 0.75rem 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Tableau de synthèse */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Les Fondations du Langage Java</h1>
+  <p style="text-align: center; color: #555;">
+    <em>Passez la souris sur les <span class="terme" data-def="jvm">termes soulignés en bleu</span> pour afficher leur vulgarisation sans jargon.</em>
+  </p>
+
+  <!-- 0. COMPRENDRE LE PARADIGME : DE QUOI PARLE-T-ON ? -->
+  <section class="loi-card">
+    <h2>0. Le cycle de vie d'un programme </h2>
+      <ul>
+      <li><strong>Le fichier source :</strong> Un fichier texte contenant nos instructions (ex: <code>Main.java</code>).</li>
+      <li><strong>La <span class="terme" data-def="compilation">compilation</span> :</strong> Un outil nommé <code>javac</code> traduit nos mots humains en <span class="terme" data-def="bytecode">bytecode</span> (un fichier <code>Main.class</code>).</li>
+      <li><strong>L'exécution par la <span class="terme" data-def="jvm">JVM</span> :</strong> Cette machine virtuelle lit ce bytecode et le traduit instantanément pour votre système (Windows, Mac ou Linux).</li>
+    </ul>
+  </section>
+
+  <!-- 1. LA STRUCTURE MINIMALE -->
+  <section class="loi-card">
+    <h2>1. La structure minimale </h2>
+    <ul>
+      <li><strong>Le principe :</strong> En Java, aucun code ne peut flotter dans le vide. Tout bloc d'instruction doit obligatoirement résider au sein d'une <span class="terme" data-def="classe">classe</span>.</li>
+      <li><strong>Le fichier modèle :</strong> Le fichier doit porter rigoureusement le même nom que la classe publique (ici <code>Main.java</code>).</li>
+      <li><strong>Le code de démarrage :</strong>
+<pre><code>public class Main {
+    public static void main(String[] args) {
+        System.out.println("Bonjour le monde !");
+    }
+}</code></pre>
+      </li>
+      <li><strong>Anatomie des mots-clés :</strong>
+        <ul>
+          <li><code>public</code> : accessible par tout le système.</li>
+          <li><code>static</code> : la fonction peut démarrer immédiatement sans avoir besoin de fabriquer un <span class="terme" data-def="objet">objet</span> au préalable.</li>
+          <li><code>void</code> : indique que cette action accomplit une tâche sans renvoyer de résultat chiffré en retour.</li>
+          <li><code>main(...)</code> : le nom conventionnel du sas de lancement recherché en priorité par la machine.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 2. LE TYPAGE DES DONNÉES -->
+  <section class="loi-card">
+    <h2>2. Les variables et le typage statique </h2>
+    <ul>
+      <li><strong>Le mécanisme :</strong> Java utilise un <span class="terme" data-def="typage">typage statique</span>. Chaque boîte mémoire doit déclarer à l'avance la nature exacte de ce qu'elle contiendra.</li>
+      <li><strong>Types primitifs (valeurs brutes directes) :</strong>
+        <ul>
+          <li><code>int</code> : stocke un nombre entier sans virgule (ex: <code>int age = 25;</code>).</li>
+          <li><code>double</code> : stocke un nombre décimal à virgule (ex: <code>double prix = 19.99;</code>).</li>
+          <li><code>boolean</code> : un interrupteur logique binaire, valant uniquement <code>true</code> ou <code>false</code>.</li>
+          <li><code>char</code> : un caractère alphanumérique unique entre apostrophes simples (ex: <code>char note = 'A';</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Types objets / références (structures élaborées) :</strong>
+        <ul>
+          <li><code>String</code> : une chaîne de caractères entre guillemets (ex: <code>String nom = "Alice";</code>). Elle bénéficie du principe d'<span class="terme" data-def="immutabilite">immutabilité</span>.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 3. FLUX D'EXÉCUTION ET DÉCISIONS -->
+  <section class="loi-card">
+    <h2>3. Boucles et conditions</h2>
+    <ul>
+      <li><strong>Les conditions :</strong> 
+<pre><code>int score = 75;
+
+if (score >= 50) {
+    System.out.println("Réussi");
+} else {
+    System.out.println("Échoué");
+}</code></pre>
+      </li>
+      <li><strong>Les boucles :</strong>  
+        <ul>
+          <li><code>for</code> : utilisée lorsqu'on connaît à l'avance le nombre d'itérations à effectuer.
+<pre><code>for (int i = 0; i < 5; i++) {
+    System.out.println("Tour n° " + i);
+}</code></pre>
+          </li>
+          <li><code>while</code> : répète une tâche tant qu'une condition reste vraie.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 4. LA PROGRAMMATION ORIENTÉE OBJET -->
+  <section class="loi-card">
+    <h2>4. La Programmation Orientée Objet (POO)</h2>
+    <ul>
+      <li><strong>L'architecture d'une classe :</strong>
+<pre><code>public class Etudiant {
+    // 1. Attributs protégés (Encapsulation)
+    private String nom;
+    private int taille;
+
+    public Etudiant(String nom, int taille) {
+        this.nom = nom;
+        this.taille = taille;
+    }
+
+    public void SigneSowesign() {
+        System.out.println(this.nom + " à signé");
+    }
+}</code></pre>
+      </li>
+      <li><strong>Utilisation par instanciation :</strong> On crée des exemplaires distincts sur ce moule grâce au mot-clé <code>new</code>.
+<pre><code>Etudiant g1 = new Etudiant("Bruce", 165);
+</code></pre>
+      </li>
+      <li><strong>La protection par <span class="terme" data-def="encapsulation">encapsulation</span> :</strong> Le mot <code>private</code> empêche tout code extérieur de corrompre arbitrairement les données d'un objet.</li>
+    </ul>
+  </section>
+
+
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS PRÉ-CHARGÉES -->
+  <div id="tooltip">
+    <div id="def-jvm" class="def-bloc">
+      <h3>JVM (Java Virtual Machine)</h3>
+      <p>C'est un logiciel intermédiaire qui sert d'<strong>émulateur universel</strong>. Il exécute le bytecode Java quel que soit le système d'exploitation hôte (Windows, macOS, Linux).</p>
+      <ul>
+        <li>Garantit la portabilité : aucun besoin de réécrire le code selon la machine.</li>
+      </ul>
+    </div>
+
+    <div id="def-compilation" class="def-bloc">
+      <h3>Compilation</h3>
+      <p>L'opération de <strong>traduction intégrale</strong> d'un texte écrit par un humain vers un dialecte condensé et optimisé que la machine sait exploiter.</p>
+      <ul>
+        <li>En Java, c'est le compilateur <code>javac</code> qui effectue ce passage vers le fichier binaire.</li>
+      </ul>
+    </div>
+
+    <div id="def-bytecode" class="def-bloc">
+      <h3>Bytecode</h3>
+      <p>Le <strong>langage intermédiaire</strong> produit par le compilateur Java (les fichiers d'extension <code>.class</code>).</p>
+      <ul>
+        <li>Il n'est pas lisible par un humain ni directement par le processeur, mais spécifiquement par la JVM.</li>
+      </ul>
+    </div>
+
+    <div id="def-classe" class="def-bloc">
+      <h3>Classe</h3>
+      <p>Le <strong>moule de fabrication</strong> ou la notice technique qui liste ce que posséderont et sauront faire les objets qui en découleront.</p>
+      <ul>
+        <li>Sans classe, impossible de fabriquer des objets ni d'écrire des instructions en Java.</li>
+      </ul>
+    </div>
+
+    <div id="def-objet" class="def-bloc">
+      <h3>Objet (ou Instance)</h3>
+      <p>Une <strong>entité vivante en mémoire</strong>, créée d'après le plan d'une classe.</p>
+      <ul>
+        <li>Chaque objet possède ses propres valeurs pour ses attributs (ex: deux guerriers distincts avec des noms différents).</li>
+      </ul>
+    </div>
+
+    <div id="def-typage" class="def-bloc">
+      <h3>Typage statique</h3>
+      <p>Une règle stricte qui oblige le programmeur à <strong>définir à l'avance</strong> le genre d'information qu'une variable recevra.</p>
+      <ul>
+        <li>Empêche de mettre du texte dans une case prévue pour des calculs numériques, limitant drastiquement les bugs.</li>
+      </ul>
+    </div>
+
+    <div id="def-immutabilite" class="def-bloc">
+      <h3>Immutabilité</h3>
+      <p>Caractéristique d'une donnée qui <strong>ne peut plus jamais être modifiée</strong> une fois écrite en mémoire.</p>
+      <ul>
+        <li>Quand on manipule un <code>String</code>, Java fabrique un nouveau texte sans jamais altérer l'original.</li>
+      </ul>
+    </div>
+
+    <div id="def-attribut" class="def-bloc">
+      <h3>Attribut (ou Champ)</h3>
+      <p>Une <strong>caractéristique</strong> ou variable interne qui décrit l'état d'un objet.</p>
+      <ul>
+        <li>Exemple : la couleur d'une voiture, l'âge d'un utilisateur ou le solde d'un compte bancaire.</li>
+      </ul>
+    </div>
+
+    <div id="def-methode" class="def-bloc">
+      <h3>Méthode</h3>
+      <p>Une <strong>action ou fonction</strong> qu'un objet est capable d'accomplir sur commande.</p>
+      <ul>
+        <li>Exemple : freiner, calculer un résultat, ou afficher un message à l'écran.</li>
+      </ul>
+    </div>
+
+    <div id="def-encapsulation" class="def-bloc">
+      <h3>Encapsulation</h3>
+      <p>Un principe de sécurité consistant à <strong>verrouiller l'accès direct</strong> aux entrailles d'un objet (via <code>private</code>).</p>
+      <ul>
+        <li>Oblige le reste du programme à passer par des méthodes contrôlées pour consulter ou modifier une donnée.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+
+    termes.forEach(terme => {
+      // 1. Affichage au survol
+      terme.addEventListener('mouseenter', () => {
+        const cle = terme.getAttribute('data-def');
+
+        // Masquer tous les blocs puis afficher le bon
+        blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+        const cible = document.getElementById('def-' + cle);
+        if (cible) {
+          cible.classList.add('actif');
+          tooltip.style.display = 'block';
+        }
+      });
+
+      // 2. Positionnement dynamique suivant la souris
+      terme.addEventListener('mousemove', (e) => {
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        // Évite le débordement à droite de la fenêtre
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      // 3. Masquage à la sortie
+      terme.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
+    });
+  </script>
+
+</body>
+</html>
