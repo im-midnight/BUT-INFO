@@ -6,6 +6,12 @@ const matieres = [
     description: "Probabilités, lois usuelles.",
     lien: "pages/math/proba/indexProba.html",
   },
+  {
+    id: "crypto",
+    titre: "R309 -Cryptographie et sécurité",
+    description: "Cryptographie et sécurité",
+    lien: "pages/math/crypto/indexCrypto.html",
+  },
 
   {
     id: "dev-web",

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arithmétique : de la division euclidienne à l'inverse modulaire</title>
+
+  <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    mark {
+      background: #fef08a;
+      color: inherit;
+      padding: 0.1em 0.25em;
+      border-radius: 3px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Tableau de synthèse */
+    /* Tableau de synthèse et d'exemples */
+    table {
+      width: 100%;
+      min-width: 750px; /* Force le tableau à être assez large pour ne pas écraser les formules */
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+    /* Conteneur défilable pour le tableau */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 1rem;
+      /* Optionnel : ajoute une ombre subtile ou une bordure pour indiquer le scroll */
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      vertical-align: top; /* Aligne le contenu en haut de chaque cellule */
+    }
+
+    /* Empêche les formules de se couper au milieu d'un calcul */
+    td span, td code, td mark {
+      white-space: nowrap; 
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none; /* Évite que la souris bloque sur l'infobulle */
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+
+    .terme { -webkit-tap-highlight-color: transparent; }
+    .astuce-tactile { display: none; }
+
+    /* Appareils sans survol (téléphones, tablettes) */
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+
+      #tooltip {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Arithmétique</h1>
+  <p style="text-align: center; color: #555;">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. DIVISION EUCLIDIENNE -->
+  <section class="loi-card">
+    <h2>1. La division euclidienne - Ranger un entier en paquets</h2>
+    <ul>
+      <li><strong>Nature :</strong> Opération sur les entiers relatifs $\mathbb{Z}$.</li>
+      <li><strong>Le problème :</strong> Pour $a \in \mathbb{Z}$ et $b \in \mathbb{Z}\setminus\{0\}$, écrire $a$ comme « un nombre de paquets de taille $b$ » plus un <span class="terme" data-def="reste">reste</span> strictement plus petit qu'un paquet.</li>
+      <li><strong>Théorème :</strong> Il existe un unique couple $(q, r)$ d'entiers tel que
+        $$a = bq + r \quad \text{avec} \quad 0 \le r &lt; |b|$$
+      </li>
+      <li><strong>Divisibilité :</strong> $b \mid a \iff a \bmod b = 0$ (le reste est nul).</li>
+      <li><strong>Exemple :</strong> $2026 = 17 \times 119 + 3$ (car $17 \times 119 = 2023$), et $-2026 = 17 \times (-120) + 14$.</li>
+      <li><strong>Piège en programmation :</strong> Avec $b > 0$, le <code>%</code> de Python donne le reste ci-dessus, mais pas celui de Kotlin, Java ou C : $-7 \bmod 2 = 1$ en mathématiques et en Python, mais <code>-7 % 2 == -1</code> en Kotlin.</li>
+    </ul>
+  </section>
+
+  <!-- 2. PGCD -->
+  <section class="loi-card">
+    <h2>2. Le PGCD - Le plus grand diviseur commun</h2>
+    <ul>
+      <li><strong>Nature :</strong> Entier positif associé à deux entiers $(a, b) \neq (0, 0)$.</li>
+      <li><strong>Le problème :</strong> Trouver le plus grand entier qui divise à la fois $a$ et $b$, c'est-à-dire le plus grand élément de l'ensemble des <span class="terme" data-def="diviseurs">diviseurs communs</span>.</li>
+      <li><strong>Propriété clé :</strong> Pour tout $q \in \mathbb{Z}$, les diviseurs communs de $(a, b)$ et de $(b, a - bq)$ sont les mêmes. En particulier :
+        $$\operatorname{pgcd}(a, b) = \operatorname{pgcd}(b, \, a \bmod b)$$
+      </li>
+      <li><strong>Autres propriétés :</strong> Tout diviseur commun de $a$ et $b$ divise leur PGCD ; $\operatorname{pgcd}(\lambda a, \lambda b) = |\lambda| \operatorname{pgcd}(a, b)$ ; $\operatorname{pgcd}(a, 0) = |a|$ ; par convention $\operatorname{pgcd}(0, 0) = 0$.</li>
+      <li><strong>Cas particulier :</strong> $a$ et $b$ sont <span class="terme" data-def="premiers">premiers entre eux</span> si $\operatorname{pgcd}(a, b) = 1$.</li>
+      <li><strong>Exemple :</strong> $\operatorname{pgcd}(1071, 462) = 21$, car $1071 = 21 \times 51$ et $462 = 21 \times 22$ avec $\operatorname{pgcd}(51, 22) = 1$.</li>
+    </ul>
+  </section>
+
+  <!-- 3. ALGORITHME D'EUCLIDE -->
+  <section class="loi-card">
+    <h2>3. L'algorithme d'Euclide - Calculer le PGCD par divisions successives</h2>
+    <ul>
+      <li><strong>Nature :</strong> Algorithme qui termine toujours.</li>
+      <li><strong>Le lien avec le PGCD :</strong> Il applique $\operatorname{pgcd}(a, b) = \operatorname{pgcd}(b, a \bmod b)$ jusqu'à obtenir un reste nul. Le <strong>dernier reste non nul</strong> est le PGCD.</li>
+      <li><strong>Pourquoi ça marche :</strong> L'<span class="terme" data-def="invariant">invariant</span> « les diviseurs communs ne changent pas » reste vrai à chaque tour, et les restes forment une suite strictement décroissante d'entiers positifs, donc elle atteint $0$.</li>
+      <li><strong>Code :</strong>
+<pre><code>def pgcd(a, b):
+    a, b = abs(a), abs(b)
+    while b != 0:
+        a, b = b, a % b
+    return a</code></pre>
+      </li>
+      <li><strong>Exemple complet : $\operatorname{pgcd}(1071, 462)$.</strong> À chaque ligne, on divise l'ancien diviseur $b$ par le dernier reste.
+        <div class="table-container">
+            <table style="width: 100%; min-width: 750px; border-collapse: collapse; background: #fff; margin-top: 1rem;">
+            <thead>
+                <tr>
+                <th style="width: 8%;">Étape</th>
+                <th style="width: 25%;">Division $a = bq + r$</th>
+                <th style="width: 12%;">On passe à $(a, b)$</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <td>1</td>
+                <td>$1071 = 462 \times 2 + 147$</td>
+                <td>$(462, 147)$</td>
+                </tr>
+                <tr>
+                <td>2</td>
+                <td>$462 = 147 \times 3 + 21$</td>
+                <td>$(147, 21)$</td>  
+                </tr>
+                <tr>
+                <td>3</td>
+                <td>$147 = 21 \times 7 + 0$</td>
+                <td>reste nul :<br>on s'arrête</td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+
+        Le dernier reste non nul est $21$, donc $\operatorname{pgcd}(1071, 462) = 21$. En remontant les lignes 2 puis 1, on exprime ce reste avec les deux nombres de départ : $21 = 1071 \times (-3) + 462 \times 7$. C'est l'identité de Bézout ; l'algorithme d'Euclide étendu (section 5) fait ce calcul en même temps que les divisions. Si $a &lt; b$ (par exemple $(462, 1071)$), la première division a pour quotient $0$ et échange simplement les deux nombres.
+      </li>
+    </ul>
+  </section>    
+
+  <!-- 4. PPCM -->
+  <section class="loi-card">
+    <h2>4. Le PPCM - Le plus petit multiple commun</h2>
+    <ul>
+      <li><strong>Nature :</strong> Entier positif associé à deux entiers non nuls $a$ et $b$.</li>
+      <li><strong>Le problème :</strong> Trouver le plus petit entier strictement positif qui est à la fois un multiple de $a$ et de $b$. Par convention, $\operatorname{ppcm}(a, b) = 0$ si $a = 0$ ou $b = 0$.</li>
+      <li><strong>Propriétés :</strong> Tout multiple commun de $a$ et $b$ est un multiple de leur PPCM. Pour <strong>deux</strong> nombres :
+        $$\operatorname{pgcd}(a, b) \times \operatorname{ppcm}(a, b) = |ab|$$
+      </li>
+      <li><strong>Calcul :</strong> On divise d'abord, puis on multiplie : <code>abs(a // pgcd(a, b) * b)</code>. La division est exacte car $\operatorname{pgcd}(a, b) \mid a$, et cela évite un débordement dans les langages à entiers de taille fixe.</li>
+      <li><strong>Exemple :</strong> $\operatorname{ppcm}(1071, 462) = \dfrac{1071 \times 462}{21} = 51 \times 462 = 23562$ (vérification : $1071 \times 22 = 23562$).</li>
+      <li><strong>Piège :</strong> La formule ne s'étend pas à trois nombres : $\operatorname{pgcd}(6, 10, 15) = 1$ et $\operatorname{ppcm}(6, 10, 15) = 30$, mais $6 \times 10 \times 15 = 900$.</li>
+    </ul>
+  </section>
+
+  <!-- 5. BÉZOUT ET EUCLIDE ÉTENDU -->
+  <section class="loi-card">
+    <h2>5. Bézout et l'algorithme d'Euclide étendu - Écrire le PGCD comme combinaison de $a$ et $b$</h2>
+    <ul>
+      <li><strong>Nature :</strong> Un théorème et l'algorithme qui le démontre.</li>
+      <li><strong>Théorème de Bézout :</strong> Si $(a, b) \neq (0, 0)$ et $d = \operatorname{pgcd}(a, b)$, il existe des entiers $u, v$ tels que
+        $$au + bv = d$$
+        Autrement dit, le PGCD est une <span class="terme" data-def="combinaison">combinaison linéaire entière</span> de $a$ et $b$.
+      </li>
+      <li><strong>Corollaire (identité de Bézout) :</strong> $a$ et $b$ sont premiers entre eux $\iff$ il existe $u, v \in \mathbb{Z}$ avec $au + bv = 1$. Le sens ($\Leftarrow$) se justifie directement : un diviseur commun de $a$ et $b$ divise $au + bv = 1$, donc le PGCD vaut $1$.</li>
+      <li><strong>Pourquoi le théorème est vrai :</strong> Dans l'algorithme d'Euclide, chaque reste est une combinaison des deux restes précédents. On suit donc, en plus de $r_i$, deux entiers $u_i, v_i$ avec l'<span class="terme" data-def="invariant">invariant</span> $r_i = a u_i + b v_i$ :
+        $$r_0 = a,\ u_0 = 1,\ v_0 = 0 \qquad r_1 = b,\ u_1 = 0,\ v_1 = 1$$
+        $$r_{i+1} = r_{i-1} - q_i r_i, \quad u_{i+1} = u_{i-1} - q_i u_i, \quad v_{i+1} = v_{i-1} - q_i v_i$$
+        L'invariant se conserve : $r_{i+1} = (a u_{i-1} + b v_{i-1}) - q_i (a u_i + b v_i) = a u_{i+1} + b v_{i+1}$. Au dernier reste non nul, on obtient $d = au + bv$.
+      </li>
+      <li><strong>Exemple complet : $1071 u + 462 v = \operatorname{pgcd}(1071, 462)$.</strong>
+        <div class="table-container">
+            <table style="width: 100%; min-width: 750px; border-collapse: collapse; background: #fff; margin-top: 1rem;">
+            <thead>
+                <tr>
+                <th style="width: 8%;">Étape</th>
+                <th style="width: 25%;">Division $a = bq + r$</th>
+                <th style="width: 25%;">$a - bq = r$</th>
+                <th style="width: 30%;">Identité de Bézout</th>
+                <th style="width: 12%;">On passe à $(a, b)$</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <td>1</td>
+                <td>$1071 = 462 \times 2 + 147$</td>
+                <td style="white-space: nowrap;">$1071 + 462 \times (-2) =$ <mark>$147$</mark></td>
+                <td></td>
+                <td>$(462, 147)$</td>
+                </tr>
+                <tr>
+                <td>2</td>
+                <td>$462 = 147 \times 3 + 21$</td>
+                <td>$462 +$ <mark>$147$</mark> $\times (-3) =$ <mark style="background:#bbf7d0">$21$</mark></td>
+                <td style="white-space: nowrap;">
+                    $462$ + <mark>$\underbrace{(1071 + 462 \times (-2))}_{\text{remplacé par } 147}$</mark> $\times (-3) = 21$
+                    <br>
+                    $462 \times 7 + 1071 \times (-3) = 21$
+                </td>
+                <td>$(147, 21)$</td>  
+                </tr>
+                <tr>
+                <td>3</td>
+                <td>$147 = 21 \times 7 + 0$</td>
+                <td>$147 + 21 \times (-7) =$ <mark>$0$</mark> <br><span style="white-space: normal; font-size: 0.85rem; color: #555;">(reste nul : rien à substituer)</span></td>
+                <td>(reste nul)</td>
+                <td>reste nul :<br>on s'arrête</td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+        Le dernier reste non nul est $r_3 = 21$ : $$21 = 1071 \times (-3) + 462 \times 7$$.
+      </li> 
+      <li><strong>Code :</strong>
+<pre><code>def euclide_etendu(a, b):
+    """a, b >= 0. Retourne (d, u, v) avec d = pgcd(a, b) = a*u + b*v."""
+    r0, r1 = a, b
+    u0, u1 = 1, 0
+    v0, v1 = 0, 1
+    while r1 != 0:
+        q = r0 // r1
+        r0, r1 = r1, r0 - q * r1
+        u0, u1 = u1, u0 - q * u1
+        v0, v1 = v1, v0 - q * v1
+    return r0, u0, v0
+
+assert euclide_etendu(1071, 462) == (21, -3, 7)</code></pre>
+      </li>
+      <li><strong>Application sur <span class="terme" data-def="diophantienne">une équation diophantienne</span> $ax + by = c$ :</strong> Elle admet des solutions entières $\iff \operatorname{pgcd}(a, b) \mid c$.
+  <br><strong>Exemple complet ($1071x + 462y = 42$) :</strong>
+  <ul>
+    <li><strong>1. Solution particulière $(x_0, y_0)$ :</strong> On a $\operatorname{pgcd}(1071, 462) = 21 \mid 42$. L'algorithme d'Euclide étendu donne $1071 \times (-3) + 462 \times 7 = 21$. En multipliant par $2$, on obtient $1071 \times (-6) + 462 \times 14 = 42$, d'où la solution particulière $(x_0, y_0) = (-6, 14)$.</li>
+    <li><strong>2. Équation homogène (Soustraction $L_1 - L_2$) :</strong> Soit $(x, y)$ un couple d'entiers solution. On pose le système :
+      $$\begin{cases}
+      L_1 : 1071x + 462y = 42 \\
+      L_2 : 1071(-6) + 462(14) = 42
+      \end{cases}$$
+      En effectuant l'opération $L_1 - L_2$, les seconds membres s'annulent ($42 - 42 = 0$) :
+      $$1071(x - (-6)) + 462(y - 14) = 0 \implies 1071(x + 6) = 462(14 - y)$$
+    </li>
+    <li><strong>3. Simplification par le PGCD ($21$) :</strong> En divisant par $21$, l'équation devient :
+      $$51(x + 6) = 22(14 - y)$$
+    </li>
+    <li><strong>4. Théorème de Gauss :</strong> Comme $\operatorname{pgcd}(51, 22) = 1$ et $51 \mid 22(14 - y)$, le théorème de Gauss implique $51 \mid (14 - y)$. Il existe donc $k \in \mathbb{Z}$ tel que :
+      $$14 - y = 51k \implies y = 14 - 51k$$
+    </li>
+    <li><strong>5. Détermination de $x$ et ensemble des solutions :</strong>
+      <br>On réinjecte l'expression de $y = 14 - 51k$ trouvée à l'étape 4 dans l'équation simplifiée $51(x + 6) = 22 \times (14 - (14-51k))$ :
+      $$51(x + 6) = 22 \times (51k)$$
+      En divisant par $51$ des deux côtés :
+      $$x + 6 = 22k \implies x = -6 + 22k$$
+      Tous les couples d'entiers solutions de l'équation sont donc :
+      $$\mathcal{S} = \{(-6 + 22k, \; 14 - 51k) \mid k \in \mathbb{Z}\}$$
+      <span style="color: #555; font-size: 0.9rem;">(Par exemple, pour $k = 1$, on obtient le couple $(16, -37)$ : $1071 \times 16 + 462 \times (-37) = 17136 - 17094 = 42$).</span>
+    </li>
+  </ul>
+</li>
+    </ul>
+  </section>
+
+  <!-- 6. GAUSS, EUCLIDE, PREMIERS -->
+  <section class="loi-card">
+    <h2>6. Le lemme de Gauss, le lemme d'Euclide et les nombres premiers</h2>
+    <ul>
+      <li><strong>Nature :</strong> Deux lemmes, puis un théorème de structure sur les entiers.</li>
+      <li><strong>Définition :</strong> Un <span class="terme" data-def="premier">nombre premier</span> est un entier $p \ge 2$ dont les seuls diviseurs positifs sont $1$ et $p$.</li>
+      <li><strong>Lemme de Gauss :</strong> Si $a \mid bc$ et $\operatorname{pgcd}(a, b) = 1$, alors $a \mid c$.
+        <br><em>Justification :</em> Par Bézout, $au + bv = 1$, donc $c = a c u + b c v$. Or $a$ divise $acu$ et divise $bc$, donc $bcv$. Il divise donc la somme, qui vaut $c$.
+      </li>
+      <li><strong>Lemme d'Euclide :</strong> Si $p$ est premier et $p \mid ab$, alors $p \mid a$ ou $p \mid b$.
+        <br><em>Justification :</em> Si $p \nmid a$, alors $\operatorname{pgcd}(p, a) = 1$ (les diviseurs positifs de $p$ sont $1$ et $p$). Le lemme de Gauss donne $p \mid b$.
+      </li>
+      <li><strong>Théorème fondamental de l'arithmétique :</strong> Tout entier $n \ge 2$ s'écrit comme un produit de nombres premiers, et cette écriture est unique à l'ordre des facteurs près.
+        <br><em>Justification :</em> Existence : par récurrence forte, $n$ est premier, ou $n = ab$ avec $1 &lt; a, b &lt; n$ et on applique l'hypothèse à $a$ et $b$. Unicité : si deux produits de premiers sont égaux, le lemme d'Euclide permet de simplifier facteur par facteur.
+      </li>
+      <li><strong>Exemple :</strong> $1071 = 3^2 \times 7 \times 17$ (car $9 \times 119 = 1071$ et $119 = 7 \times 17$) et $462 = 2 \times 3 \times 7 \times 11$. On retrouve
+        $$\operatorname{pgcd}(1071, 462) = 3 \times 7 = 21, \qquad \operatorname{ppcm}(1071, 462) = 2 \times 3^2 \times 7 \times 11 \times 17 = 23562$$
+        (facteurs communs avec l'exposant minimal pour le PGCD, tous les facteurs avec l'exposant maximal pour le PPCM).
+      </li>
+      <li><strong>Pratique :</strong> L'algorithme d'Euclide calcule un PGCD sans décomposer les nombres en facteurs premiers, ce qui est ce qui le rend utilisable sur de très grands entiers.</li>
+    </ul>
+  </section>
+
+  <!-- 7. CONGRUENCES -->
+  <section class="loi-card">
+    <h2>7. Les congruences et le modulo - Calculer en ne gardant que le reste</h2>
+    <ul>
+      <li><strong>Nature :</strong> Relation entre deux entiers, définie pour un entier $n \ge 1$ fixé (le module).</li>
+      <li><strong>Définition :</strong>
+        $$a \equiv b\ [n] \iff n \mid a - b \iff a \bmod n = b \bmod n$$
+        Ne pas confondre : $a \equiv b\ [n]$ est une <strong>relation</strong> (vraie ou fausse), alors que $a \bmod n$ est une <strong>opération</strong> dont le résultat est un entier de $\{0, \dots, n-1\}$ (voir <span class="terme" data-def="reste">reste</span>).
+        <br><em>Justification de l'équivalence :</em> Écrivons $a = nq + r$ et $b = nq' + r'$ avec $0 \le r, r' &lt; n$. Alors $a - b = n(q - q') + (r - r')$ et $|r - r'| &lt; n$. Donc $n \mid a - b \iff n \mid r - r' \iff r = r'$, car le seul multiple de $n$ de valeur absolue inférieure à $n$ est $0$.
+      </li>
+      <li><strong>Compatibilité :</strong> Si $a \equiv b\ [n]$ et $c \equiv d\ [n]$, alors
+        $$a + c \equiv b + d\ [n], \qquad ac \equiv bd\ [n], \qquad a^k \equiv b^k\ [n] \ (k \in \mathbb{N})$$
+      </li>
+      <li><strong>Exemple :</strong> Calculons $2^{2026} \bmod 11$. On a $2^{10} = 1024 = 11 \times 93 + 1$, donc $2^{10} \equiv 1\ [11]$. Comme $2026 = 10 \times 202 + 6$,
+        $$2^{2026} = (2^{10})^{202} \times 2^6 \equiv 1^{202} \times 64 \equiv 9\ [11]$$
+        car $64 = 11 \times 5 + 9$. Donc $2^{2026} \bmod 11 = 9$.
+      </li>
+      <li><strong>L'ensemble $\mathbb{Z}/n\mathbb{Z}$ :</strong> On regroupe les entiers par <span class="terme" data-def="classe">classe</span> modulo $n$. Il y a $n$ classes, représentées par $0, 1, \dots, n-1$, et l'addition et la multiplication sont compatibles avec les classes. Table de multiplication de $\mathbb{Z}/6\mathbb{Z}$ :
+        <table>
+          <thead>
+            <tr><th>$\times$</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>0</th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th>1</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+            <tr><th>2</th><td>0</td><td>2</td><td>4</td><td>0</td><td>2</td><td>4</td></tr>
+            <tr><th>3</th><td>0</td><td>3</td><td>0</td><td>3</td><td>0</td><td>3</td></tr>
+            <tr><th>4</th><td>0</td><td>4</td><td>2</td><td>0</td><td>4</td><td>2</td></tr>
+            <tr><th>5</th><td>0</td><td>5</td><td>4</td><td>3</td><td>2</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </li>
+      <li><strong>Piège :</strong> On ne peut pas toujours simplifier. Dans $\mathbb{Z}/6\mathbb{Z}$, $2 \times 3 = 0$ alors que $2 \neq 0$ et $3 \neq 0$ ; de même $2 \times 3 \equiv 2 \times 0\ [6]$ mais $3 \not\equiv 0\ [6]$. Simplifier par $a$ n'est permis que si $a$ est inversible (section suivante).</li>
+    </ul>
+  </section>
+
+  <!-- 8. INVERSE MODULAIRE -->
+  <section class="loi-card">
+    <h2>8. L'inverse modulaire - Diviser dans $\mathbb{Z}/n\mathbb{Z}$</h2>
+    <ul>
+      <li><strong>Nature :</strong> Élément de $\mathbb{Z}/n\mathbb{Z}$.</li>
+      <li><strong>Définition :</strong> $a$ est <span class="terme" data-def="inverse">inversible</span> modulo $n$ s'il existe $x$ tel que $ax \equiv 1\ [n]$. On note alors $x = a^{-1}$ (modulo $n$).</li>
+      <li><strong>Théorème :</strong>
+        $$a \text{ est inversible modulo } n \iff \operatorname{pgcd}(a, n) = 1$$
+        <em>Justification :</em> ($\Rightarrow$) Si $ax \equiv 1\ [n]$, alors $ax - nk = 1$ pour un entier $k$, et tout diviseur commun de $a$ et $n$ divise $1$. ($\Leftarrow$) Si $\operatorname{pgcd}(a, n) = 1$, Bézout donne $au + nv = 1$, donc $au \equiv 1\ [n]$ : l'inverse est $u \bmod n$, calculé par l'algorithme d'Euclide étendu.
+      </li>
+      <li><strong>Petits exemples :</strong> Dans $\mathbb{Z}/6\mathbb{Z}$, seuls $1$ et $5$ sont inversibles ($5 \times 5 = 25 = 4 \times 6 + 1$). Les classes $2, 3, 4$ ne le sont pas, car leur PGCD avec $6$ vaut $2, 3, 2$ (c'est ce que montre la table de la section 7). L'ensemble des classes inversibles, noté $(\mathbb{Z}/n\mathbb{Z})^*$, est stable par multiplication : $(ab)(b^{-1}a^{-1}) \equiv 1$. Il vaut $\{1, 5\}$ pour $n = 6$, $\{1, 3, 7, 9\}$ pour $n = 10$ et $\{1, 2, \dots, 6\}$ pour $n = 7$ (premier).</li>
+      <li><strong>Exemple complet : l'inverse de $17$ modulo $3120$.</strong> On applique l'algorithme d'Euclide étendu à $(3120, 17)$ :
+        <table>
+          <thead>
+            <tr><th>$i$</th><th>$r_i$</th><th>Quotient $q$ utilisé</th><th>$u_i$</th><th>$v_i$</th><th>Vérification de $r_i = 3120 u_i + 17 v_i$</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>0</td><td>3120</td><td>-</td><td>1</td><td>0</td><td>$3120$</td></tr>
+            <tr><td>1</td><td>17</td><td>-</td><td>0</td><td>1</td><td>$17$</td></tr>
+            <tr><td>2</td><td>9</td><td>183</td><td>1</td><td>$-183$</td><td>$3120 - 3111 = 9$</td></tr>
+            <tr><td>3</td><td>8</td><td>1</td><td>$-1$</td><td>184</td><td>$-3120 + 3128 = 8$</td></tr>
+            <tr><td>4</td><td>1</td><td>1</td><td>2</td><td>$-367$</td><td>$6240 - 6239 = 1$</td></tr>
+            <tr><td>5</td><td>0</td><td>8</td><td>$-17$</td><td>3120</td><td>$-53040 + 53040 = 0$</td></tr>
+          </tbody>
+        </table>
+        Les quotients sont $3120 = 17 \times 183 + 9$, puis $17 = 9 \times 1 + 8$, $9 = 8 \times 1 + 1$, $8 = 1 \times 8 + 0$. Le PGCD vaut $1$, donc $17$ est inversible modulo $3120$, et
+        $$1 = 3120 \times 2 + 17 \times (-367) \quad \Rightarrow \quad 17^{-1} \equiv -367 \equiv 2753\ [3120]$$
+        Vérification : $17 \times 2753 = 46801 = 3120 \times 15 + 1$.
+      </li>
+      <li><strong>Code :</strong>
+<pre><code>def inverse_mod(a, n):
+    d, u, _ = euclide_etendu(a % n, n)
+    if d != 1:
+        raise ValueError("a n'est pas inversible modulo n")
+    return u % n
+
+assert inverse_mod(17, 3120) == 2753
+# Python >= 3.8 : pow(17, -1, 3120) donne aussi 2753</code></pre>
+      </li>
+      <li><strong>Résoudre $ax \equiv b\ [n]$ quand $\operatorname{pgcd}(a, n) = 1$ :</strong> on multiplie par $a^{-1}$, soit $x \equiv a^{-1} b\ [n]$. Exemple : $17x \equiv 5\ [3120]$ donne $x \equiv 2753 \times 5 = 13765 \equiv 1285\ [3120]$ (car $13765 - 4 \times 3120 = 1285$). Vérification : $17 \times 1285 = 21845 = 3120 \times 7 + 5$.</li>
+      <li><strong>Quand $d = \operatorname{pgcd}(a, n) > 1$ :</strong> il y a des solutions $\iff d \mid b$, et alors exactement $d$ solutions modulo $n$.
+        <br><em>Justification :</em> $ax \equiv b\ [n]$ signifie $ax - b = nk$, et on divise par $d$ (division exacte) : $\frac{a}{d}x \equiv \frac{b}{d}\ \left[\frac{n}{d}\right]$, avec $\frac{a}{d}$ et $\frac{n}{d}$ premiers entre eux (car $d = \operatorname{pgcd}(a, n) = d \times \operatorname{pgcd}\left(\frac{a}{d}, \frac{n}{d}\right)$, propriété de la section 2). Cette équation a une solution unique modulo $\frac{n}{d}$, soit $d$ solutions modulo $n$.
+        <br><em>Exemple :</em> $6x \equiv 4\ [10]$ : $d = 2$ divise $4$, donc $3x \equiv 2\ [5]$. L'inverse de $3$ modulo $5$ est $2$ (car $3 \times 2 = 6 \equiv 1$), d'où $x \equiv 4\ [5]$, c'est-à-dire $x \equiv 4$ ou $x \equiv 9\ [10]$. Vérification : $6 \times 4 = 24 \equiv 4$ et $6 \times 9 = 54 \equiv 4\ [10]$.
+      </li>
+    </ul>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Notion</th>
+          <th>Type</th>
+          <th>Que calcule-t-elle ?</th>
+          <th>Formule clé</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Division euclidienne</strong></td>
+          <td>Opération</td>
+          <td>Le quotient $q$ et le reste $r$ de $a$ par $b$</td>
+          <td>$a = bq + r$, $0 \le r &lt; |b|$</td>
+        </tr>
+        <tr>
+          <td><strong>PGCD</strong></td>
+          <td>Entier</td>
+          <td>Le plus grand diviseur commun de $a$ et $b$</td>
+          <td>$\operatorname{pgcd}(a, b) = \operatorname{pgcd}(b, a \bmod b)$</td>
+        </tr>
+        <tr>
+          <td><strong>Algorithme d'Euclide</strong></td>
+          <td>Algorithme</td>
+          <td>Le PGCD, en $O(\log b)$ divisions</td>
+          <td>$k \le 1 + \log_\varphi b$</td>
+        </tr>
+        <tr>
+          <td><strong>PPCM</strong></td>
+          <td>Entier</td>
+          <td>Le plus petit multiple commun strictement positif</td>
+          <td>$\operatorname{ppcm}(a, b) = \dfrac{|ab|}{\operatorname{pgcd}(a, b)}$</td>
+        </tr>
+        <tr>
+          <td><strong>Bézout / Euclide étendu</strong></td>
+          <td>Théorème et algorithme</td>
+          <td>Des entiers $u, v$ tels que $au + bv = \operatorname{pgcd}(a, b)$</td>
+          <td>$r_i = a u_i + b v_i$</td>
+        </tr>
+        <tr>
+          <td><strong>Gauss</strong></td>
+          <td>Lemme</td>
+          <td>Simplifier une divisibilité par un facteur premier avec $a$</td>
+          <td>$a \mid bc$ et $\operatorname{pgcd}(a, b) = 1 \Rightarrow a \mid c$</td>
+        </tr>
+        <tr>
+          <td><strong>Congruence</strong></td>
+          <td>Relation</td>
+          <td>$a$ et $b$ ont le même reste dans la division par $n$</td>
+          <td>$a \equiv b\ [n] \iff n \mid a - b$</td>
+        </tr>
+        <tr>
+          <td><strong>Inverse modulaire</strong></td>
+          <td>Élément de $\mathbb{Z}/n\mathbb{Z}$</td>
+          <td>L'entier $x$ tel que $ax \equiv 1\ [n]$</td>
+          <td>existe $\iff \operatorname{pgcd}(a, n) = 1$</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES 5 DÉFINITIONS PRÉ-CHARGÉES -->
+  <div id="tooltip">
+    <div id="def-combinaison" class="def-bloc">
+      <h3>Combinaison linéaire entière</h3>
+      <p>Une expression $au + bv$ où $u$ et $v$ sont des <strong>entiers relatifs</strong> (positifs, négatifs ou nuls).</p>
+      <ul>
+        <li><strong>Exemple :</strong> $21 = 1071 \times (-3) + 462 \times 7$ est une combinaison de $1071$ et $462$.</li>
+        <li>Les coefficients $u, v$ de Bézout ne sont pas uniques : $(-3, 7)$ et $(19, -44)$ conviennent tous les deux.</li>
+      </ul>
+    </div>
+
+    <div id="def-premier" class="def-bloc">
+      <h3>Nombre premier</h3>
+      <p>Un entier $p \ge 2$ dont les <strong>seuls diviseurs positifs</strong> sont $1$ et $p$.</p>
+      <ul>
+        <li><strong>Exemples :</strong> $2, 3, 5, 7, 11, 13$. Le nombre $1$ n'est pas premier, et $51 = 3 \times 17$ non plus.</li>
+        <li>À ne pas confondre avec « premiers entre eux », qui concerne <em>deux</em> entiers.</li>
+      </ul>
+    </div>
+
+    <div id="def-classe" class="def-bloc">
+      <h3>Classe modulo $n$</h3>
+      <p>L'ensemble des entiers qui ont le même reste que $a$ dans la division par $n$.</p>
+      <ul>
+        <li><strong>Exemple ($n = 6$) :</strong> la classe de $2$ est $\{\dots, -4, 2, 8, 14, \dots\}$.</li>
+        <li>$\mathbb{Z}/n\mathbb{Z}$ est l'ensemble des $n$ classes, représentées par $0, 1, \dots, n-1$.</li>
+      </ul>
+    </div>
+
+    <div id="def-inverse" class="def-bloc">
+      <h3>Inverse modulaire ($a^{-1}$)</h3>
+      <p>L'entier $x$ tel que $ax \equiv 1\ [n]$, défini à un multiple de $n$ près. On le choisit en général dans $\{0, \dots, n-1\}$.</p>
+      <ul>
+        <li><strong>Exemple :</strong> $5$ est son propre inverse modulo $6$, car $5 \times 5 = 25 \equiv 1$.</li>
+        <li>Ce n'est pas la fraction $\frac{1}{a}$ des réels : c'est un entier.</li>
+      </ul>
+    </div>
+    <div id="def-reste" class="def-bloc">
+      <h3>Reste ($a \bmod b$)</h3>
+      <p>L'entier $r$ de la division euclidienne $a = bq + r$ avec $0 \le r &lt; |b|$. C'est le <strong>résultat d'une opération</strong>, à ne pas confondre avec la relation de congruence $a \equiv b\ [n]$.</p>
+      <ul>
+        <li><strong>Python :</strong> pour $b &gt; 0$, <code>a % b</code> est ce reste.</li>
+        <li><strong>Kotlin, Java, C :</strong> <code>a % b</code> peut être négatif si $a &lt; 0$.</li>
+      </ul>
+    </div>
+    <div id="def-diophantienne" class="def-bloc">
+      <h3>Équation diophantienne linéaire ($ax + by = c$)</h3>
+      <p>Une équation à coefficients entiers dont on cherche les solutions sous forme de <strong>couples d'entiers</strong> $(x, y)$.</p>
+      <ul>
+        <li><strong>Condition de résolution :</strong> Elle admet des solutions $\iff \operatorname{pgcd}(a, b)$ divise $c$.</li>
+        <li><strong>Exemple :</strong> $1071x + 462y = 42$. Comme $42$ est un multiple de $\operatorname{pgcd}(1071, 462) = 21$, il existe des solutions (ex: $(-6, 14)$).</li>
+      </ul>
+    </div>
+
+    <div id="def-diviseurs" class="def-bloc">
+      <h3>Diviseurs communs ($D(a,b)$)</h3>
+      <p>L'ensemble des entiers $d$ tels que $d \mid a$ et $d \mid b$. Il contient toujours $1$ et $-1$.</p>
+      <ul>
+        <li>Le PGCD est le plus grand élément positif de cet ensemble.</li>
+        <li>Tous les éléments de $D(a,b)$ sont des diviseurs du PGCD.</li>
+      </ul>
+    </div>
+
+    <div id="def-premiers" class="def-bloc">
+      <h3>Premiers entre eux</h3>
+      <p>Deux entiers $a$ et $b$ sont <strong>premiers entre eux</strong> si leur seul diviseur positif commun est $1$, c'est-à-dire si $\operatorname{pgcd}(a, b) = 1$.</p>
+      <ul>
+        <li><strong>Exemple :</strong> $51$ et $22$ le sont, alors que $51$ et $21$ ne le sont pas (ils ont $3$ en commun).</li>
+        <li>Pour trois nombres, « premiers entre eux dans leur ensemble » n'implique pas « deux à deux » : $6$, $10$, $15$.</li>
+      </ul>
+    </div>
+
+    <div id="def-invariant" class="def-bloc">
+      <h3>Invariant de boucle</h3>
+      <p>Une propriété <strong>vraie avant la boucle</strong> et qui reste vraie après chaque tour. À la sortie, elle sert à prouver que le résultat est correct.</p>
+      <ul>
+        <li><strong>Dans Euclide :</strong> les diviseurs communs de $(a, b)$ sont les mêmes qu'au départ.</li>
+      </ul>
+    </div>
+
+    <div id="def-fibonacci" class="def-bloc">
+      <h3>Suite de Fibonacci ($F_n$)</h3>
+      <p>La suite définie par $F_1 = F_2 = 1$ et $F_{n+2} = F_{n+1} + F_n$ : $1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, \dots$</p>
+      <ul>
+        <li>Deux termes consécutifs donnent le <strong>pire cas</strong> d'Euclide : chaque quotient vaut $1$, sauf le dernier.</li>
+        <li>On a $F_n \ge \varphi^{n-2}$, ce qui conduit à la borne logarithmique.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      // Masquer toutes les définitions puis activer uniquement celle demandée
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      document.getElementById('def-' + cle).classList.add('actif');
+      tooltip.style.display = 'block';
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return; // le terme d'exemple de l'en-tête n'a pas de définition
+
+      // 1. Souris : affichage au survol
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      // 2. Souris : suivi en temps réel
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        // Empêcher l'infobulle de sortir à droite, puis à gauche de l'écran
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      // 3. Souris : masquage quand la souris quitte le mot
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      // 4. Tactile : un appui ouvre, un second appui sur le même mot ferme
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    // 5. Tactile : un appui n'importe où ailleurs ferme l'infobulle
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+</body>
+</html>
