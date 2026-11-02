@@ -148,8 +148,8 @@
 
   <!-- 0. COMPRENDRE LE PARADIGME : DE QUOI PARLE-T-ON ? -->
   <section class="loi-card">
-    <h2>0. Le cycle de vie d'un programme </h2>
-      <ul>
+    <h2>0. Le cycle de vie d'un programme</h2>
+    <ul>
       <li><strong>Le fichier source :</strong> Un fichier texte contenant nos instructions (ex: <code>Main.java</code>).</li>
       <li><strong>La <span class="terme" data-def="compilation">compilation</span> :</strong> Un outil nommé <code>javac</code> traduit nos mots humains en <span class="terme" data-def="bytecode">bytecode</span> (un fichier <code>Main.class</code>).</li>
       <li><strong>L'exécution par la <span class="terme" data-def="jvm">JVM</span> :</strong> Cette machine virtuelle lit ce bytecode et le traduit instantanément pour votre système (Windows, Mac ou Linux).</li>
@@ -158,7 +158,7 @@
 
   <!-- 1. LA STRUCTURE MINIMALE -->
   <section class="loi-card">
-    <h2>1. La structure minimale </h2>
+    <h2>1. La structure minimale</h2>
     <ul>
       <li><strong>Le principe :</strong> En Java, aucun code ne peut flotter dans le vide. Tout bloc d'instruction doit obligatoirement résider au sein d'une <span class="terme" data-def="classe">classe</span>.</li>
       <li><strong>Le fichier modèle :</strong> Le fichier doit porter rigoureusement le même nom que la classe publique (ici <code>Main.java</code>).</li>
@@ -182,7 +182,7 @@
 
   <!-- 2. LE TYPAGE DES DONNÉES -->
   <section class="loi-card">
-    <h2>2. Les variables et le typage statique </h2>
+    <h2>2. Les variables et le typage statique</h2>
     <ul>
       <li><strong>Le mécanisme :</strong> Java utilise un <span class="terme" data-def="typage">typage statique</span>. Chaque boîte mémoire doit déclarer à l'avance la nature exacte de ce qu'elle contiendra.</li>
       <li><strong>Types primitifs (valeurs brutes directes) :</strong>
@@ -229,33 +229,177 @@ if (score >= 50) {
 
   <!-- 4. LA PROGRAMMATION ORIENTÉE OBJET -->
   <section class="loi-card">
-    <h2>4. La Programmation Orientée Objet (POO)</h2>
+    <h2>4. La Programmation Orientée Objet (POO), Classes, Héritage et Interfaces</h2>
     <ul>
-      <li><strong>L'architecture d'une classe :</strong>
+      <li><strong>L'architecture d'une classe :</strong> Une classe regroupe des <span class="terme" data-def="attribut">attributs</span> (variables) et des <span class="terme" data-def="methode">méthodes</span> (actions).
 <pre><code>public class Etudiant {
-    // 1. Attributs protégés (Encapsulation)
+    // 1. Attributs privés (Encapsulation)
     private String nom;
     private int taille;
 
+    // 2. Constructeur
     public Etudiant(String nom, int taille) {
         this.nom = nom;
         this.taille = taille;
     }
 
-    public void SigneSowesign() {
-        System.out.println(this.nom + " à signé");
+    public void signeSowesign() {
+        System.out.println(this.nom + " a signé");
     }
 }</code></pre>
       </li>
       <li><strong>Utilisation par instanciation :</strong> On crée des exemplaires distincts sur ce moule grâce au mot-clé <code>new</code>.
 <pre><code>Etudiant g1 = new Etudiant("Bruce", 165);
-</code></pre>
+g1.signeSowesign();</code></pre>
       </li>
       <li><strong>La protection par <span class="terme" data-def="encapsulation">encapsulation</span> :</strong> Le mot <code>private</code> empêche tout code extérieur de corrompre arbitrairement les données d'un objet.</li>
+      
+      <li><strong>L'héritage (<span class="terme" data-def="extends">extends</span>) :</strong> Permet à une classe fille de récupérer tous les attributs et méthodes d'une classe mère pour les étendre ou les modifier.
+<pre><code>// Classe Mère
+public class Personne {
+    protected String nom;
+    public void respirer() { System.out.println("Je respire"); }
+}
+
+// Classe Fille qui hérite de Personne
+public class Etudiant <span class="terme" data-def="extends">extends</span> Personne {
+    private int niveau;
+
+    public Etudiant(String nom, int niveau) {
+        this.nom = nom; // Hérité de Personne
+        this.niveau = niveau;
+    }
+}</code></pre>
+      </li>
+
+      <li><strong>Les contrats et interfaces (<span class="terme" data-def="implements">implements</span>) :</strong> Une interface est une liste de méthodes abstraites obligatoires. Une classe utilise <code>implements</code> pour s'engager à les coder.
+<pre><code>public interface Travailleur {
+    void travailler(); // Pas de corps, juste la signature
+}
+
+public class Developpeur <span class="terme" data-def="implements">implements</span> Travailleur {
+    @Override
+    public void travailler() {
+        System.out.println("Je code en Java !");
+    }
+}</code></pre>
+      </li>
     </ul>
   </section>
 
+  <!-- 5. LES STRUCTURES DE DONNÉES -->
+  <section class="loi-card">
+    <h2>5. Les structures de données (Collections Framework)</h2>
+    <p>Java fournit un ensemble complet d'outils pour regrouper et organiser des données en mémoire.</p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Structure</th>
+          <th>Type</th>
+          <th>Caractéristiques principales</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>T[]</code> (Tableau fixe)</td>
+          <td>Tableau brut</td>
+          <td>Taille fixe définie à la création, très performant.</td>
+        </tr>
+        <tr>
+          <td><span class="terme" data-def="arraylist">ArrayList&lt;E&gt;</span></td>
+          <td>Liste ordonnée</td>
+          <td>Taille dynamique, doublons autorisés, accès rapide par index.</td>
+        </tr>
+        <tr>
+          <td><code>HashSet&lt;E&gt;</code></td>
+          <td>Ensemble (Set)</td>
+          <td>Pas de doublons, pas d'ordre garanti, recherches extrêmement rapides.</td>
+        </tr>
+        <tr>
+          <td><span class="terme" data-def="hashmap">HashMap&lt;K, V&gt;</span></td>
+          <td>Dictionnaire (Map)</td>
+          <td>Paires Clé/Valeur, clés uniques, accès direct via la clé.</td>
+        </tr>
+      </tbody>
+    </table>
 
+    <h3>Exemples de déclaration :</h3>
+<pre><code>// 1. Les Tableaux
+int[] tableau = new int[5];
+int[] notes = {10, 15, 12, 13, 16};
+int[][] matrice = new int[3][3];
+
+// 2. ArrayList de chaînes de caractères
+List&lt;String&gt; fruits = new ArrayList&lt;&gt;();
+fruits.add("Pomme");
+fruits.add("Banane");
+
+// 3. HashMap (Clé = ID / Valeur = Nom)
+Map&lt;Integer, String&gt; utilisateurs = new HashMap&lt;&gt;();
+utilisateurs.put(101, "Alice");
+utilisateurs.put(102, "Bob");</code></pre>
+  </section>
+
+  <!-- 6. PARCOURIR LES COLLECTIONS -->
+  <section class="loi-card">
+    <h2>6. Comment parcourir des structures de données (Du classique à l'amélioré)</h2>
+    
+    <h3>A. La version normale (La boucle classique avec index)</h3>
+    <p>C'est la méthode fondamentale : on utilise un compteur <code>i</code> (partant de 0 jusqu'à la taille de la liste) pour aller chercher chaque élément un par un via son numéro de position.</p>
+<pre><code>List&lt;String&gt; prenoms = List.of("Alice", "Bob", "Charlie");
+
+for (int i = 0; i &lt; prenoms.size(); i++) {
+    String prenom = prenoms.get(i); // Récupère l'élément à l'index i
+    System.out.println("À l'index " + i + " : " + prenom);
+}</code></pre>
+
+    <h3>B. La version améliorée (La méthode <span class="terme" data-def="foreach">forEach</span> et Lambdas)</h3>
+    <p>Plus moderne et concise, elle applique directement une instruction à chaque élément de la collection sans variable intermédiaire superflue.</p>
+<pre><code>prenoms.forEach(prenom -> System.out.println("Bonjour " + prenom));</code></pre>
+
+    <h3>C. Version améliorée pour une HashMap (Dictionnaire)</h3>
+    <p>Pour parcourir des paires Clé/Valeur de manière moderne :</p>
+<pre><code>Map&lt;String, Double&gt; prix = Map.of("Café", 1.50, "Thé", 2.00);
+
+prix.forEach((nom, tarif) -> {
+    System.out.println(nom + " coûte " + tarif + " €");
+});</code></pre>
+
+    <h3>D. Les versions expertes : Iterator et Streams</h3>
+    <ul>
+      <li><strong>L' <span class="terme" data-def="iterator">Iterator</span> :</strong> Utile si vous devez <strong>modifier ou supprimer</strong> des éléments en plein milieu du parcours sans faire planter le programme.
+<pre><code>List&lt;Integer&gt; notes = new ArrayList&lt;&gt;(List.of(8, 12, 15, 5));
+Iterator&lt;Integer&gt; it = notes.iterator();
+
+while (it.hasNext()) {
+    if (it.next() &lt; 10) {
+        it.remove(); // Supprime proprement l'élément courant
+    }
+}</code></pre>
+      </li>
+      <li><strong>L'API <span class="terme" data-def="stream">Stream</span> :</strong> Style fonctionnel très élégant pour filtrer et transformer les données en une seule ligne.
+<pre><code>List&lt;String&gt; villes = List.of("Paris", "Lyon", "Marseille", "Lille");
+
+villes.stream()
+      .filter(v -&gt; v.startsWith("L"))
+      .forEach(System.out::println); // Affiche Lyon puis Lille</code></pre>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 7. GESTION DES EXCEPTIONS -->
+  <section class="loi-card">
+    <h2>7. La gestion des erreurs (<span class="terme" data-def="exception">Exceptions</span>)</h2>
+    <p>Pour éviter qu'un programme ne plante brutalement lors d'un imprévu (fichier introuvable, division par zéro, etc.).</p>
+<pre><code>try {
+    int resultat = 10 / 0;
+} catch (ArithmeticException e) {
+    System.out.println("Erreur : Division par zéro impossible !");
+} finally {
+    System.out.println("Ce bloc s'exécute toujours (nettoyage, fermeture de fichier...).");
+}</code></pre>
+  </section>
 
   <!-- INFOBULLE CONTENANT LES DÉFINITIONS PRÉ-CHARGÉES -->
   <div id="tooltip">
@@ -338,6 +482,64 @@ if (score >= 50) {
         <li>Oblige le reste du programme à passer par des méthodes contrôlées pour consulter ou modifier une donnée.</li>
       </ul>
     </div>
+
+    <div id="def-extends" class="def-bloc">
+      <h3>Héritage (extends)</h3>
+      <p>Permet à une classe <strong>fille</strong> de récupérer automatiquement les attributs et méthodes d'une classe <strong>mère</strong> pour éviter de dupliquer le code.</p>
+    </div>
+
+    <div id="def-implements" class="def-bloc">
+      <h3>Interface (implements)</h3>
+      <p>Contrat technique strict que s'engage à respecter une classe en écrivant obligatoirement les méthodes définies par l'interface.</p>
+    </div>
+
+    <div id="def-arraylist" class="def-bloc">
+      <h3>ArrayList</h3>
+      <p>Un <strong>tableau dynamique</strong> qui agrandit ou réduit automatiquement sa taille selon les besoins.</p>
+      <ul>
+        <li>Permet d'ajouter/supprimer des éléments facilement sans préciser de taille fixe au départ.</li>
+      </ul>
+    </div>
+
+    <div id="def-hashmap" class="def-bloc">
+      <h3>HashMap</h3>
+      <p>Une structure en <strong>paires Clé-Valeur</strong> (comme un annuaire où le nom est la clé et le numéro la valeur).</p>
+      <ul>
+        <li>Permet de retrouver une donnée instantanément sans parcourir toute la liste.</li>
+      </ul>
+    </div>
+
+    <div id="def-foreach" class="def-bloc">
+      <h3>Méthode forEach()</h3>
+      <p>Une <strong>méthode intégrée</strong> aux collections Java qui applique une action (exprimée sous forme de fonction lambda) à chaque élément.</p>
+      <ul>
+        <li>Permet d'écrire des boucles ultra-courtes et très lisibles.</li>
+      </ul>
+    </div>
+
+    <div id="def-iterator" class="def-bloc">
+      <h3>Iterator</h3>
+      <p>Un <strong>pointeur de parcours</strong> qui se déplace élément par élément dans une collection.</p>
+      <ul>
+        <li>Permet de supprimer des éléments pendant la lecture sans faire planter le programme.</li>
+      </ul>
+    </div>
+
+    <div id="def-stream" class="def-bloc">
+      <h3>Stream (API)</h3>
+      <p>Un <strong>tapis roulant de données</strong> sur lequel on applique des filtres et des transformations en chaîne.</p>
+      <ul>
+        <li>Permet d'écrire du code de traitement très court, lisible et performant.</li>
+      </ul>
+    </div>
+
+    <div id="def-exception" class="def-bloc">
+      <h3>Exception</h3>
+      <p>Un <strong>événement d'erreur</strong> émis par le programme lorsqu'une situation anormale se produit.</p>
+      <ul>
+        <li>Si elle n'est pas "attrapée" (catch), elle interrompt immédiatement l'exécution de l'application.</li>
+      </ul>
+    </div>
   </div>
 
   <script>
@@ -374,19 +576,18 @@ if (score >= 50) {
         // Calcul par rapport au viewport (fenêtre visible)
         const clientX = e.clientX;
 
-        // 1. Si ça dépasse à droite, on essaie de la mettre à gauche du curseur
+        // 1. Si ça dépasse à droite, on la met à gauche du curseur
         if (clientX + decalage + tipWidth > window.innerWidth - marge) {
           x = e.pageX - tipWidth - decalage;
         }
 
-        // 2. CORRECTION CLÉ : Si en la mettant à gauche, elle sort par la gauche (< marge),
-        // on la cale proprement au bord gauche visible
+        // 2. Sécurité bord gauche
         const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
         if (x < scrollX + marge) {
           x = scrollX + marge;
         }
 
-        // 3. (Bonus) Sécurité verticale : si elle dépasse en bas de l'écran
+        // 3. Sécurité verticale : si elle dépasse en bas de l'écran
         const tipHeight = tooltip.offsetHeight;
         if (e.clientY + decalage + tipHeight > window.innerHeight - marge) {
           y = e.pageY - tipHeight - decalage;
