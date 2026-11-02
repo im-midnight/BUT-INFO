@@ -289,56 +289,62 @@ public class Developpeur <span class="terme" data-def="implements">implements</s
 
   <!-- 5. LES STRUCTURES DE DONNÉES -->
   <section class="loi-card">
-    <h2>5. Les structures de données (Collections Framework)</h2>
-    <p>Java fournit un ensemble complet d'outils pour regrouper et organiser des données en mémoire.</p>
+    <h2>5. Les structures de données et leurs méthodes essentielles</h2>
+    <p>Java fournit un ensemble complet d'outils pour stocker, ajouter, modifier, supprimer et parcourir des données en mémoire.</p>
     
     <table>
       <thead>
         <tr>
           <th>Structure</th>
-          <th>Type</th>
-          <th>Caractéristiques principales</th>
+          <th>Action / Méthode</th>
+          <th>Exemple d'utilisation</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><code>T[]</code> (Tableau fixe)</td>
-          <td>Tableau brut</td>
-          <td>Taille fixe définie à la création, très performant.</td>
+          <td>Déclaration &amp; Lecture/Écriture par index</td>
+          <td><code>int[] notes = {10, 15, 12};</code><br><code>notes[0] = 18;</code> (Modifier)<br><code>int x = notes[1];</code> (Lire)</td>
         </tr>
         <tr>
           <td><span class="terme" data-def="arraylist">ArrayList&lt;E&gt;</span></td>
-          <td>Liste ordonnée</td>
-          <td>Taille dynamique, doublons autorisés, accès rapide par index.</td>
+          <td><strong>Ajouter :</strong> <code>add(valeur)</code><br><strong>Lire :</strong> <code>get(index)</code><br><strong>Modifier :</strong> <code>set(index, valeur)</code><br><strong>Supprimer :</strong> <code>remove(index / objet)</code></td>
+          <td><code>List&lt;String&gt; f = new ArrayList&lt;&gt;();</code><br><code>f.add("Pomme");</code> (Ajout)<br><code>f.remove(0);</code> (Suppression)</td>
         </tr>
         <tr>
           <td><code>HashSet&lt;E&gt;</code></td>
-          <td>Ensemble (Set)</td>
-          <td>Pas de doublons, pas d'ordre garanti, recherches extrêmement rapides.</td>
+          <td><strong>Ajouter :</strong> <code>add(valeur)</code><br><strong>Vérifier :</strong> <code>contains(valeur)</code><br><strong>Supprimer :</strong> <code>remove(valeur)</code></td>
+          <td><code>Set&lt;String&gt; set = new HashSet&lt;&gt;();</code><br><code>set.add("Rouge");</code><br><code>boolean existe = set.contains("Rouge");</code></td>
         </tr>
         <tr>
           <td><span class="terme" data-def="hashmap">HashMap&lt;K, V&gt;</span></td>
-          <td>Dictionnaire (Map)</td>
-          <td>Paires Clé/Valeur, clés uniques, accès direct via la clé.</td>
+          <td><strong>Ajouter/Modifier :</strong> <code>put(clé, valeur)</code><br><strong>Lire :</strong> <code>get(clé)</code><br><strong>Supprimer :</strong> <code>remove(clé)</code><br><strong>Vérifier :</strong> <code>containsKey(clé)</code></td>
+          <td><code>Map&lt;Integer, String&gt; map = new HashMap&lt;&gt;();</code><br><code>map.put(1, "Alice");</code><br><code>String nom = map.get(1);</code></td>
         </tr>
       </tbody>
     </table>
 
-    <h3>Exemples de déclaration :</h3>
+    <h3>Exemples de code complets :</h3>
 <pre><code>// 1. Les Tableaux
-int[] tableau = new int[5];
-int[] notes = {10, 15, 12, 13, 16};
+int[] monTableau = new int[5]; // Crée un tableau de 5 entiers (valeur par défaut : 0)
+monTableau[0] = 10;            // Affectation de la première valeur
+int[] monTableau = { 1, 2, 3, 4 }; 
+String[] saisons = { "Printemps", "Été", "Automne", "Hiver" };
 int[][] matrice = new int[3][3];
 
-// 2. ArrayList de chaînes de caractères
-List&lt;String&gt; fruits = new ArrayList&lt;&gt;();
-fruits.add("Pomme");
-fruits.add("Banane");
 
-// 3. HashMap (Clé = ID / Valeur = Nom)
-Map&lt;Integer, String&gt; utilisateurs = new HashMap&lt;&gt;();
-utilisateurs.put(101, "Alice");
-utilisateurs.put(102, "Bob");</code></pre>
+// 2. ArrayList : Ajout et suppression
+List&lt;String&gt; fruits = new ArrayList&lt;&gt;();
+fruits.add("Pomme");    // Ajoute à la fin
+fruits.add(0, "Banane"); // Insère à l'index 0
+fruits.remove("Pomme");  // Supprime par valeur (ou fruits.remove(0) par index)
+
+// 3. HashMap : Insertion et récupération par clé
+Map&lt;String, String&gt; capitales = new HashMap&lt;&gt;();
+capitales.put("France", "Paris");
+capitales.put("Italie", "Rome");
+String cap = capitales.get("France"); // Renvoie "Paris"
+capitales.remove("Italie");           // Supprime la paire liée à la clé "Italie"</code></pre>
   </section>
 
   <!-- 6. PARCOURIR LES COLLECTIONS -->
