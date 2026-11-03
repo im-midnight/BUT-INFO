@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercice 1 — Nombres Premiers & Cryptographie</title>
+
+  <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Bloc de code stylisé */
+    pre {
+      background-color: #1f2937;
+      color: #f9fafb;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    code {
+      font-family: inherit;
+    }
+
+    /* Tableau de synthèse */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+
+    .terme { -webkit-tap-highlight-color: transparent; }
+    .astuce-tactile { display: none; }
+
+    /* Appareils sans survol (téléphones, tablettes) */
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+
+      #tooltip {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Exercice 1</h1>
+  <p style="text-align: center; color: #555;">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. QUESTION 1.1 -->
+  <section class="loi-card">
+    <h2>1. Question 1.1 — Le test de primalité et la borne $\sqrt{n}$</h2>
+    <ul>
+      <li><strong>Objectif :</strong> Démontrer que si un nombre $n$ n'est pas <span class="terme" data-def="premier">premier</span>, son plus petit diviseur strict est inférieur ou égal à $\sqrt{n}$, puis implémenter un test en Python.</li>
+      <li><strong>Démonstration :</strong> Soit $n = a \times b$ avec $1 < a \le b < n$. Si $a > \sqrt{n}$ et $b > \sqrt{n}$, alors leur produit $a \times b > \sqrt{n} \times \sqrt{n} = n$, ce qui est absurde. Par conséquent, l'un au moins des facteurs $a$ ou $b$ (le plus petit diviseur) doit nécessairement vérifier $\le \sqrt{n}$.</li>
+      <li><strong>Implémentation Python (`est_premier`) :</strong>
+        <pre><code>def est_premier(n: int) -> bool:
+    div = 2
+    if n == 0 or n == 1:
+        return False
+    while div * div <= n:
+        if n % div == 0:
+            return False
+        div += 1
+    return True</code></pre>
+      </li>
+      <li><strong>Indicateur :</strong> <span class="terme" data-def="complexite">Complexité temporelle</span> en $O(\sqrt{n})$ pour tester un nombre unique.</li>
+    </ul>
+  </section>
+
+  <!-- 2. QUESTION 1.2 -->
+  <section class="loi-card">
+    <h2>2. Question 1.2 — Liste, proportion et raréfaction</h2>
+    <ul>
+      <li><strong>Objectif :</strong> Générer la liste des nombres premiers inférieurs à $n$, calculer leur proportion et la comparer à la densité théorique $\frac{1}{\ln(n)}$.</li>
+      <li><strong>Sans Stratégie :</strong></li>
+      <pre><code>def listePremiers(n : int):
+    i = 2
+    res = []
+    while i < n:
+        if est_premier(i):
+            res.append(i)
+        i+=1
+    return res</code></pre>
+      <li><strong>Stratégie algorithmique :</strong> Pour générer efficacement de grands volumes, on utilise le <span class="terme" data-def="crible">Crible d'Ératosthène</span> plutôt qu'un test naïf répété.</li>
+      <li><strong>Code du Crible d'Ératosthène :</strong>
+        <pre><code>def crible(n):
+    premiers = []
+    tab = [True] * (n + 1)
+    tab[0] = tab[1] = False
+    for i in range(2, n + 1):
+        if tab[i]:
+            premiers.append(i)
+            multiple = i * i
+            while multiple <= n:
+                tab[multiple] = False
+                multiple += i
+    return premiers</code></pre>
+      </li>
+      <li><strong>Code pour la comparaison :</strong>
+        <pre><code>def comparaison(n : int):
+    nbPremiers = crible(n) #listePremiers(n)
+
+    proportionObserve= len(nbPremiers)/n
+    proportionTheo = 1 / mt.log(n)
+
+    print(f"Pour n = {n}:")
+    #print(f"Nombre de premiers : {nbPremiers}")
+    print(f"Proportion observe : {proportionObserve:.4f}")
+    print(f"Proportion theorique : {proportionTheo:.4f}")
+    print("-" * 100)
+
+for n in list_nb_a_tester:
+    print(f"{n} est premier? : {est_premier(n)}")
+    comparaison(n)</code></pre>
+      <li><strong>Observation mathématique :</strong> Selon le <span class="terme" data-def="theoreme">Théorème des nombres premiers</span>, la proportion de nombres premiers diminue progressivement à mesure que $n$ grandit.</li>
+    </ul>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse des Méthodes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Fonction</th>
+          <th>Rôle principal</th>
+          <th>Complexité / Limite</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>est_premier(n)</strong></td>
+          <td>Teste si un entier $n$ est premier</td>
+          <td>$O(\sqrt{n})$ — Très efficace pour un grand $n$ isolé.</td>
+        </tr>
+        <tr>
+          <td><strong>crible(n)</strong></td>
+          <td>Génère tous les premiers $\le n$</td>
+          <td>$O(n \log \log n)$ — Limité par la mémoire RAM pour $n > 10^8$.</td>
+        </tr>
+        <tr>
+          <td><strong>comparaison(n)</strong></td>
+          <td>Compare $len(n)/n$ à $\frac{1}{\ln(n)}$</td>
+          <td>Illustre la <span class="terme" data-def="raréfaction">raréfaction</span> logarithmique.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS PRÉ-CHARGÉES -->
+  <div id="tooltip">
+    <div id="def-premier" class="def-bloc">
+      <h3>Nombre Premier</h3>
+      <p>Un entier naturel strictement supérieur à 1 qui n'admet que deux diviseurs distincts : 1 et lui-même (ex : 2, 3, 5, 7, 11...).</p>
+    </div>
+
+    <div id="def-complexite" class="def-bloc">
+      <h3>Complexité Algorithmique ($\sqrt{n}$)</h3>
+      <p>Mesure le nombre d'opérations nécessaires. En s'arrêtant à $\sqrt{n}$, on réduit drastiquement le nombre de divisions de $n$ (linéaire) à $\sqrt{n}$ (sous-linéaire).</p>
+    </div>
+
+    <div id="def-crible" class="def-bloc">
+      <h3>Crible d'Ératosthène</h3>
+      <p>Algorithme antique permettant de trouver tous les nombres premiers inférieurs à un entier donné en barrant (éliminant) les multiples successifs de chaque nombre premier.</p>
+    </div>
+
+    <div id="def-theoreme" class="def-bloc">
+      <h3>Théorème des Nombres Premiers</h3>
+      <p>Établit que la proportion de nombres premiers inférieurs à $n$ est approximativement inversement proportionnelle à son logarithme népérien : $\frac{1}{\ln(n)}$.</p>
+    </div>
+
+    <div id="def-raréfaction" class="def-bloc">
+      <h3>Raréfaction</h3>
+      <p>Phénomène par lequel les nombres premiers se font de plus en plus rares à mesure que l'on progresse vers l'infini, bien qu'il en existe une infinité.</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) cible.classList.add('actif');
+      tooltip.style.display = 'block';
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+</body>
+</html>
