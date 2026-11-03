@@ -184,7 +184,7 @@
 </head>
 <body>
 
-  <h1>Arithmétique : Correction de l'Exercice 2</h1>
+  <h1>Exercice 2</h1>
   <p style="text-align: center; color: #555;">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
@@ -316,24 +316,17 @@
     <ul>
       <li><strong>Consigne :</strong> Écrire une fonction prenant deux entiers $a$ et $b$ et renvoyant le triplet $(d, u, v)$ tel que $au + bv = d = \operatorname{pgcd}(a, b)$.</li>
       <li><strong>Code Python :</strong>
-<pre><code>def euclide_etendu(a: int, b: int) -> tuple[int, int, int]:
-    """
-    Calcule le pgcd(a, b) et les coefficients de Bézout (u, v) 
-    tels que a * u + b * v = pgcd(a, b).
-    Renvoie le triplet : (pgcd, u, v)
-    """
-    x0, x1 = 1, 0
-    y0, y1 = 0, 1
-    
-    while b != 0:
-        q = a // b
-        a, b = b, a % b
-        x0, x1 = x1, x0 - q * x1
-        y0, y1 = y1, y0 - q * y1
-        
-    return a, x0, y0
+<pre><code>def euclide_etendu(a:int, b:int):
+    r0, r1 = a, b
+    u0, u1 = 1, 0
+    v0, v1 = 0, 1
+    while r1 != 0:
+        q = r0 // r1
+        r0, r1 = r1, r0 - q * r1
+        u0, u1 = u1, u0 - q * u1
+        v0, v1 = v1, v0 - q * v1
+    return r0, u0, v0
 
-# Test avec 3315 et 154
 d, u, v = euclide_etendu(3315, 154)
 print(f"PGCD = {d}, u = {u}, v = {v}")
 # Résultat : PGCD = 1, u = -19, v = 409
@@ -362,7 +355,7 @@ print(f"PGCD = {d}, u = {u}, v = {v}")
         <tr>
           <td><strong>2.2</strong></td>
           <td>Inversibilité dans $\mathbb{Z}/n\mathbb{Z}$</td>
-          <td>154 est inversible ($154^{-1} = 409$). Non-corps car 3315 est composé.</td>
+          <td>154 est inversible dans $\mathbb{Z}/3315\mathbb{Z}$ <br>($154^{-1} = 409$).</td>
         </tr>
         <tr>
           <td><strong>2.3</strong></td>

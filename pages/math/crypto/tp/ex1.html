@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exercice 1 — Nombres Premiers & Cryptographie</title>
+  <title>Exercice 1 - Nombres Premiers & Cryptographie</title>
 
   <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
   <script>
@@ -171,7 +171,7 @@
 
   <!-- 1. QUESTION 1.1 -->
   <section class="loi-card">
-    <h2>1. Question 1.1 — Le test de primalité et la borne $\sqrt{n}$</h2>
+    <h2>1. Question 1.1 - Le test de primalité et la borne $\sqrt{n}$</h2>
     <ul>
       <li><strong>Objectif :</strong> Démontrer que si un nombre $n$ n'est pas <span class="terme" data-def="premier">premier</span>, son plus petit diviseur strict est inférieur ou égal à $\sqrt{n}$, puis implémenter un test en Python.</li>
       <li><strong>Démonstration :</strong> Soit $n = a \times b$ avec $1 < a \le b < n$. Si $a > \sqrt{n}$ et $b > \sqrt{n}$, alors leur produit $a \times b > \sqrt{n} \times \sqrt{n} = n$, ce qui est absurde. Par conséquent, l'un au moins des facteurs $a$ ou $b$ (le plus petit diviseur) doit nécessairement vérifier $\le \sqrt{n}$.</li>
@@ -192,7 +192,7 @@
 
   <!-- 2. QUESTION 1.2 -->
   <section class="loi-card">
-    <h2>2. Question 1.2 — Liste, proportion et raréfaction</h2>
+    <h2>2. Question 1.2 - Liste, proportion et raréfaction</h2>
     <ul>
       <li><strong>Objectif :</strong> Générer la liste des nombres premiers inférieurs à $n$, calculer leur proportion et la comparer à la densité théorique $\frac{1}{\ln(n)}$.</li>
       <li><strong>Sans Stratégie :</strong></li>
@@ -254,12 +254,12 @@ for n in list_nb_a_tester:
         <tr>
           <td><strong>est_premier(n)</strong></td>
           <td>Teste si un entier $n$ est premier</td>
-          <td>$O(\sqrt{n})$ — Très efficace pour un grand $n$ isolé.</td>
+          <td>$O(\sqrt{n})$ - Très efficace pour un grand $n$ isolé.</td>
         </tr>
         <tr>
           <td><strong>crible(n)</strong></td>
           <td>Génère tous les premiers $\le n$</td>
-          <td>$O(n \log \log n)$ — Limité par la mémoire RAM pour $n > 10^8$.</td>
+          <td>$O(n \log \log n)$ - Limité par la mémoire RAM pour $n > 10^8$.</td>
         </tr>
         <tr>
           <td><strong>comparaison(n)</strong></td>
