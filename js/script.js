@@ -17,7 +17,7 @@ const matieres = [
     id: "dev-web",
     titre: "R301 - Développement web",
     description: "Syntaxe Java, Servlets...",
-    lien: "pages/web/web/indexWeb.html",
+    lien: "pages/web/indexWeb.html",
   },
   
 ];
