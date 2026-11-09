@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>R3.01 : les servlets, de la première servlet aux sessions</title>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;line-height:1.6;max-width:850px;margin:0 auto;padding:2rem;color:#222;background-color:#f9fafb}
+    h1{text-align:center;margin-bottom:2rem;color:#111}
+    .loi-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow-x:auto}
+    h2{margin-top:0;color:#1e3a8a;font-size:1.25rem;border-bottom:2px solid #e5e7eb;padding-bottom:.5rem}
+    ul{padding-left:1.25rem}
+    li{margin-bottom:.5rem}
+    pre{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:.75rem 1rem;overflow-x:auto;font-size:.9rem;line-height:1.45}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    mark{background:#fef08a;color:inherit;padding:.1em .25em;border-radius:3px}
+    .chemin{background:#dbeafe;padding:.1em .35em;border-radius:3px;font-size:.9rem}
+    .terme{color:#2563eb;font-weight:600;border-bottom:2px dotted #2563eb;cursor:help;transition:background-color .15s;-webkit-tap-highlight-color:transparent}
+    .terme:hover{background-color:#dbeafe}
+    .table-container{width:100%;overflow-x:auto;margin-top:1rem;border:1px solid #e5e7eb;border-radius:6px}
+    table{width:100%;border-collapse:collapse;background:#fff}
+    th,td{border:1px solid #d1d5db;padding:.75rem 1rem;text-align:left;vertical-align:top}
+    th{background-color:#f3f4f6}
+    #tooltip{position:absolute;display:none;width:380px;max-width:90vw;background:#1f2937;color:#f9fafb;padding:1rem 1.25rem;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.25);z-index:1000;font-size:.9rem;pointer-events:none}
+    #tooltip h3{margin-top:0;margin-bottom:.5rem;color:#60a5fa;font-size:1.05rem}
+    #tooltip code{color:#f9fafb}
+    .def-bloc{display:none}
+    .def-bloc.actif{display:block}
+    .astuce-tactile{display:none}
+    @media (hover:none){
+      .astuce-souris{display:none}
+      .astuce-tactile{display:inline}
+      #tooltip{position:fixed;left:.75rem;right:.75rem;bottom:.75rem;width:auto;max-width:none;max-height:60vh;overflow-y:auto;pointer-events:auto}
+    }
+    @media (max-width:600px){body{padding:1rem}}
+  </style>
+</head>
+<body>
+
+  <h1>Les servlets</h1>
+  <p style="text-align:center;color:#555">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- INTRODUCTION : ANNOTATIONS -->
+  <section class="loi-card">
+    <h2>Introduction : Les annotations <code>@WebServlet</code> et <code>@WebInitParam</code></h2>
+    <ul>
+      <li><strong>Principe :</strong> L'annotation <code>@WebServlet</code> permet de déclarer une servlet Java sans repasser par le fichier de configuration <code>web.xml</code>. Elle permet de définir le nom, la description, les motifs d'URL (<code>urlPatterns</code> ou <code>value</code>) ainsi que des paramètres d'initialisation via <code>@WebInitParam</code>.</li>
+      <li><strong>Exemple de déclaration :</strong>
+<pre><code>@WebServlet(
+    name = "BankAccountServlet",
+    description = "Represents a Bank Account and it's transactions",
+    urlPatterns = {"/account", "/bankAccount"},
+    initParams = {
+        @WebInitParam(name = "type", value = "savings"),
+        @WebInitParam(name = "name", value = "a name")
+    }
+)
+public class BankAccountServlet extends HttpServlet {
+    // Implémentation de la servlet...
+}</code></pre>
+      </li>
+      <li><strong>Attributs clés :</strong>
+        <ul>
+          <li><code>name</code> : Le nom de la servlet.</li>
+          <li><code>urlPatterns</code> : Tableau d'URL associées à la servlet (équivalent à <code>value</code>).</li>
+          <li><code>initParams</code> : Liste de paramètres transmis à la servlet lors de son initialisation et accessibles via <code>getInitParameter("nom")</code>.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 0. ARBORESCENCE -->
+  <section class="loi-card">
+    <h2>0. Où ranger quoi - L'arborescence du projet</h2>
+    <ul>
+      <li><strong>Principe :</strong> le code Java va dans <span class="chemin">src/main/java</span>, les pages statiques (HTML, CSS, JSP) dans <span class="chemin">src/main/webapp</span>. Le dossier <code>WEB-INF</code> est protégé : le navigateur ne peut pas y accéder directement.</li>
+<pre><code>src/main
+├── java/iut/nantes
+│   ├── cycle/           CycleServlet
+│   ├── testweb/         TestWebServlet
+│   ├── formulaire/      Formulaire
+│   ├── redirectionform/ FormulaireRedirection
+│   ├── persistanceform/ Login, PersistanceAuth
+│   └── session/         Login, Authenticate, SessionPage
+└── webapp
+    ├── css/             formulaire.css
+    ├── WEB-INF/         web.xml
+    ├── formulaire.html
+    ├── formulaireRedirection.html
+    └── index.jsp</code></pre>
+      <li><strong>URL d'accès :</strong> <code>http://localhost:8888/demo/&lt;chemin-de-la-servlet&gt;</code>, où <code>demo</code> est le nom du <code>.war</code> déployé.</li>
+      <li><strong>Les tests :</strong> avec <code>curl --noproxy "*"</code>, et toujours des guillemets autour de l'URL (sinon le <code>&amp;</code> casse la commande).</li>
+    </ul>
+  </section>
+
+  <!-- 1. CYCLE DE VIE -->
+  <section class="loi-card">
+    <h2>1. Le cycle de vie - <code>CycleServlet</code></h2>
+    <ul>
+      <li><strong>Fichier :</strong> <span class="chemin">src/main/java/iut/nantes/cycle/CycleServlet.java</span></li>
+      <li><strong>Énoncé :</strong> servlet sur <code>/cycle-servlet</code> qui redéfinit le constructeur, <code>init()</code>, <code>init(ServletConfig)</code>, <code>doGet</code>, <code>doPost</code>, <code>doPut</code>, <code>doPatch</code>, <code>doDelete</code> et <code>destroy</code>, avec un affichage dans chacune.</li>
+      <li><strong>Le principe :</strong> le <span class="terme" data-def="conteneur">conteneur</span> instancie la <span class="terme" data-def="servlet">servlet</span> une seule fois, à la première requête. Elle reste en mémoire jusqu'à l'arrêt du serveur. Le cycle est : <code>init()</code> -><code>service()</code> (qui aiguille vers <code>doGet</code>, <code>doPost</code>...) -><code>destroy()</code>.</li>
+      <li><strong>Code :</strong>
+<pre><code>@WebServlet(name = "cycleServlet", value = "/cycle-servlet")
+public class CycleServlet extends HttpServlet {
+    private String message;
+
+    public CycleServlet() {
+        System.out.println("Constructeur de CycleServlet !");
+    }
+
+    @Override
+    public void init() {
+        message = "Hello World!! Init sans param";
+        System.out.println("Init sans param");
+    }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        <mark>super.init(config);</mark>   // stocke la config ET appelle init()
+        message = "Hello World!! Init avec param";
+        System.out.println("Init avec param");
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("doGet");
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+        out.println("&lt;html&gt;&lt;body&gt;&lt;h1&gt;" + message + "&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;");
+    }
+    // doPost, doPut, doPatch, doDelete : même structure, avec leur println
+
+    @Override
+    public void destroy() {
+        System.out.println("destroy");
+        super.destroy();
+    }
+}</code></pre>
+      </li>
+      <li><strong>À retenir :</strong> sans <code>super.init(config)</code>, le <code>init()</code> sans paramètre n'est jamais appelé et <code>getServletConfig()</code> renvoie <code>null</code>.</li>
+      <li><strong>Test :</strong>
+<pre><code>curl --noproxy "*" -X GET    "http://localhost:8888/demo/cycle-servlet"
+curl --noproxy "*" -X POST   "http://localhost:8888/demo/cycle-servlet"
+curl --noproxy "*" -X PUT    "http://localhost:8888/demo/cycle-servlet"
+curl --noproxy "*" -X PATCH  "http://localhost:8888/demo/cycle-servlet"
+curl --noproxy "*" -X DELETE "http://localhost:8888/demo/cycle-servlet"</code></pre>
+        Dans <code>podman logs tomcat_container</code> : constructeur et <code>init</code> une seule fois, puis un seul <code>doXxx</code> par requête. <code>destroy</code> n'apparaît qu'à l'arrêt.
+      </li>
+    </ul>
+  </section>
+
+  <!-- 2. WEBSERVLET -->
+  <section class="loi-card">
+    <h2>2. Les annotations <code>@WebServlet</code> et <code>@WebInitParam</code> - <code>TestWebServlet</code></h2>
+    <ul>
+      <li><strong>Fichier :</strong> <span class="chemin">src/main/java/iut/nantes/testweb/TestWebServlet.java</span></li>
+      <li><strong>Énoncé :</strong> une servlet sur <code>/webservlet1</code> <em>et</em> <code>/webservlet2</code>. En GET, elle affiche les paramètres dans la console, puis la valeur augmentée du pas (paramètres d'initialisation <code>valeur</code> et <code>pas</code>).</li>
+      <li><strong>Le principe :</strong> les deux URL pointent vers <mark>la même instance</mark>, donc le compteur est partagé : 2, 4, 6, 8... d'une URL à l'autre.</li>
+      <li><strong>Code :</strong>
+<pre><code>@WebServlet(name = "testwebServlet",
+        value = {"/webservlet1", "/webservlet2"},
+        initParams = {
+                @WebInitParam(name = "valeur", value = "0"),
+                @WebInitParam(name = "pas", value = "2")
+        })
+public class TestWebServlet extends HttpServlet {
+    private int valeur;
+    private int pas;
+
+    @Override
+    public void init() {
+        valeur = Integer.parseInt(getInitParameter("valeur"));
+        pas = Integer.parseInt(getInitParameter("pas"));
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("-----------doGet-----------");
+        Map&lt;String, String[]&gt; parametres = request.getParameterMap();
+        parametres.forEach((cle, valeurs) -&gt;
+                System.out.println(cle + " = " + Arrays.toString(valeurs)));
+                response.getWriter().println(cle + " = " + Arrays.toString(valeurs));
+
+        valeur += pas;
+        System.out.println("valeur = " + valeur + ", pas = " + pas);
+        response.getWriter().println("valeur = " + valeur + ", pas = " + pas);
+    }
+}</code></pre>
+      </li>
+      <li><strong>À retenir :</strong> <code>getParameterMap()</code> renvoie une <code>Map&lt;String, String[]&gt;</code> : un paramètre répété (<code>age=18&amp;age=22</code>) donne <code>[18, 22]</code>. Une servlet peut être appelée par plusieurs threads, donc <code>valeur += pas</code> n'est pas sûr en concurrence (solution : <code>AtomicInteger</code> ou <code>synchronized</code>).</li>
+      <li><strong>Test :</strong>
+<pre><code>curl --noproxy "*" "http://localhost:8888/demo/webservlet1"
+curl --noproxy "*" "http://localhost:8888/demo/webservlet2"
+curl --noproxy "*" "http://localhost:8888/demo/webservlet1?nom=Joe&amp;age=18&amp;age=22"</code></pre>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 3. FORMULAIRE -->
+  <section class="loi-card">
+    <h2>3. Un formulaire - <code>Formulaire</code></h2>
+    <ul>
+      <li><strong>Fichiers :</strong> <span class="chemin">src/main/java/iut/nantes/formulaire/Formulaire.java</span> et <span class="chemin">src/main/webapp/formulaire.html</span> (le CSS dans <span class="chemin">src/main/webapp/css/formulaire.css</span>).</li>
+      <li><strong>Énoncé :</strong> une page HTML avec un login et un mot de passe, et une servlet qui renvoie une page contenant les données reçues, en GET comme en POST.</li>
+      <li><strong>Le principe :</strong> <code>doGet</code> et <code>doPost</code> appellent la même méthode privée. Les noms des champs HTML (<code>name="login"</code>) sont les clés de <code>getParameter(...)</code>.</li>
+      <li><strong>Code Java :</strong>
+<pre><code>@WebServlet(name = "formulaire", value = "/formulaire")
+public class Formulaire extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        afficherLogin(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        afficherLogin(request, response);
+    }
+
+    private void afficherLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String login = request.getParameter("login");
+        String password = request.getParameter("password");
+        if (login == null) { login = ""; }       // getParameter renvoie null si absent
+        if (password == null) { password = ""; }
+
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("&lt;html&gt;&lt;body&gt;");
+        out.println("&lt;h1&gt;Informations reçues&lt;/h1&gt;");
+        out.println("&lt;p&gt;Login : " + login + "&lt;/p&gt;");
+        out.println("&lt;p&gt;Password : " + password + "&lt;/p&gt;");
+        out.println("&lt;/body&gt;&lt;/html&gt;");
+    }
+}</code></pre>
+      </li>
+      <li><strong>Code HTML :</strong>
+<pre><code>&lt;form action="<mark>formulaire</mark>" method="POST"&gt;
+  &lt;input type="text" id="login" name="login"&gt;
+  &lt;input type="password" id="password" name="password"&gt;
+  &lt;button type="submit"&gt;Se connecter&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+      </li>
+      <li><strong>À retenir :</strong> <code>action="formulaire"</code> est une URL <em>relative</em> : elle garde le contexte <code>/demo</code>. Avec <code>action="/formulaire"</code>, on perd le contexte et on obtient une 404. En GET, le mot de passe apparaît dans l'URL : on utilise POST pour les données sensibles.</li>
+      <li><strong>Test :</strong>
+<pre><code>curl --noproxy "*" -i -X POST -d "login=admin" -d "password=secret" "http://localhost:8888/demo/formulaire"
+curl --noproxy "*" -i "http://localhost:8888/demo/formulaire?login=admin&amp;password=secret"</code></pre>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 4. REDIRECTION -->
+  <section class="loi-card">
+    <h2>4. Une redirection - <code>FormulaireRedirection</code></h2>
+    <ul>
+      <li><strong>Fichiers :</strong> <span class="chemin">src/main/java/iut/nantes/redirectionform/FormulaireRedirection.java</span> et <span class="chemin">src/main/webapp/formulaireRedirection.html</span> (même formulaire, avec <code>action="formulaireRedirection"</code>).</li>
+      <li><strong>Énoncé :</strong> si le login n'est pas <code>Joe</code> ou le mot de passe n'est pas <code>JoJo44</code>, le client est renvoyé vers le formulaire d'origine.</li>
+      <li><strong>Le principe :</strong> une <span class="terme" data-def="redirection">redirection</span> est une réponse <code>302</code> avec un header <code>Location</code>. C'est le <em>client</em> qui refait ensuite une requête GET vers la nouvelle URL. L'origine se lit dans le header <span class="terme" data-def="referer">Referer</span>.</li>
+      <li><strong>Code :</strong>
+<pre><code>@WebServlet(name = "formulaireRedirection", value = "/formulaireRedirection")
+public class FormulaireRedirection extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+        authenticate(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request,HttpServletResponse response)throws ServletException, IOException {
+        authenticate(request, response);
+    }
+    /*
+     * Méthode privée qui récupère les données envoyées
+     * par le formulaire et construit une page HTML.
+     *
+     * Elle est appelée par doGet() et doPost().
+     */
+    private void authenticate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        String login = request.getParameter("login");
+        String password = request.getParameter("password");
+
+        /*
+         * Vérifie les identifiants saisis.
+         *
+         * "Joe".equals(login) vérifie que le login est "Joe".
+         * "JoJo44".equals(password) vérifie que le mot de passe est "JoJo44".
+         *
+         * L'opérateur || signifie "OU" :
+         * si le login OU le mot de passe est incorrect,
+         * l'authentification échoue.
+         *
+         * L'utilisation de equals() sur une chaîne constante
+         * évite une NullPointerException si le paramètre vaut null.
+         */
+        if (!"Joe".equals(login) || !"JoJo44".equals(password)){
+            String referer = request.getHeader("Referer");
+            if (referer != null) {
+                // URL de la page d'origine (le formulaire d'où vient l'utilisateur)..
+                <mark>response.sendRedirect(referer);</mark>
+            } else {
+                <mark>response.sendRedirect("index.jsp");</mark>
+            }
+            return;
+        }
+
+        response.setContentType("text/html;charset=UTF-8");
+
+        PrintWriter out = response.getWriter();
+
+        out.println("&lt;html&lt;");
+        out.println("&lt;body&lt;");
+        out.println("&lt;h1&lt;Welcome&lt;/h1&lt;");
+        out.println("&lt;p&lt;Login : " + login + "&lt;/p&lt;");
+        out.println("&lt;p&lt;Password : " + password + "&lt;/p&lt;");
+        out.println("&lt;/body&lt;");
+        out.println("&lt;/html&lt;");
+    }
+}</code></pre>
+      </li>
+      <li><strong>À retenir :</strong> <code>"Joe".equals(login)</code> (constante à gauche) évite un <code>NullPointerException</code> si le paramètre est absent. Le <code>return</code> après <code>sendRedirect</code> est nécessaire pour ne pas continuer à écrire la réponse. Le <code>Referer</code> est envoyé par le client : il peut manquer, d'où le repli.</li>
+      <li><strong>Test :</strong>
+<pre><code>curl --noproxy "*" -i -d "login=Joe" -d "password=faux" \
+  -H "Referer: http://localhost:8888/demo/formulaireRedirection.html" \
+  "http://localhost:8888/demo/formulaireRedirection"
+# attendu : HTTP/1.1 302 et "Location: ...formulaireRedirection.html"</code></pre>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 5. COOKIES -->
+  <section class="loi-card">
+    <h2>5. Les cookies - Pré-remplir le login</h2>
+    <ul>
+      <li><strong>Fichiers :</strong> <span class="chemin">src/main/java/iut/nantes/persistanceform/Login.java</span> (le formulaire) et <span class="chemin">src/main/java/iut/nantes/persistanceform/PersistanceAuth.java</span> (l'authentification). Ici, pas de fichier HTML : le formulaire est généré par la servlet.</li>
+      <li><strong>Énoncé :</strong> si l'authentification réussit puis que le formulaire est consulté à nouveau, le login doit rester pré-rempli.</li>
+      <li><strong>Le principe :</strong> HTTP n'a pas d'état. Un <span class="terme" data-def="cookie">cookie</span> est un petit texte que le serveur envoie au client (header <code>Set-Cookie</code>) et que le client renvoie à chaque requête suivante. La servlet d'authentification <strong>crée</strong> le cookie, la servlet du formulaire le <strong>lit</strong>.</li>
+      <li><strong>Création (<code>PersistanceAuth</code>), après vérification réussie :</strong>
+<pre><code>@WebServlet(name = "persistanceAuth", value = "/persistance-authenticate")
+public class PersistanceAuth extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)  throws ServletException , IOException{
+        authenticate(request,response);
+    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)  throws ServletException , IOException{
+        authenticate(request,response);
+    }
+
+    private void authenticate(HttpServletRequest request , HttpServletResponse response) throws IOException{
+        String login = request.getParameter("login");
+        String password = request.getParameter("password");
+
+        if (!"Joe".equals(login) || !"JoJo44".equals(password)){
+            System.out.println("login ou password err");
+            String referer = request.getHeader("Referer");
+            if (referer != null) {
+                response.sendRedirect(referer);
+            } else {
+                response.sendRedirect("index.jsp");
+            }
+            return;
+        }
+        <mark>Cookie cookie = new Cookie("login", login);</mark>
+
+        // Définit la durée de vie du cookie à une heure.
+        <mark>cookie.setMaxAge(60 * 60);</mark>
+
+        // Rend le cookie accessible sur tous les chemins de l'application
+        // qui correspondent à ce chemin de cookie.
+        <mark>cookie.setPath("/");</mark>
+
+        // Ajoute le cookie à la réponse HTTP.
+        // Le navigateur pourra le conserver et le renvoyer lors
+        // des requêtes suivantes, tant qu'il est valide.
+        <mark>response.addCookie(cookie);</mark>
+
+        response.setContentType("text/html;charset=UTF-8");
+
+        PrintWriter out = response.getWriter();
+
+        out.println("&lt;html&lt;");
+        out.println("&lt;body&lt;");
+        out.println("&lt;h1&lt;Welcome&lt;/h1&lt;");
+        out.println("&lt;p&lt;Login : " + login + "&lt;/p&lt;");
+        out.println("&lt;p&lt;Password : " + password + "&lt;/p&lt;");
+        out.println("&lt;/body&lt;");
+        out.println("&lt;/html&lt;");
+    }
+}
+</code></pre>
+      </li>
+      <li><strong>Lecture (<code>Login</code>) :</strong>
+<pre><code>@WebServlet(name = "persistanceLogin", value = "/persistance-login")
+public class Login extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+        
+        // Récupération des cookies
+        <mark>Cookie[] cookies = request.getCookies();</mark>
+
+        String loginCookie = null;
+
+        if (cookies != null) {
+            loginCookie = Arrays.stream(cookies)
+                    .filter(cookie -> "login".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+        
+
+        response.setContentType("text/html;charset=UTF-8");
+
+        PrintWriter out = response.getWriter();
+
+        out.println("&lt;!DOCTYPE html&lt;");
+        out.println("&lt;html&lt;");
+        out.println("&lt;head&lt;");
+        out.println("&lt;title&lt;Connexion&lt;/title&lt;");
+        out.println("&lt;/head&lt;");
+
+        out.println("&lt;body&lt;");
+
+        out.println("&lt;h1&lt;Connexion&lt;/h1&lt;");
+
+        out.println("&lt;form method=\"post\" action=\"persistance-authenticate\"&lt;");
+
+        out.println("&lt;label for=\"login\"&lt;Login :&lt;/label&lt;");
+        out.println("&lt;input type=\"text\" id=\"login\" name=\"login\" value=\""
+                + (loginCookie != null ? loginCookie : "")
+                + "\" required&lt;");
+
+        out.println("&lt;label for=\"password\"&lt;Mot de passe :&lt;/label&lt;");
+        out.println("&lt;input type=\"password\" id=\"password\" name=\"password\" required&lt;");
+
+
+        out.println("&lt;input type=\"submit\" value=\"Se connecter\"&lt;");
+
+        out.println("&lt;/form&lt;");
+
+        out.println("&lt;/body&lt;");
+        out.println("&lt;/html&lt;");
+    }
+
+
+}</code></pre>
+      </li>
+      <li><strong>À retenir :</strong> <code>addCookie</code> doit être appelé <em>avant</em> d'écrire le corps, car le cookie voyage dans les en-têtes. <code>setMaxAge</code> : valeur positive = durée en secondes, négative (défaut) = jusqu'à la fermeture du navigateur, <code>0</code> = suppression.</li>
+      <li><strong>Test</strong> (<code>-c</code> enregistre les cookies, <code>-b</code> les renvoie) :
+<pre><code>curl --noproxy "*" -i -c cookies.txt -d "login=Joe" -d "password=JoJo44" "http://localhost:8888/demo/persistance-authenticate"
+curl --noproxy "*" -b cookies.txt "http://localhost:8888/demo/persistance-login"   # value="Joe"</code></pre>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 6. SESSIONS -->
+  <section class="loi-card">
+    <h2>6. Les sessions - Garder l'utilisateur connecté côté serveur</h2>
+    <ul>
+      <li><strong>Fichiers :</strong> dans <span class="chemin">src/main/java/iut/nantes/session/</span> : <code>Login.java</code> (le formulaire, identique à celui des cookies, avec <code>action="session-authenticate"</code>), <code>Authenticate.java</code> et <code>SessionPage.java</code>.</li>
+      <li><strong>Énoncé :</strong> si l'authentification réussit, rediriger vers une autre servlet qui affiche le login.</li>
+      <li><strong>Le principe :</strong> les données restent <mark>côté serveur</mark>, dans la <span class="terme" data-def="session">session</span>. Le navigateur ne reçoit qu'un cookie <code>JSESSIONID</code>, créé par Tomcat, qui identifie sa session.</li>
+      <li><strong>Login</strong></li>  
+<pre><code>/*
+ * Servlet chargée d'afficher le formulaire de connexion.
+ *
+ * Elle recherche un cookie nommé "login".
+ * Si ce cookie existe, sa valeur est utilisée pour préremplir
+ * le champ Login du formulaire.
+ */
+@WebServlet(name = "sessionLogin", value = "/session-login")
+public class Login extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+
+        // Récupération des cookies
+        Cookie[] cookies = request.getCookies();
+
+        String loginCookie = null;
+
+        if (cookies != null) {
+            loginCookie = Arrays.stream(cookies)
+                    .filter(cookie -> "login".equals(cookie.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+
+        response.setContentType("text/html;charset=UTF-8");
+
+        PrintWriter out = response.getWriter();
+
+        out.println("&lt;!DOCTYPE html&lt;");
+        out.println("&lt;html&lt;");
+        out.println("&lt;head&lt;");
+        out.println("&lt;title&lt;Connexion&lt;/title&lt;");
+        out.println("&lt;/head&lt;");
+
+        out.println("&lt;body&lt;");
+
+        out.println("&lt;h1&lt;Connexion&lt;/h1&lt;");
+
+        out.println("&lt;form method=\"post\" action=\"session-authenticate\"&lt;");
+
+        out.println("&lt;label for=\"login\"&lt;Login :&lt;/label&lt;");
+        out.println("&lt;input type=\"text\" id=\"login\" name=\"login\" value=\""
+                + (loginCookie != null ? loginCookie : "")
+                + "\" required&lt;");
+
+        out.println("&lt;label for=\"password\"&lt;Mot de passe :&lt;/label&lt;");
+        out.println("&lt;input type=\"password\" id=\"password\" name=\"password\" required&lt;");
+
+
+        out.println("&lt;input type=\"submit\" value=\"Se connecter\"&lt;");
+
+        out.println("&lt;/form&lt;");
+
+        out.println("&lt;/body&lt;");
+        out.println("&lt;/html&lt;");
+    }
+
+
+}
+
+</code></pre>
+
+      <li><strong>Écriture (<code>Authenticate</code>, <code>/session-authenticate</code>) :</strong>
+
+<pre><code>// ... même vérification du login et du mot de passe que dans la partie Persistance
+
+/*
+  * Servlet chargée de vérifier les identifiants de l'utilisateur.
+  *
+  * Si les identifiants sont corrects :
+  * - un cookie mémorise le login dans le navigateur ;
+  * - une session HTTP conserve le login côté serveur ;
+  * - l'utilisateur est redirigé vers la page privée.
+  */
+@WebServlet(name = "sessionAuthenticate", value = "/session-authenticate")
+public class Authenticate extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+        authenticate(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
+        authenticate(request, response);
+    }
+
+    private void authenticate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String login = request.getParameter("login");
+        String password = request.getParameter("password");
+
+        if (!"Joe".equals(login) || !"JoJo44".equals(password)){
+            System.out.println("login ou password err");
+            String referer = request.getHeader("Referer");
+            if (referer != null) {
+                response.sendRedirect(referer);
+            } else {
+                response.sendRedirect("index.jsp");
+            }
+            return;
+        }
+
+        Cookie cookie = new Cookie("login", login);
+
+        cookie.setMaxAge(60 * 60);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        response.setContentType("text/html;charset=UTF-8");
+
+        <mark>HttpSession session = request.getSession();// récupère ou CRÉE la session</mark>
+        <mark>session.setAttribute("login", login); // Stocke le login dans la session sous la clé "login"</mark>
+        <mark>response.sendRedirect("session-page");// relative : garde /demo</mark>
+
+        <mark>response.sendRedirect("session-page");</mark>
+    }
+}
+
+      </li>
+      <li><strong>Lecture (<code>SessionPage</code>, <code>/session-page</code>) :</strong>
+<pre><code>@WebServlet(name="sessionPage",value="/session-page")
+public class SessionPage extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request , HttpServletResponse response) throws ServletException, IOException{
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("login") != null  && session.getAttribute("password") != null) {
+
+            String login = (String) session.getAttribute("login");
+            String password = (String) session.getAttribute("password");
+
+            response.setContentType("text/html;charset=UTF-8");
+
+            PrintWriter out = response.getWriter();
+
+            out.println("&lt;!DOCTYPE html&lt;");
+            out.println("&lt;html&lt;");
+            out.println("&lt;head&lt;");
+            out.println("&lt;title&lt;session&lt;/title&lt;");
+            out.println("&lt;/head&lt;");
+
+            out.println("&lt;body&lt;");
+
+            out.println("&lt;h1&lt;Welcome&lt;/h1&lt;");
+            out.println("&lt;p&lt;"+login+"&lt;/p&lt;");
+            out.println("&lt;p&lt;"+password+"&lt;/p&lt;");
+
+            out.println("&lt;/body&lt;");
+            out.println("&lt;/html&lt;");
+
+        }else {
+            // utilisateur non connecté
+            response.sendRedirect("session-login");
+            return;
+        }
+
+    }
+
+}</code></pre>
+      </li>
+      <li><strong>À retenir :</strong>
+        <ul>
+          <li><code>getSession()</code> crée la session si besoin, <code>getSession(false)</code> renvoie <code>null</code> si elle n'existe pas : c'est ce qui permet de savoir si l'utilisateur est connecté.</li>
+          <li><code>getAttribute</code> renvoie un <code>Object</code> : il faut le convertir (<code>(String)</code>).</li>
+          <li>Redirection après un POST : si l'utilisateur rafraîchit la page, il ne renvoie pas le formulaire.</li>
+          <li>Une session expire après 30 minutes d'inactivité par défaut (<code>setMaxInactiveInterval</code>) et se termine avec <code>session.invalidate()</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Test :</strong>
+<pre><code>curl --noproxy "*" -i -c cj.txt -d "login=Joe" -d "password=JoJo44" "http://localhost:8888/demo/session-authenticate"  # 302 + Set-Cookie: JSESSIONID
+curl --noproxy "*" -i -b cj.txt "http://localhost:8888/demo/session-page"   # 200, page Welcome
+curl --noproxy "*" -i "http://localhost:8888/demo/session-page"             # 302 vers session-login</code></pre>
+      </li>
+    </ul>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Notion</th><th>Méthode ou classe clé</th><th>À ne pas oublier</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Cycle de vie</strong></td><td><code>init()</code>, <code>service()</code>, <code>destroy()</code></td><td>Une seule instance, <code>super.init(config)</code></td></tr>
+          <tr><td><strong>Paramètres d'init</strong></td><td><code>@WebInitParam</code>, <code>getInitParameter</code></td><td>Plusieurs <code>urlPatterns</code> = même instance</td></tr>
+          <tr><td><strong>Paramètres de requête</strong></td><td><code>getParameter</code>, <code>getParameterMap</code></td><td><code>null</code> si absent</td></tr>
+          <tr><td><strong>Redirection</strong></td><td><code>sendRedirect</code>, header <code>Referer</code></td><td>302, <code>return</code> après, URL relative</td></tr>
+          <tr><td><strong>Cookie</strong></td><td><code>Cookie</code>, <code>addCookie</code>, <code>getCookies</code></td><td>Avant le corps, <code>setMaxAge</code> en secondes</td></tr>
+          <tr><td><strong>Session</strong></td><td><code>HttpSession</code>, <code>setAttribute</code>, <code>getAttribute</code></td><td><code>getSession(false)</code> pour tester la connexion</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div id="tooltip">
+    <div id="def-servlet" class="def-bloc">
+      <h3>Servlet</h3>
+      <p>Une classe Java qui hérite de <code>HttpServlet</code> et répond à des requêtes HTTP (GET, POST...) sur un serveur web.</p>
+      <ul><li>Elle est instanciée une seule fois et peut être appelée par plusieurs threads.</li></ul>
+    </div>
+    <div id="def-conteneur" class="def-bloc">
+      <h3>Conteneur web</h3>
+      <p>Le moteur qui crée les servlets, appelle leurs méthodes et gère leur cycle de vie. Ici, c'est <strong>Tomcat</strong>.</p>
+    </div>
+    <div id="def-redirection" class="def-bloc">
+      <h3>Redirection HTTP</h3>
+      <p>Le serveur répond avec un code <code>30X</code> (ici <code>302</code>) et l'adresse dans le header <code>Location</code>. Le client consulte alors la nouvelle URL.</p>
+    </div>
+    <div id="def-referer" class="def-bloc">
+      <h3>Header <code>Referer</code></h3>
+      <p>L'URL de la page d'où vient la requête, envoyée par le client.</p>
+      <ul><li>Il peut être absent : toujours prévoir un repli.</li></ul>
+    </div>
+    <div id="def-cookie" class="def-bloc">
+      <h3>Cookie</h3>
+      <p>Un court texte envoyé par le serveur (<code>Set-Cookie</code>), que le client renvoie aux requêtes suivantes vers le même domaine.</p>
+      <ul><li>Il permet de contourner l'absence d'état du protocole HTTP.</li></ul>
+    </div>
+    <div id="def-session" class="def-bloc">
+      <h3>Session</h3>
+      <p>Un espace de données conservé <strong>côté serveur</strong> pour un utilisateur. Le client ne garde que l'identifiant (cookie <code>JSESSIONID</code>).</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(b => b.classList.remove('actif'));
+      document.getElementById('def-' + cle).classList.add('actif');
+      tooltip.style.display = 'block';
+    }
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    document.querySelectorAll('.terme').forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+      terme.addEventListener('mouseenter', () => { if (!tactile.matches) afficher(cle); });
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        let x = e.pageX + 15;
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) x = e.pageX - tooltip.offsetWidth - 15;
+        if (x < 10) x = 10;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = (e.pageY + 15) + 'px';
+      });
+      terme.addEventListener('mouseleave', () => { if (!tactile.matches) masquer(); });
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) { masquer(); return; }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+    document.addEventListener('click', () => { if (tactile.matches) masquer(); });
+  </script>
+
+</body>
+</html>
