@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conception d'algorithmes corrects et efficaces</title>
+
+  <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    mark {
+      background: #fef08a;
+      color: inherit;
+      padding: 0.1em 0.25em;
+      border-radius: 3px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Tableau de synthèse */
+    table {
+      width: 100%;
+      min-width: 650px;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+    
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+
+    .terme { -webkit-tap-highlight-color: transparent; }
+    .astuce-tactile { display: none; }
+
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+
+      #tooltip {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Conception d'Algorithmes Corrects et Efficaces</h1>
+  <p style="text-align: center; color: #555;">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. INTRODUCTION -->
+  <section class="loi-card">
+    <h2>1. Introduction et Étapes de Développement</h2>
+    <ul>
+      <li><strong>Le contexte :</strong> La construction de logiciels robustes nécessite des méthodes rigoureuses passant par l'analyse, la <span class="terme" data-def="conception">conception</span>, le développement, les tests et la maintenance.</li>
+      <li><strong>Le rôle de la conception :</strong> C'est l'étape charnière entre l'analyse du problème et le développement du code. Elle conditionne directement la correction, la performance et le coût des applications.</li>
+      <li><strong>Systèmes et états :</strong> Le fonctionnement d'un logiciel se traduit par une succession d'<span class="terme" data-def="etat">états</span> modifiés au fil du temps par l'exécution des instructions (perçus à travers les valeurs des variables).</li>
+    </ul>
+  </section>
+
+  <!-- 2. OUTILS D'ANALYSE DE LA COMPLEXITÉ -->
+  <section class="loi-card">
+    <h2>2. Outils d'Analyse : Complexité et Ordres de Grandeur</h2>
+    <ul>
+      <li><strong>Problème et Algorithme :</strong> Un algorithme est une méthode systématique de résolution d'un problème via des structures de contrôle. Certains problèmes n'ont pas de solution algorithmique (ex. : chemins d'Euler).</li>
+      <li><strong>Évaluation des coûts :</strong> On analyse le <span class="terme" data-def="complexite-temporelle">coût en temps</span> (comptage des opérations élémentaires comme les affectations et comparaisons, et non élémentaires comme les accès mémoire ou réseaux) et le <span class="terme" data-def="complexite-spatiale">coût en mémoire</span> (selon les structures de données utilisées : tableaux, listes, arbres, graphes).</li>
+      <li><strong>Impact environnemental :</strong> La complexité influence directement l'énergie consommée par les processeurs et les réseaux.</li>
+      <li><strong>Ordres de grandeur (Notation Grand $O$) :</strong> Pour comparer l'efficacité asymptotique des algorithmes quand la taille $n$ des données grandit :
+        $$O(g(n)) = \{ h : \mathbb{N} \to \mathbb{R}_+ \mid \exists (c, n_0). (c \in \mathbb{R}, n_0 \in \mathbb{R} \wedge \forall n. (n \ge n_0 \implies h(n) \le c \cdot g(n))) \}$$
+      </li>
+    </ul>
+  </section>
+
+  <!-- 3. SPÉCIFICATION ET LOGIQUE DE HOARE -->
+  <section class="loi-card">
+    <h2>3. Spécification et Triplet de Hoare</h2>
+    <ul>
+      <li><strong>Le Contrat :</strong> La spécification d'un programme associe une <span class="terme" data-def="precondition">précondition</span> ($P$, exigée de l'utilisateur) et une <span class="terme" data-def="postcondition">postcondition</span> ($Q$, garantie par le programme).</li>
+      <li><strong>Triplet de Hoare :</strong> Exprimé sous la forme $\{P\} \, S \, \{Q\}$. Il signifie que si l'exécution de $S$ commence dans un état vérifiant $P$ et qu'elle se termine, alors $Q$ est vraie.</li>
+      <li><strong>Règles de déduction de base :</strong>
+        <ul>
+          <li><em>Affectation (axiome) :</em> $\{P[e/v]\} \, v := e \, \{P\}$</li>
+          <li><em>Séquence ($S_1; S_2$) :</em> Si $\{P\} S_1 \{Q\}$ et $\{Q\} S_2 \{R\}$, alors $\{P\} S_1; S_2 \{R\}$</li>
+          <li><em>Conditionnelle (`IF THEN ELSE`) :</em> Basée sur la vérification de la condition $B$ et de sa négation $\neg B$.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 4. TERMINAISON DES PROGRAMMES -->
+  <section class="loi-card">
+    <h2>4. Preuve de Terminaison</h2>
+    <ul>
+      <li><strong>Nécessité :</strong> Prouver la correction partielle d'un programme ne garantit pas qu'il s'arrête (pas de boucle infinie).</li>
+      <li><strong>Méthode pour les boucles :</strong> Pour prouver la terminaison d'une boucle *tantque*, on exhibe une <span class="terme" data-def="expression-terminaison">expression de terminaison</span> (une suite scalaire entière) qui :
+        <ul>
+          <li>Prend ses valeurs dans un domaine muni d'une relation d'ordre.</li>
+          <li>Est strictement monotone (strictement décroissante à chaque tour).</li>
+          <li>Est minorée (généralement par 0).</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 5. CONSTRUCTION INDUCTIVE ET BOUCLES -->
+  <section class="loi-card">
+    <h2>5. Construction des Boucles et Invariant</h2>
+    <ul>
+      <li><strong>L'Invariant de boucle :</strong> Un prédicat $I$ qui caractérise l'état du calcul et qui reste vrai avant et après chaque itération.</li>
+      <li><strong>Les 3 relations fondamentales :</strong>
+        <ol>
+          <li><strong>R1 (Résultat) :</strong> $(\text{Invariant} \wedge \text{Condition d'arrêt}) \implies \text{Postcondition}$.</li>
+          <li><strong>R2 (Progression) :</strong> La progression doit conserver l'invariant tout en faisant décroître strictement l'expression de terminaison.</li>
+          <li><strong>R3 (Initialisation) :</strong> L'initialisation doit établir l'invariant à partir de la précondition.</li>
+        </ol>
+      </li>
+      <li><strong>Exemple type (Multiplication par additions successives) :</strong>
+<pre><code>// Précondition : { a >= 0 A b >= 0 }
+n := b; p := 0;
+// Invariant : { (p + n * a) = (a * b) }
+tantque n != 0 faire
+    p := p + a;
+    n := n - 1;
+fintantque
+// Postcondition : { (p + n * a) = (a * b) A n = 0 } -> p = a * b</code></pre>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 6. RAISONNEMENT ET STRUCTURES DE DONNÉES -->
+  <section class="loi-card">
+    <h2>6. Raisonnement et Choix des Structures de Données</h2>
+    <ul>
+      <li><strong>Techniques de raisonnement :</strong>
+        <ul>
+          <li><em><span class="terme" data-def="induction">Induction (récurrence)</span> :</em> Permet de démontrer des propriétés générales en prouvant un cas de base et une étape d'hérédité.</li>
+          <li><em>Déduction :</em> Applique une règle générale à des cas particuliers.</li>
+        </ul>
+      </li>
+      <li><strong>Structures de données :</strong> Permettent d'organiser et représenter les données (tuples, tableaux, listes, arbres, graphes). Leur choix doit découler de l'analyse globale des coûts du problème (prétraiter les données peut parfois s'avérer beaucoup moins coûteux que de concevoir des algorithmes complexes).</li>
+    </ul>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse des Notions Clés</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Notion / Outil</th>
+            <th>Domaine</th>
+            <th>Rôle / Définition principale</th>
+            <th>Expression / Formule clé</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Complexité temporelle</strong></td>
+            <td>Analyse</td>
+            <td>Évalue le coût en rapidité d'exécution en fonction de la taille $n$</td>
+            <td>Classes : $O(1), O(\log n), O(n), O(n^2), O(2^n)$</td>
+          </tr>
+          <tr>
+            <td><strong>Spécification</strong></td>
+            <td>Conception</td>
+            <td>Contrat formel unissant précondition et postcondition</td>
+            <td>$\text{Spécification} = (\text{Précondition}, \text{Postcondition})$</td>
+          </tr>
+          <tr>
+            <td><strong>Triplet de Hoare</strong></td>
+            <td>Preuve de programmes</td>
+            <td>Formalisme mathématique de correction partielle</td>
+            <td>$\{P\} \, S \, \{Q\}$</td>
+          </tr>
+          <tr>
+            <td><strong>Invariant de boucle</strong></td>
+            <td>Construction</td>
+            <td>Propriété conservée à chaque itération du calcul</td>
+            <td>$(\text{Invariant} \wedge \text{Condition d'arrêt}) \implies \text{Postcondition}$</td>
+          </tr>
+          <tr>
+            <td><strong>Expression de terminaison</strong></td>
+            <td>Terminaison</td>
+            <td>Suite entière strictement décroissante et minorée</td>
+            <td>Garantit un arrêt en un nombre fini de tours</td>
+          </tr>
+          <tr>
+            <td><strong>Induction / Récurrence</strong></td>
+            <td>Raisonnement</td>
+            <td>Technique de preuve du cas de base vers l'hérédité ($n \to n+1$)</td>
+            <td>$\text{Base} \wedge (\text{Hérédité})$</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INFOBULLE DES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-conception" class="def-bloc">
+      <h3>Conception algorithmique</h3>
+      <p>L'étape charnière entre l'analyse du problème et l'écriture du code source. Elle consiste à structurer les données et choisir les bons algorithmes pour garantir correction et performance.</p>
+    </div>
+
+    <div id="def-etat" class="def-bloc">
+      <h3>État d'un algorithme</h3>
+      <p>La perception du système à un instant donné à travers les valeurs de l'ensemble de ses variables en mémoire.</p>
+    </div>
+
+    <div id="def-complexite-temporelle" class="def-bloc">
+      <h3>Complexité temporelle</h3>
+      <p>L'estimation de l'évolution du temps d'exécution d'un algorithme en fonction de la taille $n$ des données d'entrée, mesurée à l'aide des ordres de grandeur (notation Grand $O$).</p>
+    </div>
+
+    <div id="def-complexite-spatiale" class="def-bloc">
+      <h3>Complexité spatiale</h3>
+      <p>L'évaluation de la quantité d'espace mémoire nécessaire au stockage des structures de données manipulées par l'algorithme pendant son exécution.</p>
+    </div>
+
+    <div id="def-precondition" class="def-bloc">
+      <h3>Précondition ($P$)</h3>
+      <p>Une propriété logique qui <strong>doit être vraie avant</strong> l'exécution d'une action ou d'un programme pour qu'il puisse se dérouler correctement (ex. $m \neq 0$ pour une division).</p>
+    </div>
+
+    <div id="def-postcondition" class="def-bloc">
+      <h3>Postcondition ($Q$)</h3>
+      <p>Une propriété logique garantie comme <strong>vraie après</strong> l'exécution correcte d'une action ou d'un programme.</p>
+    </div>
+
+    <div id="def-expression-terminaison" class="def-bloc">
+      <h3>Expression de terminaison</h3>
+      <p>Une grandeur entière (ou scalaire) associée à une boucle, strictement décroissante à chaque itération et minorée (généralement par 0), servant à prouver mathématiquement que la boucle va s'arrêter.</p>
+    </div>
+
+    <div id="def-induction" class="def-bloc">
+      <h3>Induction (Récurrence)</h3>
+      <p>Une méthode de raisonnement logique consistant à prouver une propriété pour un cas initial (base), puis à montrer que si elle est vraie à l'ordre $n$, elle l'est nécessairement à l'ordre $n+1$ (hérédité).</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+</body>
+</html>
