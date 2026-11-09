@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Révision - Programmation Java & Pattern DAO</title>
+
+  <!-- Configuration de MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      color: #2563eb;
+      font-size: 1.1rem;
+      margin-top: 1.2rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    code {
+      font-family: monospace;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Tableau de synthèse */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+
+    .terme { -webkit-tap-highlight-color: transparent; }
+    .astuce-tactile { display: none; }
+
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+      #tooltip {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Révision Java : Classes, Promotion & Pattern DAO</h1>
+  <p style="text-align: center; color: #555;">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. ETUDIANTS ET PROMOTION -->
+  <section class="loi-card">
+    <h2>1. Gestion des Étudiants</h2>
+    <ul>
+      <li><strong>Classes et Héritage :</strong> Implémentation d'une classe <span class="terme" data-def="etudiant">Etudiant</span> caractérisée par un numéro et une moyenne, et d'une classe fille <span class="terme" data-def="heritage">EtudiantAvecEtatMental</span> incluant un état mental via une énumération.</li>
+      <li><strong>Encapsulation et Collections :</strong> La classe <span class="terme" data-def="promotion">Promotion</span> gère une liste d'étudiants, calcule la moyenne globale et lève des exceptions en cas de doublons ou d'erreurs.</li>
+    </ul>
+
+    <h3>Code : Étudiant</h3>
+    <pre><code>package promotion;
+
+public class Etudiant {
+    private String no ;
+    private Float moyenne ;
+    private static int nb=0 ;
+
+    //Constructeur 1
+    public Etudiant(String no,Float moyenne){
+        this.no = no;
+        this.moyenne = moyenne;
+        nb++;
+    }
+
+    //Constructeur 2
+    public Etudiant(String no){
+        this(no,10.0f);
+    }
+
+    public String getNo(){
+        return this.no ;
+    }
+    public Float getMoyenne(){
+        return this.moyenne;
+    }
+
+//    @Override
+//    public String toString() {
+//        return "Etudiant{no=" + this.no + ", moyenne=" + this.moyenne + "}";
+//    }
+
+    @Override
+    public String toString() {
+        return String.format("Etudiant{no='%s', moyenne=%s}", this.no, this.moyenne);
+    }
+
+    public static Integer nombreEtudiantCrees(){
+        return nb;
+    }
+}</code></pre>
+    <h3>Code : Promotion</h3>
+    <pre><code>package promotion;
+
+import java.util.ArrayList;
+
+public class Promotion {
+
+    private ArrayList<Etudiant> etudiants = new ArrayList<Etudiant>();
+
+    public int getNombreEtudiants(){
+        return etudiants.size();
+    }
+
+    public void ajouterEtudiant(Etudiant etu){
+        if(!etudiants.contains(etu)){
+            if(etu == null || this.contientEtudiant(etu.getNo())){
+                throw new IllegalArgumentException();
+            }
+            this.etudiants.add(etu);
+        }
+        else{
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public boolean supprimerEtudiant(String etu){
+        for(int i = 0 ;i < etudiants.size();i++){
+            if(etu == this.etudiants.get(i).getNo()){
+                this.etudiants.remove(this.etudiants.get(i));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ArrayList<Etudiant> getEtudiants(){
+        return etudiants;
+    }
+
+    public boolean contientEtudiant(String etu){
+        for(int i = 0 ;i < etudiants.size();i++){
+            if(etu == this.etudiants.get(i).getNo()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public double moyenne(){
+        if (this.etudiants.size() == 0){
+            return 0;
+        }
+        int notes =0;
+        for(int i = 0 ;i < this.etudiants.size();i++){
+            notes += this.etudiants.get(i).getMoyenne();
+        }
+        return (double) notes/this.etudiants.size();
+    }
+}</code></pre>
+    <h3>Code : EtatMental</h3>
+    <pre><code>package promotion;
+
+public enum EtatMental {
+    Bien("Biens"),
+    Joyeux("Joyeux"),
+    Heureux("Heureux");
+
+    private String valeur;
+
+    private EtatMental(String valeur){
+        this.valeur=valeur;
+    }
+
+    public String getValeur(){
+        return this.valeur;
+    }
+
+    @Override
+    public String toString(){
+        return String.format("%s",this.valeur);
+    }
+}</code></pre>
+    <h3>Code : EtudiantAvecEtatMental</h3>
+    <pre><code>package promotion;
+
+public class EtudiantAvecEtatMental extends Etudiant  {
+    private EtatMental etatMental;
+
+    public EtudiantAvecEtatMental(String no , Float moyenne , EtatMental etatMental){
+        super(no, moyenne);
+        this.etatMental = etatMental;
+    }
+
+    public EtatMental getEtatMental() {
+        return etatMental;
+    }
+
+    public void setEtatMental(EtatMental etatMental){
+        this.etatMental = etatMental;
+    }
+
+    @Override
+    public String toString(){
+        return super.toString() + String.format("%s",this.etatMental.toString());
+    }
+}</code></pre>
+  </section>
+
+  <!-- 2. DAO CLASSIQUE -->
+  <section class="loi-card">
+    <h2>2. Pattern DAO : Approche Classique</h2>
+    <ul>
+      <li><strong>Principe :</strong> Permet d'isoler l'accès aux données (ici en mémoire via une <span class="terme" data-def="hashmap">HashMap</span>).</li>
+      <li><strong>Gestion des erreurs :</strong> Utilisation d'exceptions de type <code>IllegalArgumentException</code> si un élément n'existe pas ou si les paramètres sont invalides.</li>
+    </ul>
+
+    <h3>Code : ProductMemoryDao</h3>
+    <pre><code>package dao.old;
+
+import dao.Product;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class ProductMemoryDao implements Dao<Product> {
+
+    private Map<Long,Product> storage = new HashMap<Long, Product>();
+
+    @Override
+    public Product get(long id) {
+        if ( id < 0 || id >= storage.size()) throw new IllegalArgumentException();
+        return storage.get(id);
+    }
+
+    @Override
+    public List<Product> getAll() {
+        List<Product> res = new ArrayList<>();
+        storage.forEach((code, produit) -> {
+            res.add(produit);
+        });
+        return res;
+    }
+
+    @Override
+    public void update(Product o, String[] params) {
+        if(params == null || params.length != 4 || !storage.containsKey(Long.parseLong(params[0]))) throw new IllegalArgumentException();
+
+        long keyProduitUpdate = o.getId();
+        Integer id = Integer.parseInt(params[0]);
+        String name = params[1];
+        Double price = Double.parseDouble(params[2]);
+        Integer quantity = Integer.parseInt(params[3]);
+
+        Product updatedProduct = new Product(id, name, price, quantity);
+
+        storage.replace(keyProduitUpdate,updatedProduct);
+    }
+
+    @Override
+    public void delete(Product o) {
+        if (o == null) throw new IllegalArgumentException();
+
+        long key = o.getId();
+        if (!storage.containsKey(key)) throw new IllegalArgumentException();
+
+        storage.remove(key);
+    }
+
+
+    @Override
+    public void save(Product o) {
+        if( o == null) throw new IllegalArgumentException();
+        long key = o.getId();
+        storage.put(key,o);
+    }
+}</code></pre>
+  </section>
+
+  <!-- 3. DAO OPTIONAL -->
+  <section class="loi-card">
+    <h2>3. Pattern DAO : Approche Optional</h2>
+    <ul>
+      <li><strong>Sécurité anti-null :</strong> Introduction des <span class="terme" data-def="optional">Optional</span> en Java 8 pour éviter les <code>NullPointerException</code> de manière fonctionnelle.</li>
+      <li><strong>Signature de méthode :</strong> La méthode <code>get(long id)</code> renvoie un <code>Optional&lt;T&gt;</code> au lieu de risquer de retourner <code>null</code>.</li>
+    </ul>
+
+    <h3>Code : ProductMemoryDaoOptional</h3>
+    <pre><code>package dao.optional;
+
+import dao.Product;
+
+import java.util.*;
+
+public class ProductMemoryDaoOptional implements Dao<Product> {
+
+    private Map<Long, Product> storage = new HashMap<>();
+
+    @Override
+    public Optional<Product> get(long id) {
+        return Optional.ofNullable(storage.get(id));
+    }
+
+    @Override
+    public List<Product> getAll() {
+        List<Product> res = new ArrayList<>();
+        storage.forEach((code, produit) -> {
+            res.add(produit);
+        });
+        return res;
+    }
+
+    @Override
+    public void update(Product o, String[] params) {
+        if(params == null || params.length != 4 || !storage.containsKey(Long.parseLong(params[0]))) throw new IllegalArgumentException();
+
+        long keyProduitUpdate = o.getId();
+        Integer id = Integer.parseInt(params[0]);
+        String name = params[1];
+        Double price = Double.parseDouble(params[2]);
+        Integer quantity = Integer.parseInt(params[3]);
+
+        Product updatedProduct = new Product(id, name, price, quantity);
+
+        storage.replace(keyProduitUpdate,updatedProduct);
+    }
+
+    @Override
+    public void delete(Product o) {
+        if (o == null) throw new IllegalArgumentException();
+
+        long key = o.getId();
+        if (!storage.containsKey(key)) throw new IllegalArgumentException();
+
+        storage.remove(key);
+    }
+
+
+    @Override
+    public void save(Product o) {
+        if( o == null) throw new IllegalArgumentException();
+        long key = o.getId();
+        storage.put(key,o);
+    }
+}</code></pre>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse des Notions Clés</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Composant</th>
+          <th>Rôle / Description</th>
+          <th>Particularité technique</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Etudiant</strong></td>
+          <td>Modélise un étudiant de base</td>
+          <td>Attributs privés, constructeurs surchargés, compteur statique</td>
+        </tr>
+        <tr>
+          <td><strong>Promotion</strong></td>
+          <td>Gère une collection d'étudiants</td>
+          <td>Vérification des doublons, calcul de moyenne</td>
+        </tr>
+        <tr>
+          <td><strong>DAO Classique</strong></td>
+          <td>Accès aux données (CRUD)</td>
+          <td>Lève des exceptions explicites en cas d'absence</td>
+        </tr>
+        <tr>
+          <td><strong>DAO Optional</strong></td>
+          <td>Accès sécurisé moderne</td>
+          <td>Encapsule les résultats dans un <code>Optional</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- INFOBULLE -->
+  <div id="tooltip">
+    <div id="def-etudiant" class="def-bloc">
+      <h3>Classe Etudiant</h3>
+      <p>Classe de base contenant un numéro unique (<code>no</code>) et une moyenne flottante (<code>moyenne</code> par défaut à 10.0).</p>
+    </div>
+
+    <div id="def-heritage" class="def-bloc">
+      <h3>Héritage et Extension</h3>
+      <p>Permet à une classe fille (ex: <code>EtudiantAvecEtatMental</code>) de réutiliser les attributs et méthodes de la classe mère via le mot-clé <code>extends</code></p>
+    </div>
+
+    <div id="def-promotion" class="def-bloc">
+      <h3>Promotion</h3>
+      <p>Structure regroupant les étudiants dans une <code>ArrayList</code>, avec des règles de gestion strictes (interdiction d'ajouter deux fois le même numéro).</p>
+    </div>
+
+    <div id="def-hashmap" class="def-bloc">
+      <h3>HashMap</h3>
+      <p>Structure de données clé-valeur idéale en mémoire pour implémenter rapidement un DAO sans base de données relationnelle.</p>
+    </div>
+
+    <div id="def-optional" class="def-bloc">
+      <h3>Optional&lt;T&gt;</h3>Conteneur d'objet qui peut contenir ou non une valeur non nulle. Permet d'éviter proprement les erreurs de type <code>NullPointerException</code>.
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      document.getElementById('def-' + cle).classList.add('actif');
+      tooltip.style.display = 'block';
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+</body>
+</html>
