@@ -191,7 +191,7 @@
 
   <h1>Exercice 4 : Chiffrement affine</h1>
   <p style="text-align: center; color: #555;">
-    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="affine">termes soulignés en bleu</span> pour afficher leur définition.</em>
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
   <!-- 4.1. DICTIONNAIRE DANS Z/31Z -->
@@ -323,6 +323,33 @@ assert dechiff_affine(chiffre, a, b) == message2</code></pre>
     </ul>
   </section>
 
+  <!-- 4.5. ÉCHANGE DE CLÉ SECRÈTE -->
+  <section class="loi-card">
+    <h2>4.5. Échange secret de la clé $(a, b)$ : Protocole de Diffie-Hellman</h2>
+    <p>Pour échanger secrètement la clé $(a, b)$ sur un canal non sécurisé sans rencontre préalable, les deux correspondants (Alice et Bob) utilisent le <span class="terme" data-def="diffie-hellman">protocole d'échange de clés de Diffie-Hellman</span>, fondé sur la difficulté du <span class="terme" data-def="log-discret">logarithme discret</span> :</p>
+    <ol>
+      <li><strong>Paramètres publics :</strong> Alice et Bob conviennent publiquement d'un grand <span class="terme" data-def="premier">nombre premier</span> $p$ et d'un entier générateur $g$ tel que $1 &lt; g &lt; p$.</li>
+      <li><strong>Choix des secrets privés :</strong> Chacun choisit un entier secret qu'il conserve privé : $x$ pour Alice, $y$ pour Bob.</li>
+      <li><strong>Calcul et envoi des clés publiques :</strong>
+        <ul>
+          <li>Alice calcule $A = g^x \pmod{p}$ et l'envoie à Bob.</li>
+          <li>Bob calcule $B = g^y \pmod{p}$ et l'envoie à Alice.</li>
+        </ul>
+      </li>
+      <li><strong>Calcul du secret partagé :</strong> À réception, chacun élève la valeur reçue à la puissance de son propre secret :
+        <ul>
+          <li>Alice calcule : $S = B^x \pmod{p} = (g^y)^x \pmod{p} = g^{xy} \pmod{p}$</li>
+          <li>Bob calcule : $S = A^y \pmod{p} = (g^x)^y \pmod{p} = g^{xy} \pmod{p}$</li>
+        </ul>
+        Ils obtiennent le même secret <mark>$S$</mark> sans jamais l'avoir transmis sur le canal.
+      </li>
+      <li><strong>Dérivation du couple $(a, b)$ :</strong> Pour obtenir deux entiers dans $\mathbb{Z}/31\mathbb{Z}$, Alice et Bob exécutent le protocole deux fois (avec deux paires de secrets) ou dérivent deux valeurs à partir de $S$ (par fonction de hachage), en veillant à ce que $a \in \{1, \dots, 30\}$ (inversible modulo $31$) et $b \in \{0, \dots, 30\}$.</li>
+    </ol>
+    <div class="note-box">
+      <strong>Sécurité :</strong> Un espion interceptant $p$, $g$, $A$ et $B$ ne peut pas retrouver $x$ ni $y$ si $p$ est suffisamment grand, car résoudre $A \equiv g^x \pmod{p}$ (logarithme discret) est calculatoirement impraticable.
+    </div>
+  </section>
+
   <!-- SYNTHÈSE -->
   <section class="loi-card">
     <h2>Synthèse de l'Exercice</h2>
@@ -348,7 +375,13 @@ assert dechiff_affine(chiffre, a, b) == message2</code></pre>
         <tr>
           <td><strong>4.3</strong></td>
           <td><code>inverse_modulaire(a)</code> &amp; <code>dechiff_affine(mess, a, b)</code></td>
-          <td>$x \equiv a^{-1} \cdot (y - b) \pmod{31}$ (valide pour tout $a \not\equiv 0 \pmod{31}$)</td>
+          <td>$x \equiv a^{-1} \cdot (y - b) \pmod{31}$ (valide pour tout $a 
+ot\equiv 0 \pmod{31}$)</td>
+        </tr>
+        <tr>
+          <td><strong>4.5</strong></td>
+          <td>Protocole de Diffie-Hellman</td>
+          <td>Secret partagé $S \equiv g^{xy} \pmod{p}$ pour dériver $(a, b)$</td>
         </tr>
       </tbody>
     </table>
@@ -358,7 +391,7 @@ assert dechiff_affine(chiffre, a, b) == message2</code></pre>
   <div id="tooltip">
     <div id="def-affine" class="def-bloc">
       <h3>Chiffrement affine</h3>
-      <p>Méthode de chiffrement par substitution monoalphabétique où chaque lettre de rang $x$ est transformée via une fonction affine $f(x) = (ax + b) \bmod n$, avec $\operatorname{pgcd}(a, n) = 1$.</p>
+      <p>Méthode de chiffrement par substitution monoalphabétique où chaque lettre de rang $x$ est transformée via une fonction affine $f(x) = (ax + b)  mod n$, avec $\operatorname{pgcd}(a, n) = 1$.</p>
     </div>
 
     <div id="def-premier" class="def-bloc">
@@ -368,7 +401,17 @@ assert dechiff_affine(chiffre, a, b) == message2</code></pre>
 
     <div id="def-inverse" class="def-bloc">
       <h3>Inverse modulaire ($a^{-1}$)</h3>
-      <p>Un entier $u$ tel que $a \times u \equiv 1 \pmod{n}$. Il permet d'annuler la multiplication par $a$ lors du déchiffrement.</p>
+      <p>Un entier $u$ tel que $a 	imes u \equiv 1 \pmod{n}$. Il permet d'annuler la multiplication par $a$ lors du déchiffrement.</p>
+    </div>
+
+    <div id="def-diffie-hellman" class="def-bloc">
+      <h3>Protocole de Diffie-Hellman</h3>
+      <p>Méthode cryptographique inventée en 1976 permettant à deux personnes de générer un secret partagé sur un canal non sécurisé sans jamais transmettre ce secret directement.</p>
+    </div>
+
+    <div id="def-log-discret" class="def-bloc">
+      <h3>Problème du logarithme discret</h3>
+      <p>Étant donnés $g$, $p$ et $A \equiv g^x \pmod{p}$, il est facile de calculer $A$ à partir de $x$, mais extrêmement difficile de retrouver l'exposant $x$ à partir de $A$ lorsque $p$ est grand.</p>
     </div>
   </div>
 
