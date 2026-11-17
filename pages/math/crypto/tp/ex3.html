@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercice 3</title>
+
+  <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    mark {
+      background: #fef08a;
+      color: inherit;
+      padding: 0.1em 0.25em;
+      border-radius: 3px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Tableau de synthèse et d'exemples */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    .table-container table {
+      margin-top: 0;
+      min-width: 480px;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+
+    .terme { -webkit-tap-highlight-color: transparent; }
+    .astuce-tactile { display: none; }
+
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+
+      #tooltip {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Exercice 3</h1>
+  <p style="text-align: center; color: #555;">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 3.1. 7^n + 1 MODULO 8 -->
+  <section class="loi-card">
+    <h2>3.1. Divisibilité de $7^n + 1$ par 8</h2>
+    <ul>
+      <li><strong>Objectif :</strong> Démontrer que $7^n + 1$ est divisible par $8$ si $n$ est impair, et donner le reste de sa division par $8$ lorsque $n$ est pair.</li>
+      <li><strong>Étude des puissances de 7 dans $\mathbb{Z}/8\mathbb{Z}$ :</strong> en calculant les valeurs successives engendrées par $7$ (multiplications successives), on obtient :
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Puissance</th>
+                <th>Calcul</th>
+                <th>Congruence modulo $8$</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>$7^1$</td>
+                <td>$7$</td>
+                <td>$7^1 \equiv$ <mark style="background:#bfdbfe">$7$</mark> $\pmod{8}$</td>
+              </tr>
+              <tr>
+                <td>$7^2$</td>
+                <td>$49 = 6 \times 8 + 1$</td>
+                <td>$7^2 \equiv$ <mark style="background:#bbf7d0">$1$</mark> $\pmod{8}$</td>
+              </tr>
+              <tr>
+                <td>$7^3$</td>
+                <td>$7^2 \times 7 \equiv 1 \times 7$</td>
+                <td>$7^3 \equiv$ <mark style="background:#bfdbfe">$7$</mark> $\pmod{8}$</td>
+              </tr>
+              <tr>
+                <td>$\vdots$</td>
+                <td>$\vdots$</td>
+                <td>$\vdots$</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        Un <span class="terme" data-def="cycle">cycle</span> de longueur $2$ apparaît : les puissances de $7$ valent alternativement $7$ et $1$ modulo $8$.
+        <br>
+        Ainsi, pour tout $k \in \mathbb{N}$ :
+        $$7^{2k+1} = (7^2)^k \times 7 \quad \text{or} \quad 7^2 \equiv 1 \pmod{8}$$
+        $$\text{donc} \quad (7^2)^k \times 7 \equiv 1^k \times 7 \pmod{8}$$
+      </li>
+      <li><strong>Cas $n$ impair</strong> ($n = 2k + 1$) :
+        $$7^{2k+1} \equiv 7 \pmod{8}$$
+        $$\text{donc} \quad 7^{2k+1} + 1 \equiv 7 + 1 = 8 \equiv \mathbf{0} \pmod{8}$$
+        Donc <strong>$7^n + 1$ est bien divisible par $8$ pour $n$ impair</strong>.
+      </li>
+      <li><strong>Cas $n$ pair</strong> ($n = 2k$) :
+        $$7^{2k} = (7^2)^k \equiv 1^k \equiv 1 \pmod{8}$$
+        $$\text{donc} \quad 7^{2k} + 1 \equiv 1 + 1 = \mathbf{2} \pmod{8}$$
+        Donc <strong>le reste de la division par $8$ de $7^n + 1$ est égal à $2$ pour $n$ pair</strong>.
+      </li>
+    </ul>
+  </section>
+
+  <!-- 3.2. RESTE DE 100^1000 PAR 13 -->
+  <section class="loi-card">
+    <h2>3.2. Reste de la division de $100^{1000}$ par 13</h2>
+    <ul>
+      <li><strong>Objectif :</strong> Trouver le reste de la <span class="terme" data-def="euclidienne">division euclidienne</span> de $100^{1000}$ par $13$.</li>
+      <li><strong>Réduction de la base :</strong> $100 = 7 \times 13 + 9$, donc $100 \equiv 9 \pmod{13}$.
+        <br>Ainsi :
+        $$100^{1000} \equiv 9^{1000} \pmod{13}$$
+        et on s'intéresse donc au <span class="terme" data-def="cycle">cycle</span> des puissances de $9$ dans $\mathbb{Z}/13\mathbb{Z}$.
+      </li>
+      <li><strong>Étude des puissances de 9 modulo 13 :</strong>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Puissance</th>
+                <th>Calcul</th>
+                <th>Congruence modulo $13$</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>$9^1$</td>
+                <td>$9$</td>
+                <td>$9^1 \equiv$ <mark style="background:#bfdbfe">$9$</mark> $\pmod{13}$</td>
+              </tr>
+              <tr>
+                <td>$9^2$</td>
+                <td>$81 = 6 \times 13 + 3$</td>
+                <td>$9^2 \equiv$ <mark style="background:#f48afe">$3$</mark> $\pmod{13}$</td>
+              </tr>
+              <tr>
+                <td>$9^3$</td>
+                <td>$9^2 \times 9 \equiv 3 \times 9 = 27 = 2 \times 13 + 1$</td>
+                <td>$9^3 \equiv$ <mark style="background:#bbf7d0">$1$</mark> $\pmod{13}$</td>
+              </tr>
+              <tr>
+                <td>$9^4$</td>
+                <td>$9^3 \times 9 \equiv 1 \times 9$</td>
+                <td>$9^4 \equiv$ <mark style="background:#bfdbfe">$9$</mark> $\pmod{13}$</td>
+              </tr>
+              <tr>
+                <td>$\vdots$</td>
+                <td>$\vdots$</td>
+                <td>$\vdots$</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        On a donc un cycle de longueur $3$ qui apparaît : $9 \to 3 \to 1 \to 9 \to \dots$
+      </li>
+      <li><strong>Positionner l'exposant $1000$ dans le cycle :</strong> on considère sa division euclidienne par $3$ :
+        $$1000 = 3 \times 333 + 1$$
+        Donc :
+        $$9^{1000} = 9^{3 \times 333 + 1} = (9^3)^{333} \times 9$$
+        Or $9^3 \equiv 1 \pmod{13}$, donc :
+        $$9^{1000} \equiv 1^{333} \times 9 \equiv 9 \pmod{13}$$
+      </li>
+      <li><strong>Conclusion :</strong> $100^{1000} \equiv$ <mark style="background:#bbf7d0">$9$</mark> $\pmod{13}$. Ainsi, le reste de la division euclidienne de $100^{1000}$ par $13$ est <strong>$9$</strong>.</li>
+    </ul>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse de l'Exercice</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Notion / Outil mathématique</th>
+          <th>Résultat clé</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>3.1</strong></td>
+          <td>Cycle des puissances de $7$ dans $\mathbb{Z}/8\mathbb{Z}$ (longueur $2$)</td>
+          <td>$7^n + 1 \equiv 0 \pmod{8}$ si $n$ impair ; $7^n + 1 \equiv 2 \pmod{8}$ si $n$ pair</td>
+        </tr>
+        <tr>
+          <td><strong>3.2</strong></td>
+          <td>Cycle des puissances de $9$ dans $\mathbb{Z}/13\mathbb{Z}$ (longueur $3$) &amp; division euclidienne de l'exposant</td>
+          <td>$100^{1000} \equiv 9 \pmod{13}$, le reste vaut $9$</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- INFOBULLE DES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-cycle" class="def-bloc">
+      <h3>Cycle des puissances</h3>
+      <p>Dans $\mathbb{Z}/n\mathbb{Z}$, les puissances successives d'un entier $a$ finissent par se répéter. Dès qu'on retrouve la valeur de départ, <strong>le cycle recommence</strong> et il suffit de connaître la position de l'exposant dans ce cycle (reste de la division de l'exposant par la longueur du cycle).</p>
+    </div>
+
+    <div id="def-euclidienne" class="def-bloc">
+      <h3>Division euclidienne</h3>
+      <p>Pour $a \in \mathbb{Z}$ et $b \in \mathbb{N}^*$, il existe un unique couple $(q, r)$ tel que <strong>$a = bq + r$</strong> avec $0 \le r < b$. $r$ est le reste, $q$ le quotient.</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+</body>
+</html>
