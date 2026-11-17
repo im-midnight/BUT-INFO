@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercice 5 - Problème du logarithme discret</title>
+
+  <!-- MathJax : affichage des formules écrites entre $...$ et $$...$$ -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    ul, ol { padding-left: 1.25rem; }
+    li { margin-bottom: 0.5rem; }
+
+    pre {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    mark {
+      background: #fef08a;
+      color: inherit;
+      padding: 0.1em 0.25em;
+      border-radius: 3px;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    /* Termes interactifs : survol à la souris ou toucher sur mobile */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .terme:hover { background-color: #dbeafe; }
+
+    table {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.65rem 0.9rem;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th { background-color: #f3f4f6; }
+
+    .note-box {
+      background-color: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+    }
+
+    .warning-box {
+      background-color: #fffbeb;
+      border-left: 4px solid #d97706;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+    }
+
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc { display: none; }
+    .def-bloc.actif { display: block; }
+    .astuce-tactile { display: none; }
+
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+      #tooltip {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .loi-card { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Exercice 5 : Problème du logarithme discret</h1>
+  <p style="text-align: center; color: #555;">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="generateur">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- INTRODUCTION -->
+  <section class="loi-card">
+    <h2>Principe général</h2>
+    <p>On travaille dans le groupe multiplicatif $(\mathbb{Z}/p\mathbb{Z})^*$, où $p$ est un nombre premier. Ses éléments sont les classes non nulles modulo $p$ :</p>
+    $$ (\mathbb{Z}/p\mathbb{Z})^* = \{1,2,\ldots,p-1\} $$
+    <p>Ce groupe contient donc $p-1$ éléments. On cherche un <span class="terme" data-def="generateur">générateur</span> $g$ : ses puissances modulo $p$ permettent d'obtenir tous les éléments non nuls.</p>
+    <p>Le <span class="terme" data-def="log-discret">problème du logarithme discret</span> consiste à retrouver l'exposant $x$ connaissant $g$, $y$ et $p$ :</p>
+    $$ g^x \equiv y \pmod p $$
+    <div class="note-box">
+      <strong>Lien avec le cours :</strong> dans le contexte de Diffie-Hellman, on sait facilement calculer $g^x \bmod p$ lorsque $x$ est connu. Le problème étudié ici est l'opération inverse : retrouver $x$ à partir de $g^x \bmod p$.
+    </div>
+  </section>
+
+  <!-- 5.1 -->
+  <section class="loi-card">
+    <h2>5.1. Trouver un générateur aléatoire de $(\mathbb{Z}/p\mathbb{Z})^*$</h2>
+    <p><strong>Objectif :</strong> choisir un entier au hasard, vérifier s'il est générateur et recommencer tant que ce n'est pas le cas.</p>
+
+    <p><strong>Critère vu dans le cours :</strong> pour un nombre premier $p$, un élément $g$ est générateur de $(\mathbb{Z}/p\mathbb{Z})^*$ si et seulement si :</p>
+    $$ g^k \not\equiv 1 \pmod p \quad \text{pour tout } k \in \{1,2,\ldots,p-2\}. $$
+
+    <p><strong>Pourquoi ce critère fonctionne :</strong></p>
+    <ul>
+      <li>Si deux puissances $g^a$ et $g^b$, avec $0 \leq a &lt; b \leq p-2$, étaient égales, alors on aurait $g^{b-a} \equiv 1 \pmod p$.</li>
+      <li>Or $1 \leq b-a \leq p-2$. Le critère interdit cette égalité.</li>
+      <li>Les $p-1$ puissances $g^0,g^1,\ldots,g^{p-2}$ sont donc toutes différentes. Comme le groupe contient exactement $p-1$ éléments, elles le parcourent entièrement.</li>
+    </ul>
+
+    <p><strong>Code Python :</strong></p>
+<pre><code>import random
+
+def generateur(p):
+    while True:
+        g = random.randint(2, p - 1)
+        est_generateur = True
+
+        k = 1
+        while k &lt;= p - 2:
+            if (g**k % p)== 1:
+                est_generateur = False
+                break
+            k += 1
+
+        if est_generateur:
+            return g</code></pre>
+  </section>
+
+  <!-- 5.2 -->
+  <section class="loi-card">
+    <h2>5.2. Fonction <code>log_discret(y, g, p)</code></h2>
+    <p><strong>Objectif :</strong> trouver un entier $x$ tel que :</p>
+    $$ g^x \equiv y \pmod p $$
+    <p>Comme $g$ est un générateur, les puissances $g^0,g^1,\ldots,g^{p-2}$ parcourent tous les éléments non nuls. Il suffit donc de tester ces exposants dans l'ordre.</p>
+
+    <p><strong>Code Python :</strong></p>
+<pre><code>def log_discret(y, g, p):
+    x = 0
+    while x &lt;= p - 2:
+        if (g**x % p) == y:
+            return x
+        x += 1
+    return None</code></pre>
+
+    <p><strong>Exemple :</strong> avec $p=43$, $g=3$ et $y=11$, on cherche $x$ tel que $3^x \equiv 11 \pmod{43}$.</p>
+<pre><code>print(log_discret(11, 3, 43))
+# Résultat : 30</code></pre>
+    <div class="note-box">
+      <strong>Correction par rapport au code fourni :</strong> ton code commençait à $x=2$. Il ne pouvait donc pas renvoyer les réponses $x=0$ ou $x=1$. La boucle commence maintenant à $0$ et teste jusqu'à $p-2$ inclus.
+    </div>
+  </section>
+
+  <!-- 5.3 -->
+  <section class="loi-card">
+    <h2>5.3. Algorithme de Shanks : pas de bébé, pas de géant</h2>
+    <p>L'objectif est toujours de résoudre $g^x \equiv y \pmod p$, mais en évitant de tester tous les exposants un par un.</p>
+
+    <h3 style="color: #1e3a8a; font-size: 1.05rem;">1. Découper l'exposant</h3>
+    <p>On pose :</p>
+    $$ s = 1 + \lfloor\sqrt{p}\rfloor $$
+    <p>On cherche à écrire l'exposant sous la forme :</p>
+    $$ x = r_0 + k_0s $$
+    <p>avec $0 \leq r_0 &lt; s$ et $0 \leq k_0 &lt; s$.</p>
+
+    <h3 style="color: #1e3a8a; font-size: 1.05rem;">2. Calculer les pas de bébé</h3>
+    <p>On construit la première liste avec les premières puissances de $g$ :</p>
+    $$ L_1 = [1, g, g^2, g^3, \ldots, g^{s-1}] \pmod p $$
+    <p>Chaque élément de cette liste correspond à $g^{r_0}$.</p>
+
+    <h3 style="color: #1e3a8a; font-size: 1.05rem;">3. Calculer les pas de géant</h3>
+    <p>On calcule d'abord l'inverse modulaire de $g^s$ :</p>
+    $$ g^{-s} \equiv (g^s)^{-1} \pmod p $$
+    <p>Puis on construit :</p>
+    $$ L_2 = [y,\; yg^{-s},\; yg^{-2s},\; \ldots,\; yg^{-(s-1)s}] \pmod p $$
+    <p>Chaque élément correspond à $y \cdot (g^{-s})^{k_0}$.</p>
+
+    <h3 style="color: #1e3a8a; font-size: 1.05rem;">4. Trouver une valeur commune</h3>
+    <p>On cherche une occurrence commune aux deux listes. Si :</p>
+    $$ g^{r_0} \equiv y \cdot g^{-k_0s} \pmod p $$
+    <p>alors, en multipliant par $g^{k_0s}$ :</p>
+    $$ g^{r_0+k_0s} \equiv y \pmod p $$
+    <p>On obtient donc une solution :</p>
+    $$ \boxed{x = r_0 + k_0s} $$
+
+    <h3 style="color: #1e3a8a; font-size: 1.05rem;">Code Python</h3>
+<pre><code>import math
+
+def inverse_modulaire(a, p):
+    a = a % p
+    for i in range(1, p):
+        if (a * i) % p == 1:
+            return i
+    return None
+
+def bsgs(g,y,p):
+    s = 1 + math.floor(math.sqrt(p))
+
+    l1=[g**i % p for i in range(s)]
+
+    gs = (g**s) % p
+    gs_inv = inverse_modulaire(gs, p)
+    l2 = [(y * (gs_inv**i)) % p for i in range(s)]
+
+    print("l1 :" ,l1)
+    print("l2 :" ,l2)
+
+    for r0 in range(s):
+        if l1[r0] in l2:
+            k0 = l2.index(l1[r0])
+            return r0 + k0 * s
+    return None</code></pre>
+  </section>
+
+  <!-- EXEMPLE BSGS -->
+  <section class="loi-card">
+    <h2>Exemple détaillé : <code>bsgs(3, 11, 43)</code></h2>
+    <p>On cherche $x$ tel que $3^x \equiv 11 \pmod{43}$.</p>
+    <ol>
+      <li><strong>Calcul de $s$ :</strong> $s = 1 + \lfloor\sqrt{43}\rfloor = 7$.</li>
+      <li><strong>Liste des pas de bébé :</strong></li>
+    </ol>
+    $$ L_1 = [1,3,9,27,38,28,41] $$
+    <ol start="3">
+      <li><strong>Calcul de l'inverse :</strong> $3^7 \equiv 37 \pmod{43}$ et $37^{-1} \equiv 7 \pmod{43}$, car $37 \times 7 \equiv 1 \pmod{43}$.</li>
+      <li><strong>Liste des pas de géant :</strong></li>
+    </ol>
+    $$ L_2 = [11,34,23,32,9,20,11] $$
+    <p><strong>Valeur commune :</strong> $9$ apparaît dans $L_1$ à l'indice $r_0=2$ et dans $L_2$ à l'indice $k_0=4$ (les indices commencent à $0$).</p>
+    $$ x = r_0 + k_0s = 2 + 4 \times 7 = \boxed{30} $$
+    <p>Vérification :</p>
+    $$ 3^{30} \equiv 11 \pmod{43} $$
+    <pre><code>print(bsgs(3, 11, 43))
+# Résultat : 30</code></pre>
+  </section>
+
+  <!-- SYNTHESE -->
+  <section class="loi-card">
+    <h2>Synthèse de l'exercice</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Fonction</th>
+            <th>Idée principale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>5.1</strong></td>
+            <td><code>generateur(p)</code></td>
+            <td>Tirer un candidat au hasard et vérifier que $g^k \not\equiv 1 \pmod p$ pour $1 \leq k \leq p-2$.</td>
+          </tr>
+          <tr>
+            <td><strong>5.2</strong></td>
+            <td><code>log_discret(y, g, p)</code></td>
+            <td>Tester les exposants $x$ jusqu'à trouver $g^x \equiv y \pmod p$.</td>
+          </tr>
+          <tr>
+            <td><strong>5.3</strong></td>
+            <td><code>bsgs(g, y, p)</code></td>
+            <td>Construire deux listes et trouver une valeur commune pour obtenir $x=r_0+k_0s$.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-box">
+      <strong>À retenir :</strong> la question 5.2 recherche le logarithme discret par essais successifs. La question 5.3 utilise l'algorithme de Shanks pour réduire le nombre de recherches en séparant le calcul en deux listes d'environ $\sqrt p$ éléments.
+    </div>
+  </section>
+
+  <!-- DEFINITIONS INTERACTIVES -->
+  <div id="tooltip">
+    <div id="def-generateur" class="def-bloc">
+      <h3>Générateur</h3>
+      <p>Un élément $g$ est un générateur de $(\mathbb{Z}/p\mathbb{Z})^*$ si ses puissances $g^0,g^1,\ldots,g^{p-2}$ donnent tous les éléments non nuls modulo $p$.</p>
+    </div>
+
+    <div id="def-groupe" class="def-bloc">
+      <h3>Groupe multiplicatif $(\mathbb{Z}/p\mathbb{Z})^*$</h3>
+      <p>Il s'agit des classes non nulles modulo $p$, munies de la multiplication modulo $p$. Lorsque $p$ est premier, ce groupe contient $p-1$ éléments.</p>
+    </div>
+
+    <div id="def-log-discret" class="def-bloc">
+      <h3>Logarithme discret</h3>
+      <p>Étant donnés un générateur $g$, un nombre premier $p$ et un élément $y$, trouver $x$ tel que $g^x \equiv y \pmod p$. Le calcul direct de la puissance est simple ; retrouver l'exposant peut être beaucoup plus difficile lorsque $p$ est grand.</p>
+    </div>
+
+    <div id="def-inverse" class="def-bloc">
+      <h3>Inverse modulaire</h3>
+      <p>L'inverse de $a$ modulo $p$ est un entier $u$ tel que $a \times u \equiv 1 \pmod p$. Il existe lorsque $a$ et $p$ sont premiers entre eux.</p>
+    </div>
+
+    <div id="def-bebe" class="def-bloc">
+      <h3>Pas de bébé</h3>
+      <p>La liste des pas de bébé contient les petites puissances $g^0,g^1,\ldots,g^{s-1}$ modulo $p$. Elle permet de retrouver la partie $r_0$ de l'exposant.</p>
+    </div>
+
+    <div id="def-geant" class="def-bloc">
+      <h3>Pas de géant</h3>
+      <p>La liste des pas de géant contient $y$ multiplié successivement par $g^{-s}$. Elle permet de retrouver la partie $k_0$ de l'exposant.</p>
+    </div>
+
+    <div id="def-pow" class="def-bloc">
+      <h3>Exponentiation modulaire</h3>
+      <p><code>pow(a, b, p)</code> renvoie $a^b \bmod p$ en effectuant le calcul de manière efficace sans construire inutilement le très grand entier $a^b$.</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+</body>
+</html>
