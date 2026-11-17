@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercice 4 - Chiffrement affine</title>
+
+  <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #222;
+      background-color: #f9fafb;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #111;
+    }
+
+    .loi-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #1e3a8a;
+      font-size: 1.25rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    mark {
+      background: #fef08a;
+      color: inherit;
+      padding: 0.1em 0.25em;
+      border-radius: 3px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    /* Style des mots interactifs */
+    .terme {
+      color: #2563eb;
+      font-weight: 600;
+      border-bottom: 2px dotted #2563eb;
+      cursor: help;
+      transition: background-color 0.15s;
+    }
+
+    .terme:hover {
+      background-color: #dbeafe;
+    }
+
+    /* Tableau de synthèse et d'exemples */
+    table {
+      width: 100%;
+      min-width: 650px;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 1rem;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 0.65rem 0.9rem;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #f3f4f6;
+    }
+
+    .note-box {
+      background-color: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+    }
+
+    /* Boîte d'infobulle (Tooltip) */
+    #tooltip {
+      position: absolute;
+      display: none;
+      width: 380px;
+      max-width: 90vw;
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #tooltip h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: #60a5fa;
+      font-size: 1.05rem;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+
+    .terme { -webkit-tap-highlight-color: transparent; }
+    .astuce-tactile { display: none; }
+
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+
+      #tooltip {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: auto;
+        max-width: none;
+        max-height: 60vh;
+        overflow-y: auto;
+        pointer-events: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Exercice 4 : Chiffrement affine</h1>
+  <p style="text-align: center; color: #555;">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="affine">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 4.1. DICTIONNAIRE DANS Z/31Z -->
+  <section class="loi-card">
+    <h2>4.1. Dictionnaire de correspondance dans $\mathbb{Z}/31\mathbb{Z}$</h2>
+    <ul>
+      <li><strong>Principe :</strong> On travaille dans l'anneau $\mathbb{Z}/31\mathbb{Z}$ (31 éléments numérotés de $0$ à $30$). Les lettres de l'alphabet occupent les positions $1$ à $26$, suivies de $4$ caractères spéciaux (positions $27$ à $30$), et la 31<sup>e</sup> position associée au caractère <code>':'</code> prend la valeur <mark>$0$</mark>.</li>
+      <li><strong>Code Python :</strong>
+<pre><code># Dictionnaire caractère -> valeur dans Z/31Z
+dico = {chr(64 + i): i for i in range(1, 31)}
+dico[':'] = 0
+
+# Dictionnaire inverse : valeur dans Z/31Z -> caractère
+dico_inverse = {valeur: cle for cle, valeur in dico.items()}
+
+print(dico)
+print(dico_inverse)</code></pre>
+      </li>
+      <li><strong>Aperçu des correspondances générées :</strong>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Caractère</th>
+                <td><code>':'</code></td>
+                <td><code>'A'</code></td>
+                <td><code>'B'</code></td>
+                <td><code>'C'</code></td>
+                <td>$\dots$</td>
+                <td><code>'Z'</code></td>
+                <td><code>'['</code></td>
+                <td><code>'\'</code></td>
+                <td><code>']'</code></td>
+                <td><code>'^'</code></td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Valeur dans $\mathbb{Z}/31\mathbb{Z}$</th>
+                <td><mark>$0$</mark></td>
+                <td>$1$</td>
+                <td>$2$</td>
+                <td>$3$</td>
+                <td>$\dots$</td>
+                <td>$26$</td>
+                <td>$27$</td>
+                <td>$28$</td>
+                <td>$29$</td>
+                <td>$30$</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note-box">
+          <strong>Remarque :</strong> Avec <code>chr(64 + i)</code> pour $i \in \{1, \dots, 30\}$, les indices $1$ à $26$ donnent bien <code>'A'</code> à <code>'Z'</code> (codes ASCII 65 à 90), et les indices $27$ à $30$ donnent les caractères ASCII suivants (<code>'['</code>, <code>'\'</code>, <code>']'</code>, <code>'^'</code>)
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 4.2. FONCTION DE CHIFFREMENT AFFINE -->
+  <section class="loi-card">
+    <h2>4.2. Fonction de chiffrement <code>chiff_affine(mess, a, b)</code></h2>
+    <ul>
+      <li><strong>Formule mathématique :</strong> Pour chaque caractère $c$ du message, on calcule sa nouvelle position $y$ via la transformation <span class="terme" data-def="affine">affine</span> :
+        $$y \equiv a \times position(caractere) + b \pmod{31}$$
+      </li>
+      <li><strong>Code Python :</strong>
+<pre><code>def chiff_affine(mess, a, b):
+    res = ""
+    for c in mess:
+        if c in dico.keys():
+            position = dico[c]
+            newIndice = (a * position + b) % 31
+            res += dico_inverse[newIndice]
+    return res
+
+message1 = "ABCD"
+print(chiff_affine(message1, 2, 1))  # Affiche "CEGI"</code></pre>
+      </li>
+      <li><strong>Exemple pas à pas (avec $a = 2$, $b = 1$ sur <code>"ABCD"</code>) :</strong>
+        <ul>
+          <li><code>'A'</code> ($x = 1$) $\longrightarrow (2 \times 1 + 1) \bmod 31 = 3 \longrightarrow$ <code>'C'</code></li>
+          <li><code>'B'</code> ($x = 2$) $\longrightarrow (2 \times 2 + 1) \bmod 31 = 5 \longrightarrow$ <code>'E'</code></li>
+          <li><code>'C'</code> ($x = 3$) $\longrightarrow (2 \times 3 + 1) \bmod 31 = 7 \longrightarrow$ <code>'G'</code></li>
+          <li><code>'D'</code> ($x = 4$) $\longrightarrow (2 \times 4 + 1) \bmod 31 = 9 \longrightarrow$ <code>'I'</code></li>
+        </ul>
+        Le message chiffré renvoyé est donc <strong><code>"CEGI"</code></strong>.
+      </li>
+    </ul>
+  </section>
+
+  <!-- 4.3. FONCTION DE DÉCHIFFREMENT AFFINE -->
+  <section class="loi-card">
+    <h2>4.3. Fonction de déchiffrement <code>dechiff_affine(mess, a, b)</code></h2>
+    <ul>
+      <li><strong>Résolution mathématique dans $\mathbb{Z}/31\mathbb{Z}$ :</strong>
+        <br>Comme $31$ est un <span class="terme" data-def="premier">nombre premier</span>, $\mathbb{Z}/31\mathbb{Z}$ est un corps : tous les entiers $a \in \{1, \dots, 30\}$ sont premiers avec $31$ ($\operatorname{pgcd}(a, 31) = 1$) et admettent donc un <span class="terme" data-def="inverse">inverse modulaire</span> $a^{-1}$ modulo $31$.
+        <br>Pour retrouver la position initiale du caractère à partir de la position chiffrée $y$ :
+        $$a \times position(caractere) + b \equiv y \pmod{31}$$
+        $$a \times position(caractere) \equiv y - b \pmod{31}$$
+        $$position(caractere) \equiv a^{-1} \times (y - b) \pmod{31}$$
+      </li>
+      <li><strong>Code Python :</strong>
+<pre><code>def inverse_modulaire(a):
+    for i in range(31):
+        if (a * i) % 31 == 1:
+            return i
+    return None
+
+def dechiff_affine(mess, a, b):
+    res = ""
+    inverseA = inverse_modulaire(a)
+    for c in mess:
+        if c in dico.keys():
+            position = dico[c]
+            newIndice = (inverseA * (position - b)) % 31
+            res += dico_inverse[newIndice]
+    return res
+
+# Tests de vérification
+message2 = "ABCD"
+a = 2
+b = 1
+chiffre = chiff_affine(message2, a, b)
+assert chiffre != message2
+assert dechiff_affine(chiffre, a, b) == message2</code></pre>
+      </li>
+    </ul>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse de l'Exercice</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Fonction / Structure</th>
+          <th>Formule clé dans $\mathbb{Z}/31\mathbb{Z}$</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>4.1</strong></td>
+          <td><code>dico</code> &amp; <code>dico_inverse</code></td>
+          <td>Bijection entre les $31$ caractères et $\{0, 1, \dots, 30\}$ (avec <code>':'</code> $\leftrightarrow 0$)</td>
+        </tr>
+        <tr>
+          <td><strong>4.2</strong></td>
+          <td><code>chiff_affine(mess, a, b)</code></td>
+          <td>$y \equiv a \cdot x + b \pmod{31}$</td>
+        </tr>
+        <tr>
+          <td><strong>4.3</strong></td>
+          <td><code>inverse_modulaire(a)</code> &amp; <code>dechiff_affine(mess, a, b)</code></td>
+          <td>$x \equiv a^{-1} \cdot (y - b) \pmod{31}$ (valide pour tout $a \not\equiv 0 \pmod{31}$)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- INFOBULLE DES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-affine" class="def-bloc">
+      <h3>Chiffrement affine</h3>
+      <p>Méthode de chiffrement par substitution monoalphabétique où chaque lettre de rang $x$ est transformée via une fonction affine $f(x) = (ax + b) \bmod n$, avec $\operatorname{pgcd}(a, n) = 1$.</p>
+    </div>
+
+    <div id="def-premier" class="def-bloc">
+      <h3>Nombre premier et $\mathbb{Z}/p\mathbb{Z}$</h3>
+      <p>Lorsque $p$ est premier (ici $p = 31$), tout entier non nul modulo $p$ est premier avec $p$. Ainsi, tous les éléments de $\{1, \dots, 30\}$ sont inversibles dans $\mathbb{Z}/31\mathbb{Z}$.</p>
+    </div>
+
+    <div id="def-inverse" class="def-bloc">
+      <h3>Inverse modulaire ($a^{-1}$)</h3>
+      <p>Un entier $u$ tel que $a \times u \equiv 1 \pmod{n}$. Il permet d'annuler la multiplication par $a$ lors du déchiffrement.</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+</body>
+</html>
