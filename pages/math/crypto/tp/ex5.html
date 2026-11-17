@@ -249,9 +249,6 @@ def generateur(p):
     <p><strong>Exemple :</strong> avec $p=43$, $g=3$ et $y=11$, on cherche $x$ tel que $3^x \equiv 11 \pmod{43}$.</p>
 <pre><code>print(log_discret(11, 3, 43))
 # Résultat : 30</code></pre>
-    <div class="note-box">
-      <strong>Correction par rapport au code fourni :</strong> ton code commençait à $x=2$. Il ne pouvait donc pas renvoyer les réponses $x=0$ ou $x=1$. La boucle commence maintenant à $0$ et teste jusqu'à $p-2$ inclus.
-    </div>
   </section>
 
   <!-- 5.3 -->
