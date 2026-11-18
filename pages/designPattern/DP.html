@@ -516,6 +516,145 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
   </figure>
 </section>
 
+<!-- PATTERNS COMBINÉS (TP) -->
+<section class="carte">
+  <h2>Design patterns combinés dans les TP</h2>
+  <p>
+    Dans les TP, plusieurs patterns sont utilisés ensemble. Pour chaque cas : les patterns en jeu, le rôle de chaque classe
+    et le diagramme UML.
+  </p>
+  <table>
+    <thead>
+      <tr><th>Cas</th><th>Patterns combinés</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Salaires (TP5)</strong></td><td>Composite + Délégation</td></tr>
+      <tr><td><strong>Spatioport (TP5)</strong></td><td>Singleton + Entrepôt</td></tr>
+      <tr><td><strong>NetPrime (TP6)</strong></td><td>DAO + Entrepôt</td></tr>
+      <tr><td><strong>Fruits (TP8)</strong></td><td>DAO + classe mère commune + Entrepôt</td></tr>
+      <tr><td><strong>Tarifs de vols (TP7)</strong></td><td>Fabrique + Composite + Stratégie</td></tr>
+      <tr><td><strong>Cocktails (TP7)</strong></td><td>Composite</td></tr>
+      <tr><td><strong>Pâques (TP2)</strong></td><td>Fabrique + classe abstraite</td></tr>
+      <tr><td><strong>Tables de hachage (TP9)</strong></td><td>Classe abstraite + Stratégie + Itérateur + composition</td></tr>
+      <tr><td><strong>Files (TP1)</strong></td><td>Itérateur + implémentations interchangeables</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="carte">
+  <h2>Composite + Délégation : les salaires (TP5, exercice 1)</h2>
+  <p><strong>Patterns :</strong> Composite et Délégation, combinés.</p>
+  <ul>
+    <li><strong>Composite :</strong> <code>Employe</code> et <code>Departement</code> forment un composite : un département contient des employés ou d'autres départements.</li>
+    <li><strong>Délégation :</strong> <code>Departement</code> délègue à une <code>MutableList</code> l'implémentation de l'interface <code>Ajoutable</code>.</li>
+    <li><strong>Délégation :</strong> <code>Entreprise</code> délègue à <code>Departement</code> les interfaces <code>Salariable</code> et <code>Ajoutable</code>, avec le mot-clé <code>by</code>.</li>
+  </ul>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/tp-salaires.png">
+    <img src="uml/tp-salaires.png" alt="Diagramme UML : Composite + Délégation : les salaires (TP5, exercice 1)" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
+</section>
+
+<section class="carte">
+  <h2>Singleton + Entrepôt : le spatioport (TP5, exercice 2)</h2>
+  <p><strong>Patterns :</strong> Singleton et Entrepôt de données (Repository), combinés.</p>
+  <ul>
+    <li><strong>Singleton :</strong> <code>LIBRE</code> et <code>INUTILISABLE</code> sont des singletons Kotlin (<code>object</code>).</li>
+    <li><strong>Entrepôt :</strong> <code>Spatioport</code> stocke les vaisseaux dans un <code>Dock</code> interne sans le divulguer ; ses méthodes métier sont celles de <code>UsageSpatioport</code>.</li>
+    <li><strong>Combinaison :</strong> un emplacement du dock contient soit un <code>Vaisseau</code>, soit l'un des deux singletons.</li>
+  </ul>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/tp-spatioport.png">
+    <img src="uml/tp-spatioport.png" alt="Diagramme UML : Singleton + Entrepôt : le spatioport (TP5, exercice 2)" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
+</section>
+
+<section class="carte">
+  <h2>DAO + Entrepôt : NetPrime (TP6)</h2>
+  <p><strong>Patterns :</strong> DAO et Entrepôt de données (Repository), combinés.</p>
+  <ul>
+    <li><strong>DAO :</strong> <code>UserDAO</code> et <code>MediaDAO</code> (interfaces <code>iUserDAO</code> et <code>iMediaDAO</code>) lisent les fichiers JSON ; <code>RandomUserDAO</code> est une autre source d'utilisateurs (API RandomUser).</li>
+    <li><strong>Entrepôt :</strong> <code>NetPrime</code> réalise <code>iUserRepository</code> et <code>iMediaRepository</code> : méthodes de haut niveau (filtres, tris) pour les besoins métier.</li>
+    <li><strong>Combinaison :</strong> <code>NetPrime</code> s'appuie sur les interfaces DAO, donc on peut changer la source des données sans modifier l'entrepôt.</li>
+  </ul>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/tp-netprime.png">
+    <img src="uml/tp-netprime.png" alt="Diagramme UML : DAO + Entrepôt : NetPrime (TP6)" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
+</section>
+
+<section class="carte">
+  <h2>DAO + classe mère commune + Entrepôt : les fruits (TP8)</h2>
+  <p><strong>Patterns :</strong> DAO, classe mère commune et Entrepôt de données (Repository), combinés.</p>
+  <ul>
+    <li><strong>DAO :</strong> <code>FruitDAO</code> est réalisé par <code>FruitJsonDAO</code>, <code>FruitCsvDAO</code>, <code>FruitH2DAO</code>, <code>FruitSqliteDAO</code> et <code>FruitMariaDbDAO</code> ; un DAO ne stocke pas de liste, c'est un intermédiaire.</li>
+    <li><strong>Classe mère commune :</strong> <code>FruitDatabaseDAO</code> regroupe le code JDBC commun aux DAO de base de données, pour éviter la duplication.</li>
+    <li><strong>Entrepôt :</strong> <code>FruitRepository</code> (interface <code>FruitAccess</code>) charge les fruits via un <code>FruitDAO</code> ; <code>fruits</code> donne une copie de <code>_fruits</code> et <code>recharge()</code> relit le DAO.</li>
+  </ul>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/tp-fruits.png">
+    <img src="uml/tp-fruits-dao.png" alt="Diagramme UML : DAO + classe mère commune + Entrepôt : les fruits (TP8)" onerror="this.parentElement.classList.add('manquante')">
+    <img src="uml/tp-fruits-repository.png" alt="Diagramme UML : DAO + classe mère commune + Entrepôt : les fruits (TP8)" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
+</section>
+
+<section class="carte">
+  <h2>Fabrique + Composite + Stratégie : tarification des vols (TP7, exercice 1)</h2>
+  <p><strong>Patterns :</strong> Fabrique, Composite et Stratégie, combinés.</p>
+  <ul>
+    <li><strong>Stratégie :</strong> les tarifs selon la saison, la classe et la demande sont interchangeables : ils respectent tous le même contrat <code>calculPrix</code>.</li>
+    <li><strong>Composite :</strong> le tarif combiné applique la règle de <code>tarif1</code>, puis celle de <code>tarif2</code> au résultat.</li>
+    <li><strong>Fabrique :</strong> <code>TarifA.donneTarification</code> combine, dans l'ordre classe, saison, demande, les tarifs dont le choix est renseigné dans le contexte ; sans aucun choix, elle lève <code>ContexteImpossibleException</code>.</li>
+    <li>Le système de tarification mémorise le dernier contexte et ne reconstruit le tarif que si le contexte change (<code>equals</code>).</li>
+  </ul>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/tp-tarifs.png">
+    <img src="uml/tp-tarifs.png" alt="Diagramme UML : Fabrique + Composite + Stratégie : tarification des vols (TP7, exercice 1)" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
+</section>
+
+<section class="carte">
+  <h2>Composite : recettes de cocktails (TP7, exercice 2)</h2>
+  <p><strong>Patterns :</strong> Composite, avec imbrication récursive.</p>
+  <ul>
+    <li><strong>Composite :</strong> un <code>Cocktail</code> est lui-même un <code>Ingredient</code> : il contient des ingrédients basiques et d'autres cocktails (le <em>Mojito</em> contient le <em>Virgin mojito</em>, qui contient le <em>Soda Mix</em>).</li>
+    <li><code>Application</code> contient les cocktails de la carte.</li>
+  </ul>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/tp-cocktails.png">
+    <img src="uml/tp-cocktails.png" alt="Diagramme UML : Composite : recettes de cocktails (TP7, exercice 2)" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
+</section>
+
+<section class="carte">
+  <h2>Classe abstraite + Stratégie + Itérateur : tables de hachage (TP9)</h2>
+  <p><strong>Patterns :</strong> Classe abstraite, Stratégie, Itérateur et composition, combinés.</p>
+  <ul>
+    <li><strong>Classe abstraite :</strong> <code>HashtableA</code> fixe la taille, la fonction de hachage et <code>index()</code> ; <code>SimpleHashtable</code> (collision = <code>CollisionException</code>) et <code>Hashtable</code> (chaînage externe, tableau de listes) en héritent.</li>
+    <li><strong>Stratégie :</strong> la fonction de hachage <code>hash : E -&gt; Int</code> est passée au constructeur et peut être remplacée.</li>
+    <li><strong>Itérateur :</strong> <code>IHashtable</code> est <code>Iterable</code> ; chaque table fournit son itérateur sans reconstruire de liste.</li>
+    <li><strong>Composition :</strong> <code>MySet</code> (interface <code>ISet</code>) stocke ses éléments dans la table de hachage pour détecter les doublons.</li>
+  </ul>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/tp-hashtable.png">
+    <img src="uml/tp-hashtable.png" alt="Diagramme UML : Classe abstraite + Stratégie + Itérateur : tables de hachage (TP9)" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
+</section>
+
+<section class="carte">
+  <h2>Itérateur + deux implémentations de File (TP1)</h2>
+  <p><strong>Patterns :</strong> Itérateur et implémentations interchangeables.</p>
+  <ul>
+    <li><code>File&lt;E&gt;</code> réalise <code>Iterable&lt;E&gt;</code> ; <code>FileChainee</code> (cellules) et <code>FileArrayList</code> (<code>MutableList</code>) en sont deux implémentations interchangeables.</li>
+    <li><strong>Itérateur :</strong> <code>CelluleIterator</code> réalise <code>Iterator&lt;E&gt;</code> et garde la cellule courante (<code>Cellule&lt;E&gt;?</code>).</li>
+  </ul>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/tp-file.png">
+    <img src="uml/tp-filearraylist.png" alt="Diagramme UML : Itérateur + deux implémentations de File (TP1)" onerror="this.parentElement.classList.add('manquante')">
+    <img src="uml/tp-filechainee.png" alt="Diagramme UML : Itérateur + deux implémentations de File (TP1)" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
+</section>
+
 <!-- SYNTHÈSE -->
 <section class="carte">
   <h2>Synthèse</h2>
