@@ -1,0 +1,630 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Design Patterns en Kotlin</title>
+<style>
+  /* Mise en page : cours en colonne unique, cartes blanches sur fond gris très clair, palette bleue du cours de probabilités */
+  :root {
+    --bg: #f9fafb;
+    --fg: #222222;
+    --titre: #111111;
+    --muet: #555555;
+    --carte: #ffffff;
+    --bordure: #e5e7eb;
+    --bordure-tableau: #d1d5db;
+    --entete: #f3f4f6;
+    --accent: #2563eb;
+    --accent-titre: #1e3a8a;
+    --survol: #dbeafe;
+    --code-bg: #1f2937;
+    --code-fg: #f9fafb;
+    --tip-bg: #1f2937;
+    --tip-fg: #f9fafb;
+    --tip-titre: #60a5fa;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    max-width: 850px;
+    margin: 0 auto;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    color: var(--fg);
+    background-color: var(--bg);
+    color-scheme: light;
+  }
+
+  h1 { text-align: center; margin-bottom: 2rem; color: var(--titre); }
+
+  .sous-titre { text-align: center; color: var(--muet); }
+
+  .carte {
+    background: var(--carte);
+    border: 1px solid var(--bordure);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    min-width: 0;
+  }
+
+  h2 {
+    margin-top: 0;
+    color: var(--accent-titre);
+    font-size: 1.25rem;
+    border-bottom: 2px solid var(--bordure);
+    padding-bottom: 0.5rem;
+    text-wrap: balance;
+  }
+
+  ul { padding-left: 1.25rem; }
+  li { margin-bottom: 0.5rem; }
+
+  .exemple-titre {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muet);
+    margin: 1rem 0 0.4rem;
+  }
+
+  pre {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+
+  /* Termes interactifs */
+  .terme {
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 2px dotted var(--accent);
+    cursor: help;
+    transition: background-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .terme:hover { background-color: var(--survol); }
+
+  .astuce-tactile { display: none; }
+
+  /* Tableau de synthèse */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--carte);
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid var(--bordure-tableau);
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background-color: var(--entete); }
+
+  /* Infobulle */
+  #tooltip {
+    position: absolute;
+    display: none;
+    width: 380px;
+    max-width: 90vw;
+    background: var(--tip-bg);
+    color: var(--tip-fg);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+  #tooltip h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--tip-titre);
+    font-size: 1.05rem;
+  }
+  #tooltip p { margin: 0.25rem 0; }
+  #tooltip code { background: rgba(255, 255, 255, 0.12); padding: 0 0.2rem; border-radius: 3px; }
+  .def-bloc { display: none; }
+  .def-bloc.actif { display: block; }
+
+  @media (hover: none) {
+    .astuce-souris { display: none; }
+    .astuce-tactile { display: inline; }
+    #tooltip {
+      position: fixed;
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: 0.75rem;
+      width: auto;
+      max-width: none;
+      max-height: 60vh;
+      overflow-y: auto;
+      pointer-events: auto;
+    }
+  }
+
+  @media (max-width: 600px) {
+    body { padding-top: 1rem; padding-bottom: 1rem; }
+  }
+</style>
+
+<h1>Design Patterns en Kotlin</h1>
+<p class="sous-titre">
+  <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
+</p>
+
+<section class="carte">
+  <h2>Qu'est-ce qu'un design pattern ?</h2>
+  <p>
+    Un <span class="terme" data-def="pattern">design pattern</span> (patron de conception) est une solution éprouvée à un
+    <span class="terme" data-def="probleme">problème récurrent</span> de conception logicielle. Il ne s'agit pas de code
+    prêt à l'emploi mais d'une façon de structurer les classes et leurs relations, réutilisable dans de nombreux projets.
+  </p>
+</section>
+
+<!-- 1. FABRIQUE -->
+<section class="carte">
+  <h2>1. Fabrique (Factory)</h2>
+  <p>
+    <strong>Définition :</strong>La Fabrique permet d'avoir une classe qui lors de l'instanciation de l'objet choisira l'une des <span class="terme" data-def="sousclasse">sous-classes</span> possibles avec des méthodes implementées différemment en fonction des paramètres de l'objet   
+    
+    
+
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>abstract class Animal(val nom: String) {
+    abstract fun crier(): String
+
+    companion object {
+        fun fabrique(type: String, nom: String): Animal = when (type) {
+            "chien" -> Chien(nom)
+            "chat"  -> Chat(nom)
+            else    -> throw IllegalArgumentException("Type inconnu : $type")
+        }
+    }
+}
+
+class Chien(nom: String) : Animal(nom) {
+    override fun crier(): String = "$nom dit : Ouaf !"
+}
+
+class Chat(nom: String) : Animal(nom) {
+    override fun crier(): String = "$nom dit : Miaou !"
+}
+
+val animal = Animal.fabrique("chien", "Rogue")
+println(animal.crier()) // Affiche : Rogue dit : Ouaf !</code></pre>
+</section>
+
+<!-- 2. SINGLETON -->
+<section class="carte">
+  <h2>2. Singleton</h2>
+  <p>
+    <strong>Définition :</strong> Il n'existe qu'une seule et unique instance (un seul objet) de la classe dans tout le programme.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>class SingletonPattern private constructor() {
+    companion object {
+        // Créée une seule fois, au premier accès
+        val INSTANCE: SingletonPattern by lazy { SingletonPattern() }
+    }
+}
+
+val a = SingletonPattern.INSTANCE
+val b = SingletonPattern.INSTANCE   // a et b désignent le même objet</code></pre>
+</section>
+
+<!-- 3. DAO -->
+<section class="carte">
+  <h2>3. DAO (Data Access Object)</h2>
+  <p>
+    <strong>Définition : </strong> Le dao est une classe qui se connecte à la base de données et qui implémente les opérations pour lire, ajouter, modifier ou supprimer les données 
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>interface ProduitDAO {
+    fun donneTous(): List&lt;Produit&gt;
+    fun donne(nom: String): Produit?
+}
+
+class ProduitJsonDAO(private val fichier: File) : ProduitDAO {
+    override fun donneTous(): List&lt;Produit&gt; =
+        Json.decodeFromStream&lt;List&lt;Produit&gt;&gt;(fichier.inputStream())
+
+    override fun donne(nom: String): Produit? =
+        donneTous().find { it.nom == nom }
+}</code></pre>
+</section>
+
+<!-- 4. PATRON DE MÉTHODE -->
+<section class="carte">
+  <h2>4. Patron de méthode (Template method)</h2>
+  <p>
+    <strong>Définition :</strong> La classe mère définit le <span class="terme" data-def="squelette">squelette</span> d'un
+    algorithme dans une méthode <code>final</code> (non redéfinissable). Les étapes qui varient sont déclarées
+    <span class="terme" data-def="abstraite">abstraites</span> et implémentées par les sous-classes.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>abstract class TvaCalcul {
+    private val montants = mutableListOf&lt;Double&gt;()
+
+    // Étape spécifique à chaque sous-classe
+    abstract val taux: Double
+
+    fun ajouter(montantHT: Double) { montants.add(montantHT) }
+
+    // Squelette de l'algorithme (final par défaut en Kotlin)
+    fun montantTotalTTC(): Double {
+        var total = 0.0
+        for (m in montants) total += m
+        return total * (1 + taux)
+    }
+}
+
+class TvaReduite : TvaCalcul() { override val taux = 0.055 }
+class TvaNormale : TvaCalcul() { override val taux = 0.20 }</code></pre>
+</section>
+
+<!-- 5. STRATÉGIE -->
+<section class="carte">
+  <h2>5. Stratégie (Strategy)</h2>
+  <p>
+    <strong>Définition :</strong> La stratégie définit une famille d'<span class="terme" data-def="algorithme">algorithmes</span>
+    interchangeables, chacun derrière la même <span class="terme" data-def="interface">interface</span>. Le client choisit
+    l'algorithme à utiliser au moment de l'exécution.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>interface Calcul { fun calculer(notes: List&lt;Double&gt;): Double }
+
+class Moyenne : Calcul { override fun calculer(notes: List&lt;Double&gt;) = notes.average() }
+class Maximum : Calcul { override fun calculer(notes: List&lt;Double&gt;) = notes.max() }
+
+class Etudiant(private val notes: List&lt;Double&gt;) {
+    fun afficherNote(strategie: Calcul) = println(strategie.calculer(notes))
+}
+
+val etudiant = Etudiant(listOf(12.0, 8.0, 15.0))
+etudiant.afficherNote(Moyenne())   // 11.67
+etudiant.afficherNote(Maximum())   // 15.0</code></pre>
+</section>
+
+<!-- 6. ITÉRATEUR -->
+<section class="carte">
+  <h2>6. Itérateur (Iterator)</h2>
+  <p>
+    <strong>Définition :</strong> L'itérateur permet de parcourir une collection <span class="terme" data-def="sequentiel">séquentiellement</span>
+    sans exposer sa structure interne. En Kotlin, toutes les collections standard implémentent
+    <span class="terme" data-def="iterable">Iterable</span>.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>val profs = mutableListOf("Arnaud", "JFB", "JM")
+
+val ite = profs.iterator()
+while (ite.hasNext()) {
+    val prof = ite.next()
+    if (prof == "JFB") ite.remove()   // modification sûre pendant le parcours
+    println(prof)
+}</code></pre>
+</section>
+
+<!-- 7. OBSERVATEUR -->
+<section class="carte">
+  <h2>7. Observateur (Observer)</h2>
+  <p>
+    <strong>Définition :</strong> Un objet observable prévient automatiquement une liste d'<span class="terme" data-def="observateur">observateurs</span>
+    chaque fois que son <span class="terme" data-def="etat">état</span> change. Les observateurs ne se connaissent pas entre eux.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>class Bouton {
+    private val ecouteurs = mutableListOf&lt;(String) -&gt; Unit&gt;()
+
+    fun ajouterEcouteur(ecouteur: (String) -&gt; Unit) { ecouteurs.add(ecouteur) }
+
+    fun clic() { ecouteurs.forEach { it("Bouton cliqué") } }
+}
+
+val bouton = Bouton()
+bouton.ajouterEcouteur { println("Affiche : $it") }
+bouton.ajouterEcouteur { println("Journal : $it") }
+bouton.clic()</code></pre>
+</section>
+
+<!-- 8. COMPOSITE -->
+<section class="carte">
+  <h2>8. Composite</h2>
+  <p>
+    <strong>Définition :</strong> Le composite représente une <span class="terme" data-def="arborescence">structure arborescente</span>.
+    Les éléments simples (feuilles) et les conteneurs implémentent la même interface, donc le client les traite de la même façon.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>interface Composant { fun executer() }
+
+class Feuille(val nom: String) : Composant {
+    override fun executer() = println("Exécute $nom")
+}
+
+class Conteneur : Composant {
+    private val enfants = mutableListOf&lt;Composant&gt;()
+    fun ajouter(c: Composant) { enfants.add(c) }
+    override fun executer() = enfants.forEach { it.executer() }
+}
+
+val groupe = Conteneur().apply {
+    ajouter(Feuille("Chargeur"))
+    ajouter(Feuille("Écouteurs"))
+}
+groupe.executer()   // exécute tous les composants, sans distinction</code></pre>
+</section>
+
+<!-- 9. DÉLÉGATION -->
+<section class="carte">
+  <h2>9. Délégation (Delegate)</h2>
+  <p>
+    <strong>Définition :</strong> Une classe A confie certains traitements à un objet B qu'elle contient en
+    <span class="terme" data-def="composition">attribut</span>, au lieu d'hériter de B. On parle aussi de
+    <span class="terme" data-def="injection">composition</span>. Kotlin l'implémente directement avec le mot-clé <code>by</code>.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>interface Appelable { fun appeler(num: String) }
+
+class Gsm : Appelable {
+    override fun appeler(num: String) = println("Appel vers $num")
+}
+
+// Smartphone délègue les appels à l'objet gsm
+class Smartphone(gsm: Gsm) : Appelable by gsm {
+    fun naviguer(url: String) = println("Go to $url")
+}
+
+Smartphone(Gsm()).appeler("0600000000")</code></pre>
+</section>
+
+<!-- 10. ADAPTATEUR -->
+<section class="carte">
+  <h2>10. Adaptateur (Adapter)</h2>
+  <p>
+    <strong>Définition :</strong> L'adaptateur expose l'<span class="terme" data-def="interface">interface</span> attendue par le client,
+    tout en utilisant en interne une classe dont l'interface est différente. Il permet de continuer à utiliser une
+    bibliothèque modifiée sans toucher au reste du programme.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>// Interface attendue par le client
+interface IA { fun methA() }
+
+// Nouvelle version de la bibliothèque, à l'interface différente
+class LibAA2 { fun methA2() = println("Nouvelle méthode") }
+
+// L'adaptateur implémente l'ancienne interface et délègue à la nouvelle
+class Adaptateur(private val lib: LibAA2) : IA {
+    override fun methA() = lib.methA2()
+}
+
+val client: IA = Adaptateur(LibAA2())
+client.methA()</code></pre>
+</section>
+
+<!-- 11. REPOSITORY -->
+<section class="carte">
+  <h2>11. Entrepôt de données (Repository)</h2>
+  <p>
+    <strong>Définition :</strong> Le repository stocke les objets d'un type donné et offre les opérations nécessaires à la
+    couche métier, sans révéler comment les données sont stockées. Il se distingue du DAO par son
+    <span class="terme" data-def="abstraction">niveau d'abstraction</span> : il manipule des objets, pas la persistance.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>data class Personne(val nom: String, val age: Int)
+
+class EntrepotDePersonnes(init: List&lt;Personne&gt;) {
+    // Stockage privé, modifiable uniquement par le repository
+    private val _personnes: MutableList&lt;Personne&gt; = init.toMutableList()
+
+    // Accès en lecture seule depuis l'extérieur
+    val personnes: List&lt;Personne&gt; get() = _personnes
+
+    fun ajouter(p: Personne) { _personnes.add(p) }
+    fun supprimer(p: Personne) { _personnes.remove(p) }
+    fun plusJeunes(age: Int): List&lt;Personne&gt; = _personnes.filter { it.age &lt;= age }
+}</code></pre>
+</section>
+
+<!-- 12. MVC -->
+<section class="carte">
+  <h2>12. Modèle-Vue-Contrôleur (MVC)</h2>
+  <p>
+    <strong>Définition :</strong> MVC est un <span class="terme" data-def="architecture">patron d'architecture</span> qui sépare
+    les responsabilités : le <strong>modèle</strong> contient les données et les règles métier, la <strong>vue</strong>
+    affiche les données, et le <strong>contrôleur</strong> traite les actions de l'utilisateur et met à jour le modèle.
+  </p>
+  <div class="exemple-titre">Exemple en Kotlin</div>
+<pre><code>class Modele { var valeur = 0 }
+
+class Vue { fun afficher(v: Int) = println("Valeur : $v") }
+
+class Controleur(private val modele: Modele, private val vue: Vue) {
+    fun incrementer() {
+        modele.valeur++
+        vue.afficher(modele.valeur)
+    }
+}
+
+Controleur(Modele(), Vue()).incrementer()</code></pre>
+</section>
+
+<!-- SYNTHÈSE -->
+<section class="carte">
+  <h2>Synthèse</h2>
+  <table>
+    <thead>
+      <tr><th>Pattern</th><th>Famille</th><th>Rôle principal</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Fabrique</strong></td><td>Création</td><td>Choisir la classe à instancier</td></tr>
+      <tr><td><strong>Singleton</strong></td><td>Création</td><td>Une seule instance</td></tr>
+      <tr><td><strong>DAO</strong></td><td>Structurel</td><td>Isoler l'accès aux données</td></tr>
+      <tr><td><strong>Patron de méthode</strong></td><td>Comportemental</td><td>Squelette d'algorithme à compléter</td></tr>
+      <tr><td><strong>Stratégie</strong></td><td>Comportemental</td><td>Algorithmes interchangeables</td></tr>
+      <tr><td><strong>Itérateur</strong></td><td>Comportemental</td><td>Parcourir sans exposer la structure</td></tr>
+      <tr><td><strong>Observateur</strong></td><td>Comportemental</td><td>Notifier les changements d'état</td></tr>
+      <tr><td><strong>Composite</strong></td><td>Structurel</td><td>Traiter feuilles et conteneurs de la même façon</td></tr>
+      <tr><td><strong>Délégation</strong></td><td>Structurel</td><td>Confier un traitement à un autre objet</td></tr>
+      <tr><td><strong>Adaptateur</strong></td><td>Structurel</td><td>Rendre une interface compatible</td></tr>
+      <tr><td><strong>Repository</strong></td><td>Structurel</td><td>Abstraire le stockage des objets</td></tr>
+      <tr><td><strong>MVC</strong></td><td>Architecture</td><td>Séparer données, affichage et actions</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- INFOBULLE : DÉFINITIONS DES TERMES -->
+<div id="tooltip">
+  <div id="def-pattern" class="def-bloc">
+    <h3>Design pattern</h3>
+    <p>Solution <strong>générique et réutilisable</strong> à un problème de conception récurrent, indépendante du langage.</p>
+  </div>
+  <div id="def-probleme" class="def-bloc">
+    <h3>Problème récurrent</h3>
+    <p>Une situation qui revient dans de nombreux projets : créer des objets, changer un algorithme, notifier des objets, etc.</p>
+  </div>
+  <div id="def-instanciation" class="def-bloc">
+    <h3>Instanciation</h3>
+    <p>Création d'un objet à partir d'une classe, par exemple avec <code>Chien("Rogue")</code>.</p>
+  </div>
+  <div id="def-sousclasse" class="def-bloc">
+    <h3>Sous-classe</h3>
+    <p>Classe qui <strong>hérite</strong> d'une autre classe (la super-classe) et en reprend les membres.</p>
+  </div>
+  <div id="def-metier" class="def-bloc">
+    <h3>Classe métier</h3>
+    <p>Classe qui porte les règles de l'application (calcul de TVA, gestion des notes), sans se soucier du stockage.</p>
+  </div>
+  <div id="def-bdd" class="def-bloc">
+    <h3>Base de données (BDD)</h3>
+    <p>Système qui stocke les données de façon persistante : fichiers, SQL, etc.</p>
+  </div>
+  <div id="def-squelette" class="def-bloc">
+    <h3>Squelette d'algorithme</h3>
+    <p>La suite des étapes d'un algorithme, fixée dans la classe mère. Les sous-classes ne complètent que certaines étapes.</p>
+  </div>
+  <div id="def-abstraite" class="def-bloc">
+    <h3>Méthode abstraite</h3>
+    <p>Méthode déclarée sans implémentation (<code>abstract</code>). Toute sous-classe concrète doit la redéfinir.</p>
+  </div>
+  <div id="def-algorithme" class="def-bloc">
+    <h3>Algorithme</h3>
+    <p>Suite d'instructions qui résout un problème. Ici, une manière de calculer un résultat.</p>
+  </div>
+  <div id="def-interface" class="def-bloc">
+    <h3>Interface</h3>
+    <p>Ensemble de signatures de méthodes qu'une classe s'engage à implémenter. Elle dit <strong>quoi</strong> faire, pas <strong>comment</strong>.</p>
+  </div>
+  <div id="def-iterable" class="def-bloc">
+    <h3>Iterable</h3>
+    <p>Interface Kotlin pour les collections parcourables. Elle fournit la méthode <code>iterator()</code>.</p>
+  </div>
+  <div id="def-sequentiel" class="def-bloc">
+    <h3>Parcours séquentiel</h3>
+    <p>Parcours élément par élément, dans un ordre donné, sans accès direct à la position.</p>
+  </div>
+  <div id="def-observateur" class="def-bloc">
+    <h3>Observateur</h3>
+    <p>Objet qui souhaite être prévenu d'un changement. Dans l'exemple, c'est une fonction passée en paramètre.</p>
+  </div>
+  <div id="def-etat" class="def-bloc">
+    <h3>État</h3>
+    <p>Ensemble des valeurs des attributs d'un objet à un instant donné.</p>
+  </div>
+  <div id="def-arborescence" class="def-bloc">
+    <h3>Structure arborescente</h3>
+    <p>Organisation hiérarchique : un conteneur peut contenir des éléments, qui peuvent eux-mêmes être des conteneurs.</p>
+  </div>
+  <div id="def-composition" class="def-bloc">
+    <h3>Composition</h3>
+    <p>Un objet <strong>possède</strong> un autre objet comme attribut. Contrairement à l'héritage, le lien se fait à l'exécution.</p>
+  </div>
+  <div id="def-injection" class="def-bloc">
+    <h3>Injection de dépendances</h3>
+    <p>L'objet dont on a besoin est fourni de l'extérieur (au constructeur). On peut alors le remplacer par un <strong>mock</strong> pour les tests.</p>
+  </div>
+  <div id="def-abstraction" class="def-bloc">
+    <h3>Abstraction</h3>
+    <p>Cacher les détails d'implémentation derrière une interface simple à utiliser.</p>
+  </div>
+  <div id="def-architecture" class="def-bloc">
+    <h3>Architecture logicielle</h3>
+    <p>Organisation globale d'une application en grandes parties (couches, modules), à un niveau plus large que les classes.</p>
+  </div>
+</div>
+
+<script>
+  const tooltip = document.getElementById('tooltip');
+  const termes = document.querySelectorAll('.terme');
+  const tactile = window.matchMedia('(hover: none)');
+  let termeOuvert = null;
+
+  function afficher(cle) {
+    document.querySelectorAll('.def-bloc').forEach(b => b.classList.remove('actif'));
+    const bloc = document.getElementById('def-' + cle);
+    if (!bloc) return;
+    bloc.classList.add('actif');
+    tooltip.style.display = 'block';
+  }
+
+  function masquer() {
+    tooltip.style.display = 'none';
+    termeOuvert = null;
+  }
+
+  termes.forEach(terme => {
+    const cle = terme.getAttribute('data-def');
+
+    terme.addEventListener('mouseenter', () => {
+      if (tactile.matches) return;
+      afficher(cle);
+    });
+
+    terme.addEventListener('mousemove', (e) => {
+      if (tactile.matches) return;
+      const decalage = 15;
+      let x = e.pageX + decalage;
+      let y = e.pageY + decalage;
+      if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+        x = e.pageX - tooltip.offsetWidth - decalage;
+      }
+      if (x < 10) x = 10;
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+    });
+
+    terme.addEventListener('mouseleave', () => {
+      if (tactile.matches) return;
+      masquer();
+    });
+
+    terme.addEventListener('click', (e) => {
+      if (!tactile.matches) return;
+      e.stopPropagation();
+      if (termeOuvert === terme) {
+        masquer();
+        return;
+      }
+      termeOuvert = terme;
+      afficher(cle);
+    });
+  });
+
+  document.addEventListener('click', () => {
+    if (tactile.matches) masquer();
+  });
+</script>
+
+</body></html>

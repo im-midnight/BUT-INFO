@@ -15,6 +15,13 @@ const matieres = [
   },
 
   {
+    id: "DissignPattern",
+    titre: "R304 - Qualité de développement",
+    description: "Liste de tous les designs et implementations",
+    lien: "pages/designPattern/DP.html",
+  },
+
+  {
     id: "mathematiques",
     titre: "R308 - Probabilités",
     description: "Probabilités, lois usuelles.",
