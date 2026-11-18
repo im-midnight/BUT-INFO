@@ -85,6 +85,13 @@
 
   code { font-family: ui-monospace, Menlo, Consolas, monospace; }
 
+  /* Diagrammes UML (images PlantUML) */
+  .uml { margin: 0; text-align: center; }
+  .uml img { max-width: 100%; height: auto; border: 1px solid var(--bordure); border-radius: 6px; background: #fff; }
+  .uml.manquante { border: 2px dashed var(--bordure-tableau); border-radius: 6px; padding: 1.5rem 1rem; color: var(--muet); font-size: 0.9rem; }
+  .uml.manquante img { display: none; }
+  .uml.manquante::before { content: "Diagramme UML à ajouter : " attr(data-fichier); }
+
   /* Termes interactifs */
   .terme {
     color: var(--accent);
@@ -206,6 +213,10 @@ class Chat(nom: String) : Animal(nom) {
 
 val animal = Animal.fabrique("chien", "Rogue")
 println(animal.crier()) // Affiche : Rogue dit : Ouaf !</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/fabrique.png">
+    <img src="uml/fabrique.png" alt="Diagramme UML du pattern Fabrique" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 2. SINGLETON -->
@@ -224,6 +235,10 @@ println(animal.crier()) // Affiche : Rogue dit : Ouaf !</code></pre>
 
 val a = SingletonPattern.INSTANCE
 val b = SingletonPattern.INSTANCE   // a et b désignent le même objet</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/singleton.png">
+    <img src="uml/singleton.png" alt="Diagramme UML du pattern Singleton" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 3. DAO -->
@@ -245,6 +260,10 @@ class ProduitJsonDAO(private val fichier: File) : ProduitDAO {
     override fun donne(nom: String): Produit? =
         donneTous().find { it.nom == nom }
 }</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/dao.png">
+    <img src="uml/dao.png" alt="Diagramme UML du pattern DAO" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 4. PATRON DE MÉTHODE -->
@@ -274,6 +293,10 @@ class ProduitJsonDAO(private val fichier: File) : ProduitDAO {
 
 class TvaReduite : TvaCalcul() { override val taux = 0.055 }
 class TvaNormale : TvaCalcul() { override val taux = 0.20 }</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/patron-methode.png">
+    <img src="uml/patron-methode.png" alt="Diagramme UML du pattern Patron de méthode" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 5. STRATÉGIE -->
@@ -297,6 +320,10 @@ class Etudiant(private val notes: List&lt;Double&gt;) {
 val etudiant = Etudiant(listOf(12.0, 8.0, 15.0))
 etudiant.afficherNote(Moyenne())   // 11.67
 etudiant.afficherNote(Maximum())   // 15.0</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/strategie.png">
+    <img src="uml/strategie.png" alt="Diagramme UML du pattern Stratégie" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 6. ITÉRATEUR -->
@@ -316,6 +343,10 @@ while (ite.hasNext()) {
     if (prof == "JFB") ite.remove()   // modification sûre pendant le parcours
     println(prof)
 }</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/iterateur.png">
+    <img src="uml/iterateur.png" alt="Diagramme UML du pattern Itérateur" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 7. OBSERVATEUR -->
@@ -338,6 +369,10 @@ val bouton = Bouton()
 bouton.ajouterEcouteur { println("Affiche : $it") }
 bouton.ajouterEcouteur { println("Journal : $it") }
 bouton.clic()</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/observateur.png">
+    <img src="uml/observateur.png" alt="Diagramme UML du pattern Observateur" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 8. COMPOSITE -->
@@ -365,6 +400,10 @@ val groupe = Conteneur().apply {
     ajouter(Feuille("Écouteurs"))
 }
 groupe.executer()   // exécute tous les composants, sans distinction</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/composite.png">
+    <img src="uml/composite.png" alt="Diagramme UML du pattern Composite" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 9. DÉLÉGATION -->
@@ -388,6 +427,10 @@ class Smartphone(gsm: Gsm) : Appelable by gsm {
 }
 
 Smartphone(Gsm()).appeler("0600000000")</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/delegation.png">
+    <img src="uml/delegation.png" alt="Diagramme UML du pattern Délégation" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 10. ADAPTATEUR -->
@@ -412,6 +455,10 @@ class Adaptateur(private val lib: LibAA2) : IA {
 
 val client: IA = Adaptateur(LibAA2())
 client.methA()</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/adaptateur.png">
+    <img src="uml/adaptateur.png" alt="Diagramme UML du pattern Adaptateur" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 11. REPOSITORY -->
@@ -436,6 +483,10 @@ class EntrepotDePersonnes(init: List&lt;Personne&gt;) {
     fun supprimer(p: Personne) { _personnes.remove(p) }
     fun plusJeunes(age: Int): List&lt;Personne&gt; = _personnes.filter { it.age &lt;= age }
 }</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/repository.png">
+    <img src="uml/repository.png" alt="Diagramme UML du pattern Repository" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- 12. MVC -->
@@ -459,6 +510,10 @@ class Controleur(private val modele: Modele, private val vue: Vue) {
 }
 
 Controleur(Modele(), Vue()).incrementer()</code></pre>
+  <div class="exemple-titre">Diagramme UML</div>
+  <figure class="uml" data-fichier="uml/mvc.png">
+    <img src="uml/mvc.png" alt="Diagramme UML du pattern MVC" onerror="this.parentElement.classList.add('manquante')">
+  </figure>
 </section>
 
 <!-- SYNTHÈSE -->
