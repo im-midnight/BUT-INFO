@@ -1,6 +1,6 @@
 # MENU BUT INFO
 
-Site de révision des cours de BUT Informatique 2. L'accueil liste les matières, chaque matière a ses pages de cours, de TD et de TP.
+Site de révision des cours de BUT Informatique. L'accueil liste les matières, chaque matière a ses pages de cours, de TD et de TP.
 
 HTML, CSS et JavaScript natifs. Pas de framework, pas de bibliothèque. Les seuls scripts externes sont MathJax (formules) et Umami (stats).
 
