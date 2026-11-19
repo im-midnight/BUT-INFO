@@ -16,170 +16,23 @@
   </script>
   <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
+  <link rel="stylesheet" href="../../../../css/themes.css">
+  <link rel="stylesheet" href="../../../../css/style.css">
+  <script src="../../../../js/site.js"></script>
+  <script src="../../../../js/script.js" defer></script>
   <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      line-height: 1.6;
-      max-width: 850px;
-      margin: 0 auto;
-      padding: 2rem;
-      color: #222;
-      background-color: #f9fafb;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #111;
-    }
-
-    .loi-card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      overflow-x: auto;
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #1e3a8a;
-      font-size: 1.25rem;
-      border-bottom: 2px solid #e5e7eb;
-      padding-bottom: 0.5rem;
-    }
-
-    ul, ol { padding-left: 1.25rem; }
-    li { margin-bottom: 0.5rem; }
-
-    pre {
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      overflow-x: auto;
-      font-size: 0.9rem;
-      line-height: 1.45;
-    }
-
-    mark {
-      background: #fef08a;
-      color: inherit;
-      padding: 0.1em 0.25em;
-      border-radius: 3px;
-    }
-
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-
-    /* Termes interactifs : survol à la souris ou toucher sur mobile */
-    .terme {
-      color: #2563eb;
-      font-weight: 600;
-      border-bottom: 2px dotted #2563eb;
-      cursor: help;
-      transition: background-color 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .terme:hover { background-color: #dbeafe; }
-
-    table {
-      width: 100%;
-      min-width: 560px;
-      border-collapse: collapse;
-      background: #fff;
-      margin-top: 1rem;
-    }
-
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      margin-top: 1rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-    }
-
-    th, td {
-      border: 1px solid #d1d5db;
-      padding: 0.65rem 0.9rem;
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    th { background-color: #f3f4f6; }
-
-    .note-box {
-      background-color: #eff6ff;
-      border-left: 4px solid #2563eb;
-      padding: 0.75rem 1rem;
-      border-radius: 4px;
-      margin-top: 0.75rem;
-      font-size: 0.92rem;
-    }
-
-    .warning-box {
-      background-color: #fffbeb;
-      border-left: 4px solid #d97706;
-      padding: 0.75rem 1rem;
-      border-radius: 4px;
-      margin-top: 0.75rem;
-      font-size: 0.92rem;
-    }
-
-    #tooltip {
-      position: absolute;
-      display: none;
-      width: 380px;
-      max-width: 90vw;
-      background: #1f2937;
-      color: #f9fafb;
-      padding: 1rem 1.25rem;
-      border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-      z-index: 1000;
-      font-size: 0.9rem;
-      pointer-events: none;
-    }
-
-    #tooltip h3 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-      color: #60a5fa;
-      font-size: 1.05rem;
-    }
-
-    .def-bloc { display: none; }
-    .def-bloc.actif { display: block; }
-    .astuce-tactile { display: none; }
-
-    @media (hover: none) {
-      .astuce-souris { display: none; }
-      .astuce-tactile { display: inline; }
-      #tooltip {
-        position: fixed;
-        left: 0.75rem;
-        right: 0.75rem;
-        bottom: 0.75rem;
-        width: auto;
-        max-width: none;
-        max-height: 60vh;
-        overflow-y: auto;
-        pointer-events: auto;
-      }
-    }
-
-    @media (max-width: 600px) {
-      body { padding: 1rem; }
-      .loi-card { padding: 1rem; }
-    }
+    /* Spécifique à cette page */
+    table { width: 100%; min-width: 560px; border-collapse: collapse; background: var(--surface); margin-top: 1rem; }
+    th, td { border: 1px solid var(--bordure-forte); padding: 0.65rem 0.9rem; text-align: center; vertical-align: middle; }
+    th { background-color: var(--surface-2); }
+    .note-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    .warning-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
   </style>
 </head>
 <body>
 
   <h1>Exercice 5 : Problème du logarithme discret</h1>
-  <p style="text-align: center; color: #555;">
+  <p style="text-align: center; color: var(--texte-doux);">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="generateur">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
@@ -256,26 +109,26 @@ def generateur(p):
     <h2>5.3. Algorithme de Shanks : pas de bébé, pas de géant</h2>
     <p>L'objectif est toujours de résoudre $g^x \equiv y \pmod p$, mais en évitant de tester tous les exposants un par un.</p>
 
-    <h3 style="color: #1e3a8a; font-size: 1.05rem;">1. Découper l'exposant</h3>
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">1. Découper l'exposant</h3>
     <p>On pose :</p>
     $$ s = 1 + \lfloor\sqrt{p}\rfloor $$
     <p>On cherche à écrire l'exposant sous la forme :</p>
     $$ x = r_0 + k_0s $$
     <p>avec $0 \leq r_0 &lt; s$ et $0 \leq k_0 &lt; s$.</p>
 
-    <h3 style="color: #1e3a8a; font-size: 1.05rem;">2. Calculer les pas de bébé</h3>
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">2. Calculer les pas de bébé</h3>
     <p>On construit la première liste avec les premières puissances de $g$ :</p>
     $$ L_1 = [1, g, g^2, g^3, \ldots, g^{s-1}] \pmod p $$
     <p>Chaque élément de cette liste correspond à $g^{r_0}$.</p>
 
-    <h3 style="color: #1e3a8a; font-size: 1.05rem;">3. Calculer les pas de géant</h3>
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3. Calculer les pas de géant</h3>
     <p>On calcule d'abord l'inverse modulaire de $g^s$ :</p>
     $$ g^{-s} \equiv (g^s)^{-1} \pmod p $$
     <p>Puis on construit :</p>
     $$ L_2 = [y,\; yg^{-s},\; yg^{-2s},\; \ldots,\; yg^{-(s-1)s}] \pmod p $$
     <p>Chaque élément correspond à $y \cdot (g^{-s})^{k_0}$.</p>
 
-    <h3 style="color: #1e3a8a; font-size: 1.05rem;">4. Trouver une valeur commune</h3>
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">4. Trouver une valeur commune</h3>
     <p>On cherche une occurrence commune aux deux listes. Si :</p>
     $$ g^{r_0} \equiv y \cdot g^{-k_0s} \pmod p $$
     <p>alors, en multipliant par $g^{k_0s}$ :</p>
@@ -283,7 +136,7 @@ def generateur(p):
     <p>On obtient donc une solution :</p>
     $$ \boxed{x = r_0 + k_0s} $$
 
-    <h3 style="color: #1e3a8a; font-size: 1.05rem;">Code Python</h3>
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Code Python</h3>
 <pre><code>import math
 
 def inverse_modulaire(a, p):

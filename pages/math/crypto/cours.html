@@ -17,179 +17,22 @@
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
+  <link rel="stylesheet" href="../../../css/themes.css">
+  <link rel="stylesheet" href="../../../css/style.css">
+  <script src="../../../js/site.js"></script>
+  <script src="../../../js/script.js" defer></script>
   <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      line-height: 1.6;
-      max-width: 850px;
-      margin: 0 auto;
-      padding: 2rem;
-      color: #222;
-      background-color: #f9fafb;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #111;
-    }
-
-    .loi-card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      overflow-x: auto;
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #1e3a8a;
-      font-size: 1.25rem;
-      border-bottom: 2px solid #e5e7eb;
-      padding-bottom: 0.5rem;
-    }
-
-    ul {
-      padding-left: 1.25rem;
-    }
-
-    li {
-      margin-bottom: 0.5rem;
-    }
-
-    pre {
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      overflow-x: auto;
-      font-size: 0.9rem;
-      line-height: 1.45;
-    }
-
-    mark {
-      background: #fef08a;
-      color: inherit;
-      padding: 0.1em 0.25em;
-      border-radius: 3px;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    /* Style des mots interactifs */
-    .terme {
-      color: #2563eb;
-      font-weight: 600;
-      border-bottom: 2px dotted #2563eb;
-      cursor: help;
-      transition: background-color 0.15s;
-    }
-
-    .terme:hover {
-      background-color: #dbeafe;
-    }
-
-    /* Tableau de synthèse */
-    /* Tableau de synthèse et d'exemples */
-    table {
-      width: 100%;
-      min-width: 750px; /* Force le tableau à être assez large pour ne pas écraser les formules */
-      border-collapse: collapse;
-      background: #fff;
-      margin-top: 1rem;
-    }
-    /* Conteneur défilable pour le tableau */
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      margin-top: 1rem;
-      /* Optionnel : ajoute une ombre subtile ou une bordure pour indiquer le scroll */
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-    }
-
-    th, td {
-      border: 1px solid #d1d5db;
-      padding: 0.75rem 1rem;
-      text-align: left;
-      vertical-align: top; /* Aligne le contenu en haut de chaque cellule */
-    }
-
-    /* Empêche les formules de se couper au milieu d'un calcul */
-    td span, td code, td mark {
-      white-space: nowrap; 
-    }
-
-    th {
-      background-color: #f3f4f6;
-    }
-
-    /* Boîte d'infobulle (Tooltip) */
-    #tooltip {
-      position: absolute;
-      display: none;
-      width: 380px;
-      max-width: 90vw;
-      background: #1f2937;
-      color: #f9fafb;
-      padding: 1rem 1.25rem;
-      border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-      z-index: 1000;
-      font-size: 0.9rem;
-      pointer-events: none; /* Évite que la souris bloque sur l'infobulle */
-    }
-
-    #tooltip h3 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-      color: #60a5fa;
-      font-size: 1.05rem;
-    }
-
-    .def-bloc {
-      display: none;
-    }
-
-    .def-bloc.actif {
-      display: block;
-    }
-
-    .terme { -webkit-tap-highlight-color: transparent; }
-    .astuce-tactile { display: none; }
-
-    /* Appareils sans survol (téléphones, tablettes) */
-    @media (hover: none) {
-      .astuce-souris { display: none; }
-      .astuce-tactile { display: inline; }
-
-      #tooltip {
-        position: fixed;
-        left: 0.75rem;
-        right: 0.75rem;
-        bottom: 0.75rem;
-        width: auto;
-        max-width: none;
-        max-height: 60vh;
-        overflow-y: auto;
-        pointer-events: auto;
-      }
-    }
-
-    @media (max-width: 600px) {
-      body { padding: 1rem; }
-    }
+    /* Spécifique à cette page */
+    table { width: 100%; min-width: 750px; border-collapse: collapse; background: var(--surface); margin-top: 1rem; }
+    th, td { border: 1px solid var(--bordure-forte); padding: 0.75rem 1rem; text-align: left; vertical-align: top; }
+    td span, td code, td mark { white-space: nowrap; }
+    th { background-color: var(--surface-2); }
   </style>
 </head>
 <body>
 
   <h1>Arithmétique</h1>
-  <p style="text-align: center; color: #555;">
+  <p style="text-align: center; color: var(--texte-doux);">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
@@ -238,7 +81,7 @@
       </li>
       <li><strong>Exemple complet : $\operatorname{pgcd}(1071, 462)$.</strong> À chaque ligne, on divise l'ancien diviseur $b$ par le dernier reste.
         <div class="table-container">
-            <table style="width: 100%; min-width: 750px; border-collapse: collapse; background: #fff; margin-top: 1rem;">
+            <table style="width: 100%; min-width: 750px; border-collapse: collapse; background: var(--surface); margin-top: 1rem;">
             <thead>
                 <tr>
                 <th style="width: 8%;">Étape</th>
@@ -303,7 +146,7 @@
       </li>
       <li><strong>Exemple complet : $1071 u + 462 v = \operatorname{pgcd}(1071, 462)$.</strong>
         <div class="table-container">
-            <table style="width: 100%; min-width: 750px; border-collapse: collapse; background: #fff; margin-top: 1rem;">
+            <table style="width: 100%; min-width: 750px; border-collapse: collapse; background: var(--surface); margin-top: 1rem;">
             <thead>
                 <tr>
                 <th style="width: 8%;">Étape</th>
@@ -335,7 +178,7 @@
                 <tr>
                 <td>3</td>
                 <td>$147 = 21 \times 7 + 0$</td>
-                <td>$147 + 21 \times (-7) =$ <mark>$0$</mark> <br><span style="white-space: normal; font-size: 0.85rem; color: #555;">(reste nul : rien à substituer)</span></td>
+                <td>$147 + 21 \times (-7) =$ <mark>$0$</mark> <br><span style="white-space: normal; font-size: 0.85rem; color: var(--texte-doux);">(reste nul : rien à substituer)</span></td>
                 <td>(reste nul)</td>
                 <td>reste nul :<br>on s'arrête</td>
                 </tr>
@@ -383,7 +226,7 @@ assert euclide_etendu(1071, 462) == (21, -3, 7)</code></pre>
       $$x + 6 = 22k \implies x = -6 + 22k$$
       Tous les couples d'entiers solutions de l'équation sont donc :
       $$\mathcal{S} = \{(-6 + 22k, \; 14 - 51k) \mid k \in \mathbb{Z}\}$$
-      <span style="color: #555; font-size: 0.9rem;">(Par exemple, pour $k = 1$, on obtient le couple $(16, -37)$ : $1071 \times 16 + 462 \times (-37) = 17136 - 17094 = 42$).</span>
+      <span style="color: var(--texte-doux); font-size: 0.9rem;">(Par exemple, pour $k = 1$, on obtient le couple $(16, -37)$ : $1071 \times 16 + 462 \times (-37) = 17136 - 17094 = 42$).</span>
     </li>
   </ul>
 </li>
@@ -723,4 +566,4 @@ assert inverse_mod(17, 3120) == 2753
   </script>
 
 </body>
-</html>
+</html>

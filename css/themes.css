@@ -1,0 +1,313 @@
+/* =====================================================================
+   THÈMES
+   Toutes les couleurs du site sont ici, et seulement ici.
+   Le thème actif est posé sur <html> par js/site.js :
+     data-theme="bleu"      la palette choisie (12 au total)
+     data-mode="sombre"     version sombre de la palette
+     data-hc="on"           high contrast (remplace tout le reste)
+     data-syntaxe="off"     coloration syntaxique désactivée
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. BASE CLAIRE (commune à tous les thèmes)
+   ===================================================================== */
+
+:root {
+  color-scheme: light;
+
+  --fond: #f9fafb;
+  --surface: #ffffff;
+  --surface-2: #f3f4f6;
+  --texte: #222222;
+  --texte-doux: #555555;
+  --titre: #111111;
+  --bordure: #e5e7eb;
+  --bordure-forte: #d1d5db;
+
+  --primaire-texte: #ffffff;
+  --survol: color-mix(in srgb, var(--primaire) 14%, var(--surface));
+  --focus: var(--primaire);
+
+  --code-texte: #f8fafc;
+  --code-inline-fond: color-mix(in srgb, var(--primaire) 10%, #e9ecf0);
+  --code-inline-texte: #0f172a;
+  --surligne: #fef08a;
+
+  --footer-texte: #f9fafb;
+
+  --tip-fond: var(--code-fond);
+  --tip-texte: #f9fafb;
+  --tip-titre: color-mix(in srgb, var(--barre) 70%, #ffffff);
+
+  --info-fond: color-mix(in srgb, var(--barre) 12%, var(--surface));
+  --attention: #b45309;
+  --attention-fond: #fff7e6;
+
+  /* coloration syntaxique (sur fond de code sombre) */
+  --sx-mot: color-mix(in srgb, var(--barre) 55%, #ffffff);
+  --sx-type: #8fd3ff;
+  --sx-chaine: #b5e48c;
+  --sx-nombre: #ffb38a;
+  --sx-commentaire: #9aa3b2;
+  --sx-annotation: #ffd479;
+  --sx-fonction: #f2f2f2;
+  --sx-balise: color-mix(in srgb, var(--barre) 55%, #ffffff);
+}
+
+
+/* =====================================================================
+   2. FOND BLANC : 6 palettes (seules les couleurs d'accent changent)
+   ===================================================================== */
+
+:root,
+[data-theme="bleu"] {
+  --teinte: #3da9fc;
+  --primaire: #2563eb;
+  --primaire-fonce: #1e3a8a;
+  --barre: #3da9fc;
+  --secondaire: #90b4ce;
+  --footer-fond: #272343;
+  --code-fond: #1e293b;
+}
+
+[data-theme="emeraude"] {
+  --teinte: #10b981;
+  --primaire: #047857;
+  --primaire-fonce: #064e3b;
+  --barre: #10b981;
+  --secondaire: #9fd4bf;
+  --footer-fond: #0f2e25;
+  --code-fond: #0f231d;
+}
+
+[data-theme="amethyste"] {
+  --teinte: #a78bfa;
+  --primaire: #7c3aed;
+  --primaire-fonce: #4c1d95;
+  --barre: #a78bfa;
+  --secondaire: #c4b5fd;
+  --footer-fond: #2e1065;
+  --code-fond: #1d1530;
+}
+
+[data-theme="orange"] {
+  --teinte: #fb923c;
+  --primaire: #c2410c;
+  --primaire-fonce: #7c2d12;
+  --barre: #fb923c;
+  --secondaire: #f6b98a;
+  --footer-fond: #431407;
+  --code-fond: #271810;
+}
+
+[data-theme="framboise"] {
+  --teinte: #f472b6;
+  --primaire: #be185d;
+  --primaire-fonce: #831843;
+  --barre: #f472b6;
+  --secondaire: #f5a9cc;
+  --footer-fond: #500724;
+  --code-fond: #2a0f1e;
+}
+
+[data-theme="turquoise"] {
+  --teinte: #22d3ee;
+  --primaire: #0e7490;
+  --primaire-fonce: #164e63;
+  --barre: #22d3ee;
+  --secondaire: #9fd8e6;
+  --footer-fond: #083344;
+  --code-fond: #0e2229;
+}
+
+
+/* =====================================================================
+   3. FOND TEINTÉ : 6 palettes (le fond change, le texte reste noir)
+   Inspirées de palettedecouleur.net
+   ===================================================================== */
+
+[data-theme="ble"] {
+  --teinte: #daab3a;
+  --fond: #eee6d8;
+  --surface: #f8f3ea;
+  --surface-2: #efe7d9;
+  --bordure: #e0d5c2;
+  --bordure-forte: #cfc1a8;
+  --primaire: #93441a;
+  --primaire-fonce: #6e3213;
+  --barre: #daab3a;
+  --secondaire: #b67332;
+  --footer-fond: #3a1d0c;
+  --code-fond: #2a1a10;
+}
+
+[data-theme="lagon"] {
+  --teinte: #226d68;
+  --fond: #ecf8f6;
+  --surface: #f7fcfb;
+  --surface-2: #e2f2ef;
+  --bordure: #cfe6e2;
+  --bordure-forte: #b5d5cf;
+  --primaire: #18534f;
+  --primaire-fonce: #123f3c;
+  --barre: #226d68;
+  --secondaire: #d6955b;
+  --footer-fond: #0f3633;
+  --code-fond: #10292a;
+  --surligne: #feeaa1;
+}
+
+[data-theme="dragee"] {
+  --teinte: #db6a8f;
+  --fond: #f8eef2;
+  --surface: #fdf7f9;
+  --surface-2: #f3e3ea;
+  --bordure: #ecd6df;
+  --bordure-forte: #dfbfcc;
+  --primaire: #a3264c;
+  --primaire-fonce: #7a1c39;
+  --barre: #db6a8f;
+  --secondaire: #4aa3a2;
+  --footer-fond: #4a1426;
+  --code-fond: #2a1420;
+}
+
+[data-theme="pastel"] {
+  --teinte: #9ac8eb;
+  --fond: #f7f6cf;
+  --surface: #fdfce9;
+  --surface-2: #f0efc4;
+  --bordure: #e6e4b4;
+  --bordure-forte: #d6d39b;
+  --primaire: #3d6496;
+  --primaire-fonce: #2b4a73;
+  --barre: #9ac8eb;
+  --secondaire: #f4cfdf;
+  --footer-fond: #24395a;
+  --code-fond: #1c2a3e;
+}
+
+[data-theme="sauge"] {
+  --teinte: #4a919e;
+  --fond: #e9f0ea;
+  --surface: #f6f9f6;
+  --surface-2: #dde8df;
+  --bordure: #cfdcd2;
+  --bordure-forte: #b9cbbd;
+  --primaire: #212e53;
+  --primaire-fonce: #1a2442;
+  --barre: #4a919e;
+  --secondaire: #ce6a6b;
+  --footer-fond: #212e53;
+  --code-fond: #1a2238;
+}
+
+[data-theme="ardoise"] {
+  --teinte: #285f99;
+  --fond: #e7e6ed;
+  --surface: #f5f4f8;
+  --surface-2: #dddce6;
+  --bordure: #d2d1dc;
+  --bordure-forte: #bdbccb;
+  --primaire: #285f99;
+  --primaire-fonce: #384454;
+  --barre: #e1a624;
+  --secondaire: #ad956b;
+  --footer-fond: #384454;
+  --code-fond: #232a33;
+}
+
+
+/* =====================================================================
+   4. MODE SOMBRE (s'applique aux 12 palettes)
+   Chaque palette garde sa teinte : le fond est un gris très foncé
+   légèrement coloré par --teinte, l'accent est éclairci.
+   ===================================================================== */
+
+[data-mode="sombre"] {
+  color-scheme: dark;
+
+  --fond: color-mix(in srgb, var(--teinte) 7%, #131417);
+  --surface: color-mix(in srgb, var(--teinte) 9%, #1b1c20);
+  --surface-2: color-mix(in srgb, var(--teinte) 12%, #24262b);
+  --texte: #e4e5e8;
+  --texte-doux: #a7aab2;
+  --titre: #fafafa;
+  --bordure: color-mix(in srgb, var(--teinte) 14%, #2e3036);
+  --bordure-forte: color-mix(in srgb, var(--teinte) 20%, #3d4048);
+
+  --primaire: color-mix(in srgb, var(--barre) 72%, #ffffff);
+  --primaire-texte: #121316;
+  --primaire-fonce: color-mix(in srgb, var(--barre) 55%, #ffffff);
+  --secondaire: color-mix(in srgb, var(--barre) 45%, #3d4048);
+  --survol: color-mix(in srgb, var(--barre) 20%, var(--surface));
+
+  --code-fond: color-mix(in srgb, var(--teinte) 8%, #0d0e10);
+  --code-inline-fond: color-mix(in srgb, var(--barre) 16%, #2a2c32);
+  --code-inline-texte: #f1f2f4;
+  --surligne: #6b5a12;
+
+  --footer-fond: color-mix(in srgb, var(--teinte) 12%, #0b0c0e);
+  --footer-texte: #e4e5e8;
+
+  --tip-fond: color-mix(in srgb, var(--teinte) 10%, #2a2c31);
+
+  --info-fond: color-mix(in srgb, var(--barre) 12%, var(--surface));
+  --attention: #f5b45a;
+  --attention-fond: color-mix(in srgb, #f59e0b 12%, var(--surface));
+}
+
+
+/* =====================================================================
+   5. HIGH CONTRAST (inspiré des thèmes « High Contrast » des éditeurs)
+   Fond noir, texte blanc, contours cyan, focus orange.
+   ===================================================================== */
+
+[data-hc="on"] {
+  color-scheme: dark;
+
+  --teinte: #6fc3df;
+  --fond: #000000;
+  --surface: #000000;
+  --surface-2: #0a0a0a;
+  --texte: #ffffff;
+  --texte-doux: #ffffff;
+  --titre: #ffffff;
+  --bordure: #6fc3df;
+  --bordure-forte: #6fc3df;
+
+  --primaire: #ffd700;
+  --primaire-texte: #000000;
+  --primaire-fonce: #ffffff;
+  --barre: #6fc3df;
+  --secondaire: #6fc3df;
+  --survol: #1a1a1a;
+  --focus: #f38518;
+
+  --code-fond: #000000;
+  --code-texte: #ffffff;
+  --code-inline-fond: #000000;
+  --code-inline-texte: #ffffff;
+  --surligne: #4d3d00;
+
+  --footer-fond: #000000;
+  --footer-texte: #ffffff;
+
+  --tip-fond: #000000;
+  --tip-texte: #ffffff;
+  --tip-titre: #ffd700;
+
+  --info-fond: #000000;
+  --attention: #f38518;
+  --attention-fond: #000000;
+
+  --sx-mot: #569cd6;
+  --sx-type: #4ec9b0;
+  --sx-chaine: #ce9178;
+  --sx-nombre: #b5cea8;
+  --sx-commentaire: #7ca668;
+  --sx-annotation: #dcdcaa;
+  --sx-fonction: #dcdcaa;
+  --sx-balise: #569cd6;
+}

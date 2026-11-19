@@ -1,171 +1,29 @@
-<!doctype html><html><head><script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<meta name="claude:viewport-fit-sides" content="cover">
-<title>Design Patterns en Kotlin</title>
-<style>
-  /* Mise en page : cours en colonne unique, cartes blanches sur fond gris très clair, palette bleue du cours de probabilités */
-  :root {
-    --bg: #f9fafb;
-    --fg: #222222;
-    --titre: #111111;
-    --muet: #555555;
-    --carte: #ffffff;
-    --bordure: #e5e7eb;
-    --bordure-tableau: #d1d5db;
-    --entete: #f3f4f6;
-    --accent: #2563eb;
-    --accent-titre: #1e3a8a;
-    --survol: #dbeafe;
-    --code-bg: #1f2937;
-    --code-fg: #f9fafb;
-    --tip-bg: #1f2937;
-    --tip-fg: #f9fafb;
-    --tip-titre: #60a5fa;
-  }
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design Patterns en Kotlin</title>
 
-  body {
-    font-family: system-ui, -apple-system, sans-serif;
-    line-height: 1.6;
-    max-width: 850px;
-    margin: 0 auto;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    color: var(--fg);
-    background-color: var(--bg);
-    color-scheme: light;
-  }
-
-  h1 { text-align: center; margin-bottom: 2rem; color: var(--titre); }
-
-  .sous-titre { text-align: center; color: var(--muet); }
-
-  .carte {
-    background: var(--carte);
-    border: 1px solid var(--bordure);
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    overflow-x: auto;
-    min-width: 0;
-  }
-
-  h2 {
-    margin-top: 0;
-    color: var(--accent-titre);
-    font-size: 1.25rem;
-    border-bottom: 2px solid var(--bordure);
-    padding-bottom: 0.5rem;
-    text-wrap: balance;
-  }
-
-  ul { padding-left: 1.25rem; }
-  li { margin-bottom: 0.5rem; }
-
-  .exemple-titre {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--muet);
-    margin: 1rem 0 0.4rem;
-  }
-
-  pre {
-    background: var(--code-bg);
-    color: var(--code-fg);
-    padding: 1rem;
-    border-radius: 6px;
-    overflow-x: auto;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    margin: 0;
-    max-width: 100%;
-  }
-
-  code { font-family: ui-monospace, Menlo, Consolas, monospace; }
-
-  /* Diagrammes UML (images PlantUML) */
-  .uml { margin: 0; text-align: center; }
-  .uml img { max-width: 100%; height: auto; border: 1px solid var(--bordure); border-radius: 6px; background: #fff; }
-  .uml.manquante { border: 2px dashed var(--bordure-tableau); border-radius: 6px; padding: 1.5rem 1rem; color: var(--muet); font-size: 0.9rem; }
-  .uml.manquante img { display: none; }
-  .uml.manquante::before { content: "Diagramme UML à ajouter : " attr(data-fichier); }
-
-  /* Termes interactifs */
-  .terme {
-    color: var(--accent);
-    font-weight: 600;
-    border-bottom: 2px dotted var(--accent);
-    cursor: help;
-    transition: background-color 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .terme:hover { background-color: var(--survol); }
-
-  .astuce-tactile { display: none; }
-
-  /* Tableau de synthèse */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--carte);
-    margin-top: 1rem;
-  }
-  th, td {
-    border: 1px solid var(--bordure-tableau);
-    padding: 0.6rem 0.75rem;
-    text-align: left;
-    vertical-align: top;
-  }
-  th { background-color: var(--entete); }
-
-  /* Infobulle */
-  #tooltip {
-    position: absolute;
-    display: none;
-    width: 380px;
-    max-width: 90vw;
-    background: var(--tip-bg);
-    color: var(--tip-fg);
-    padding: 1rem 1.25rem;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-    z-index: 1000;
-    font-size: 0.9rem;
-    pointer-events: none;
-  }
-  #tooltip h3 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    color: var(--tip-titre);
-    font-size: 1.05rem;
-  }
-  #tooltip p { margin: 0.25rem 0; }
-  #tooltip code { background: rgba(255, 255, 255, 0.12); padding: 0 0.2rem; border-radius: 3px; }
-  .def-bloc { display: none; }
-  .def-bloc.actif { display: block; }
-
-  @media (hover: none) {
-    .astuce-souris { display: none; }
-    .astuce-tactile { display: inline; }
-    #tooltip {
-      position: fixed;
-      left: 0.75rem;
-      right: 0.75rem;
-      bottom: 0.75rem;
-      width: auto;
-      max-width: none;
-      max-height: 60vh;
-      overflow-y: auto;
-      pointer-events: auto;
-    }
-  }
-
-  @media (max-width: 600px) {
-    body { padding-top: 1rem; padding-bottom: 1rem; }
-  }
-</style>
+  <link rel="stylesheet" href="../../css/themes.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/site.js"></script>
+  <script src="../../js/script.js" defer></script>
+  <style>
+    /* Spécifique à cette page */
+    .exemple-titre { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--texte-doux); margin: 1rem 0 0.4rem; }
+    .uml { margin: 0; text-align: center; }
+    .uml img { max-width: 100%; height: auto; border: 1px solid var(--bordure); border-radius: 6px; background: #fff; }
+    .uml.manquante { border: 2px dashed var(--bordure-forte); border-radius: 6px; padding: 1.5rem 1rem; color: var(--texte-doux); font-size: 0.9rem; }
+    .uml.manquante img { display: none; }
+    .uml.manquante::before { content: "Diagramme UML à ajouter : " attr(data-fichier); }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); margin-top: 1rem; }
+    th, td { border: 1px solid var(--bordure-forte); padding: 0.6rem 0.75rem; text-align: left; vertical-align: top; }
+    th { background-color: var(--surface-2); }
+  </style>
+</head>
+<body>
 
 <h1>Design Patterns en Kotlin</h1>
 <p class="sous-titre">

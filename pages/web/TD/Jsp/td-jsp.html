@@ -4,43 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>R3.01 : les JSP, des balises aux objets implicites</title>
+
+  <link rel="stylesheet" href="../../../../css/themes.css">
+  <link rel="stylesheet" href="../../../../css/style.css">
+  <script src="../../../../js/site.js"></script>
+  <script src="../../../../js/script.js" defer></script>
   <style>
-    body{font-family:system-ui,-apple-system,sans-serif;line-height:1.6;max-width:1150px;margin:0 auto;padding:2rem;color:#222;background-color:#f9fafb}
-    h1{text-align:center;margin-bottom:2rem;color:#111}
-    .loi-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow-x:auto}
-    h2{margin-top:0;color:#1e3a8a;font-size:1.25rem;border-bottom:2px solid #e5e7eb;padding-bottom:.5rem}
-    ul{padding-left:1.25rem}
-    li{margin-bottom:.5rem}
-    pre{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:.75rem 1rem;overflow-x:auto;font-size:.9rem;line-height:1.45}
-    code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-    mark{background:#fef08a;color:inherit;padding:.1em .25em;border-radius:3px}
-    .chemin{background:#dbeafe;padding:.1em .35em;border-radius:3px;font-size:.9rem}
-    .terme{color:#2563eb;font-weight:600;border-bottom:2px dotted #2563eb;cursor:help;transition:background-color .15s;-webkit-tap-highlight-color:transparent}
-    .terme:hover{background-color:#dbeafe}
-    .table-container{width:100%;overflow-x:auto;margin-top:1rem;border:1px solid #e5e7eb;border-radius:6px}
-    table{width:100%;border-collapse:collapse;background:#fff}
-    th,td{border:1px solid #d1d5db;padding:.75rem 1rem;text-align:left;vertical-align:top}
-    th{background-color:#f3f4f6}
-    td code{font-size:.85rem;overflow-wrap:anywhere}
-    tr.categorie td{background-color:#dbeafe;color:#1e3a8a;font-weight:700;padding:.5rem 1rem}
-    #tooltip{position:absolute;display:none;width:380px;max-width:90vw;background:#1f2937;color:#f9fafb;padding:1rem 1.25rem;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.25);z-index:1000;font-size:.9rem;pointer-events:none}
-    #tooltip h3{margin-top:0;margin-bottom:.5rem;color:#60a5fa;font-size:1.05rem}
-    #tooltip code{color:#f9fafb}
-    .def-bloc{display:none}
-    .def-bloc.actif{display:block}
-    .astuce-tactile{display:none}
-    @media (hover:none){
-      .astuce-souris{display:none}
-      .astuce-tactile{display:inline}
-      #tooltip{position:fixed;left:.75rem;right:.75rem;bottom:.75rem;width:auto;max-width:none;max-height:60vh;overflow-y:auto;pointer-events:auto}
-    }
-    @media (max-width:600px){body{padding:1rem}}
+    /* Spécifique à cette page */
+    .chemin { background:var(--survol); padding:.1em .35em; border-radius:3px; font-size:.9rem; }
+    table { width:100%; border-collapse:collapse; background:var(--surface); }
+    th, td { border:1px solid var(--bordure-forte); padding:.75rem 1rem; text-align:left; vertical-align:top; }
+    th { background-color:var(--surface-2); }
+    td code { font-size:.85rem; overflow-wrap:anywhere; }
+    tr.categorie td { background-color:var(--survol); color:var(--primaire-fonce); font-weight:700; padding:.5rem 1rem; }
   </style>
 </head>
 <body>
 
   <h1>Chapitre 3 : les JSP</h1>
-  <p style="text-align:center;color:#555">
+  <p style="text-align:center;color:var(--texte-doux)">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
@@ -206,4 +188,4 @@
   </script>
 
 </body>
-</html>
+</html>

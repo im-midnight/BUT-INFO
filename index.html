@@ -5,42 +5,66 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BUT INFO2</title>
+  <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/site.js"></script>
   <script src="js/script.js" defer></script>
 </head>
-<body>
+<body class="accueil">
   <!--
     ARCHITECTURE DU PROJET
-    menu-but-info/
     ├── index.html            ce sommaire (ne change pas)
-    ├── css/style.css         palette, grille et cartes
-    ├── js/script.js          tableau des matières : c'est le SEUL fichier à modifier
-    └── pages/                une page par matière
-        ├── mathematiques.html
-        └── architecture.html
+    ├── theme.html            choix du thème
+    ├── css/themes.css        toutes les couleurs (12 thèmes, sombre, high contrast)
+    ├── css/style.css         mise en forme commune à toutes les pages
+    ├── js/script.js          matières et pages : c'est le SEUL fichier à modifier
+    ├── js/site.js            thème, barre du haut, précédent/suivant, code
+    └── pages/                une page par cours
   -->
   <header class="entete">
     <div class="conteneur">
-      <h1>BUT INFO2</h1>
-      <p class="sous-titre">Sommaire des matières</p>
+      <div>
+        <h1>BUT INFO2</h1>
+        <p class="sous-titre">Sommaire des matières</p>
+      </div>
+      <div data-bouton-theme class="slot-theme"></div>
     </div>
   </header>
+
   <main class="conteneur">
+    <form class="recherche" id="recherche" role="search" autocomplete="off">
+      <label for="recherche-champ" class="visuellement-cache">Rechercher un cours ou une notion</label>
+      <div class="recherche__ligne">
+        <svg class="recherche__loupe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <input id="recherche-champ" type="search" placeholder="Rechercher un cours, une notion, un TP…"
+          role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions">
+        <button type="button" class="recherche__effacer" id="recherche-effacer" aria-label="Effacer la recherche" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+        <kbd class="raccourci" title="Appuie sur / pour chercher">/</kbd>
+        <button type="submit" class="recherche__envoyer">Rechercher</button>
+      </div>
+      <ul class="suggestions" id="suggestions" role="listbox" aria-label="Suggestions" hidden></ul>
+    </form>
+
+    <div class="filtres">
+      <fieldset class="filtre" id="filtre-semestre"><legend>Semestre</legend></fieldset>
+      <fieldset class="filtre" id="filtre-type"><legend>Type</legend></fieldset>
+    </div>
+
     <!-- Liste volontairement vide : js/script.js y crée un <li> par matière.
          Pour ajouter une matière, ne rien écrire ici, voir le tableau `matieres`. -->
     <ul class="grille" id="liste-matieres"></ul>
+    <section class="resultats" id="resultats" aria-label="Résultats de recherche" hidden></section>
   </main>
-  <footer>
-    <div class="footer">
-      <div class="row">
-        <ul>
-          <li><a href="politique.html">Politique de confidentialité</a></li>
-          <li><a href="mentions-legales.html">Crédits et mentions légales</a></li>
-        </ul>
-      </div>
-      <div data-i18n="row" class="row">
-        © 2026 Les étudiants en BUT Info 2 - Tous Droits Réservés
-      </div>
+
+  <footer class="pied">
+    <div class="pied__contenu">
+      <ul>
+        <li><a href="politique.html">Politique de confidentialité</a></li>
+        <li><a href="mentions-legales.html">Crédits et mentions légales</a></li>
+      </ul>
+      <p>© 2026 Les étudiants en BUT Info 2 - Tous droits réservés</p>
     </div>
   </footer>
 </body>

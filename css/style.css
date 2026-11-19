@@ -1,17 +1,21 @@
-/* PALETTE : toutes les couleurs sont ici, nulle part ailleurs.
-   Changer la palette = modifier ces variables. */
-:root {
-  --fond: #f9fafb;
-  --titre: #2b2c34;
-  --paragraphe: #2b2c34;
-  --accent: #3da9fc;
-  --secondaire: #90b4ce;
-  --survol: color-mix(in srgb, var(--accent) 10%, var(--fond));
-  --marge: clamp(1rem, 4vw, 2rem);
-  --police: "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  color-scheme: light;
-}
+/* Les couleurs sont dans css/themes.css. Ce fichier ne contient que la mise en forme. */
 
+
+/* █████████████████████████████████████████████████████████████████████
+   1. BASE
+   █████████████████████████████████████████████████████████████████████ */
+
+:root {
+  --marge: clamp(1rem, 4vw, 2rem);
+  --largeur: 60rem;
+  --largeur-cours: 53rem;
+  --police: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --police-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --rayon: 8px;
+  --ombre: 0 1px 3px color-mix(in srgb, #000 6%, transparent);
+  --vite: 0.18s;
+  --doux: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
 *,
 *::before,
@@ -19,31 +23,277 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 1rem;
+}
+
 body {
   margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background: var(--fond);
-  color: var(--paragraphe);
+  color: var(--texte);
   font-family: var(--police);
   font-size: 1rem;
   line-height: 1.6;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+}
+
+a {
+  color: var(--primaire);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .conteneur {
-  width: min(100% - 2 * var(--marge), 60rem);
+  width: min(100% - 2 * var(--marge), var(--largeur));
   margin-inline: auto;
 }
+
+[hidden] {
+  display: none !important;
+}
+
+.visuellement-cache {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Fondu pendant un changement de thème (si le navigateur ne gère pas les View Transitions) */
+html.fondu-theme,
+html.fondu-theme *,
+html.fondu-theme *::before,
+html.fondu-theme *::after {
+  transition: background-color 0.45s ease, color 0.45s ease, border-color 0.45s ease,
+    fill 0.45s ease, stroke 0.45s ease, box-shadow 0.45s ease !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: ease;
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   2. BARRE DU HAUT (toutes les pages sauf l'accueil)
+   Fil d'Ariane sur PC, simple lien retour sur téléphone.
+   █████████████████████████████████████████████████████████████████████ */
+
+.barre-site {
+  width: min(100% - 2 * var(--marge), var(--largeur-cours));
+  margin: 0 auto;
+  padding: 0.9rem 0 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 2px solid var(--secondaire);
+}
+
+.fil-ariane {
+  min-width: 0;
+}
+
+.fil-ariane ol {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.95rem;
+}
+
+.fil-ariane li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.fil-ariane li + li::before {
+  content: "›";
+  color: var(--texte-doux);
+}
+
+.fil-ariane a {
+  color: var(--texte);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.fil-ariane a:hover {
+  color: var(--primaire);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.fil-ariane li:first-child a {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.fil-ariane [aria-current="page"] {
+  color: var(--texte-doux);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 22rem;
+}
+
+.retour-mobile {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  color: var(--texte);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.retour-mobile svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+@media (max-width: 40rem) {
+  .fil-ariane ol {
+    display: none;
+  }
+
+  .retour-mobile {
+    display: inline-flex;
+  }
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   3. BOUTON THÈME (le pinceau)
+   Rond au repos. Au survol il s'allonge, le pinceau roule
+   et le mot « Thème » se peint derrière lui.
+   █████████████████████████████████████████████████████████████████████ */
+
+.slot-theme {
+  position: relative;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/* Le bouton fait toute sa largeur en permanence, clip-path n'en montre que le rond de droite */
+.btn-theme {
+  --ouvert: 7.4rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--ouvert);
+  height: 2.75rem;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  padding: 0 0.625rem 0 0.95rem;
+  border-radius: 999px;
+  background: var(--primaire);
+  color: var(--primaire-texte);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+  clip-path: inset(0 0 0 calc(var(--ouvert) - 2.75rem) round 999px);
+  transition: clip-path 0.5s var(--doux), box-shadow 0.3s ease;
+  z-index: 5;
+}
+
+.btn-theme__icone {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: transform 0.6s var(--doux);
+}
+
+/* « Thème » sort de sous le pinceau, de droite à gauche */
+.btn-theme__texte {
+  clip-path: inset(0 0 0 100%);
+  opacity: 0;
+  transform: translateX(0.75rem);
+  transition: clip-path 0.45s var(--doux) 0.05s, opacity 0.25s ease 0.05s,
+    transform 0.45s var(--doux) 0.05s;
+}
+
+@media (hover: hover) {
+  .btn-theme:hover,
+  .btn-theme:focus-visible {
+    clip-path: inset(0 0 0 0 round 999px);
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--primaire) 35%, transparent);
+  }
+
+  /* Le pinceau roule vers la droite : un tour dans le sens des aiguilles d'une montre */
+  .btn-theme:hover .btn-theme__icone,
+  .btn-theme:focus-visible .btn-theme__icone {
+    transform: rotate(360deg);
+  }
+
+  .btn-theme:hover .btn-theme__texte,
+  .btn-theme:focus-visible .btn-theme__texte {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Écran tactile : pas de survol, juste le rond */
+@media (hover: none) {
+  .btn-theme {
+    width: 2.75rem;
+    padding: 0;
+    justify-content: center;
+    clip-path: none;
+  }
+
+  .btn-theme__texte {
+    display: none;
+  }
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   4. ACCUEIL : titre, recherche, filtres, grille des matières
+   █████████████████████████████████████████████████████████████████████ */
 
 .entete {
   padding-top: clamp(1.5rem, 6vw, 2.25rem);
 }
 
 .entete .conteneur {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   padding-bottom: 1.25rem;
   border-bottom: 2px solid var(--secondaire);
 }
 
-h1 {
+.entete h1 {
   margin: 0 0 0.5rem;
   color: var(--titre);
   font-size: clamp(2rem, 7vw, 3.25rem);
@@ -52,15 +302,283 @@ h1 {
   letter-spacing: -0.03em;
 }
 
-.sous-titre {
+.entete .sous-titre {
   margin: 0;
   max-width: 60ch;
-  color: var(--paragraphe);
 }
 
-main {
+.entete .slot-theme {
+  margin-top: 0.4rem;
+}
+
+.accueil main {
+  flex: 1;
   padding-block: 1.5rem clamp(2rem, 8vw, 4rem);
 }
+
+/* ── Recherche ─────────────────────────────────────────────────────── */
+
+.recherche {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.recherche__ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3.25rem;
+  padding: 0 0.4rem 0 0.9rem;
+  border: 2px solid var(--bordure-forte);
+  border-radius: 12px;
+  background: var(--surface);
+  transition: border-color var(--vite) ease, box-shadow var(--vite) ease;
+}
+
+.recherche__ligne:focus-within {
+  border-color: var(--primaire);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primaire) 18%, transparent);
+}
+
+.recherche__loupe {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--texte-doux);
+}
+
+.recherche input {
+  flex: 1;
+  min-width: 0;
+  height: 3rem;
+  border: 0;
+  background: transparent;
+  color: var(--texte);
+  font: inherit;
+  font-size: 1.05rem;
+}
+
+.recherche input:focus {
+  outline: none;
+}
+
+.recherche input::placeholder {
+  color: var(--texte-doux);
+}
+
+.recherche input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.recherche__effacer,
+.recherche__envoyer {
+  flex: none;
+  min-height: 2.5rem;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.recherche__effacer {
+  width: 2.5rem;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--texte-doux);
+}
+
+.recherche__effacer:hover {
+  background: var(--survol);
+  color: var(--texte);
+}
+
+.recherche__effacer svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.recherche__envoyer {
+  padding: 0 1rem;
+  background: var(--primaire);
+  color: var(--primaire-texte);
+}
+
+.recherche__envoyer:hover {
+  background: var(--primaire-fonce);
+  color: #fff;
+}
+
+[data-mode="sombre"] .recherche__envoyer:hover,
+[data-hc="on"] .recherche__envoyer:hover {
+  color: var(--primaire-texte);
+}
+
+.raccourci {
+  flex: none;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--bordure-forte);
+  border-radius: 5px;
+  color: var(--texte-doux);
+  font-family: var(--police-code);
+  font-size: 0.8rem;
+}
+
+@media (hover: none), (max-width: 40rem) {
+  .raccourci {
+    display: none;
+  }
+}
+
+@media (max-width: 30rem) {
+  .recherche__envoyer {
+    display: none;
+  }
+}
+
+/* Suggestions sous le champ */
+.suggestions {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  border: 1px solid var(--bordure-forte);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 14px 34px color-mix(in srgb, #000 16%, transparent);
+  max-height: min(26rem, 60vh);
+  overflow-y: auto;
+}
+
+.suggestions[hidden] {
+  display: none;
+}
+
+.suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.suggestion[aria-selected="true"],
+.suggestion:hover {
+  background: var(--survol);
+}
+
+.suggestion__titre {
+  display: block;
+  font-weight: 700;
+  color: var(--titre);
+}
+
+.suggestion__lieu {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--texte-doux);
+}
+
+.suggestion mark,
+.resultat mark {
+  padding: 0;
+  background: transparent;
+  color: var(--primaire);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.suggestions__tout {
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--bordure);
+  border-radius: 0 0 8px 8px;
+  color: var(--primaire);
+  font-weight: 700;
+}
+
+.suggestions__vide {
+  padding: 0.75rem;
+  color: var(--texte-doux);
+}
+
+/* ── Filtres ───────────────────────────────────────────────────────── */
+
+.filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filtre {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.filtre legend {
+  float: left;
+  margin-right: 0.35rem;
+  padding: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--texte-doux);
+}
+
+.puce {
+  position: relative;
+}
+
+.puce input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.puce span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1.5px solid var(--bordure-forte);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.92rem;
+  font-weight: 600;
+  transition: background-color var(--vite) ease, border-color var(--vite) ease, color var(--vite) ease;
+}
+
+.puce input:hover + span {
+  border-color: var(--primaire);
+}
+
+.puce input:checked + span {
+  background: var(--primaire);
+  border-color: var(--primaire);
+  color: var(--primaire-texte);
+}
+
+.puce input:focus-visible + span {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ── Grille des matières ───────────────────────────────────────────── */
 
 .grille {
   display: grid;
@@ -73,25 +591,21 @@ main {
 
 .carte {
   display: grid;
-  grid-template-columns: 1fr;
   align-content: start;
   height: 100%;
-  padding: 0.875rem 1rem;
-  border-left: 4px solid var(--accent);
+  padding: 0.875rem 1rem 0.875rem 1.1rem;
+  border-left: 4px solid var(--barre);
+  border-radius: 0 var(--rayon) var(--rayon) 0;
   background: var(--fond);
   color: inherit;
   text-decoration: none;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--vite) ease, border-left-width var(--vite) ease;
 }
 
 .carte:hover,
 .carte:focus-visible {
   background: var(--survol);
-}
-
-.carte:focus-visible {
-  outline: 3px solid var(--titre);
-  outline-offset: 2px;
+  border-left-width: 7px;
 }
 
 .carte__titre {
@@ -106,59 +620,608 @@ main {
   margin: 0.25rem 0 0;
 }
 
-/* ── À AJOUTER aux règles existantes (footer collé en bas de page) ──
-   body { min-height: 100dvh; display: flex; flex-direction: column; }
-   main { flex: 1; }
-*/
+/* ── Résultats de recherche ────────────────────────────────────────── */
 
-/* ── Footer : remplace tout depuis l'ancien "footer {" jusqu'à la fin du fichier ── */
-/* ── Footer collé en bas de page ──
-   À mettre APRÈS tes règles body et main existantes (en fin de fichier suffit). */
-body {
-  min-height: 100vh;
-  min-height: 100dvh;
+.resultats[hidden],
+.grille[hidden] {
+  display: none;
+}
+
+.resultats__compte {
+  margin: 0 0 0.75rem;
+  color: var(--texte-doux);
+  font-weight: 600;
+}
+
+.resultats ol {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resultat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--bordure);
+  border-left: 4px solid var(--barre);
+  border-radius: 0 var(--rayon) var(--rayon) 0;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--vite) ease;
+}
+
+.resultat:hover {
+  background: var(--survol);
+}
+
+.resultat__titre {
+  display: block;
+  color: var(--titre);
+  font-weight: 700;
+}
+
+.resultat__lieu {
+  display: block;
+  color: var(--texte-doux);
+  font-size: 0.9rem;
+}
+
+.type {
+  flex: none;
+  padding: 0.1rem 0.6rem;
+  border: 1.5px solid var(--primaire);
+  border-radius: 999px;
+  color: var(--primaire);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.resultats__vide {
+  padding: 1.25rem;
+  border: 2px dashed var(--bordure-forte);
+  border-radius: var(--rayon);
+}
+
+.resultats__vide p {
+  margin: 0 0 0.75rem;
+}
+
+.lien-bouton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primaire);
+  color: var(--primaire-texte);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   5. PAGES DE COURS : mise en page commune
+   Le contenu est posé directement dans <body>, on le centre ici.
+   █████████████████████████████████████████████████████████████████████ */
+
+body:not(.accueil) > :where(:not(.barre-site, .pied, .navigation-cours, #tooltip, script, style, template)) {
+  width: min(100% - 2 * var(--marge), var(--largeur-cours));
+  margin-inline: auto;
+}
+
+body:not(.accueil) > h1 {
+  margin-top: 2rem;
+}
+
+body:not(.accueil) > :last-child:not(.pied) {
+  margin-bottom: 3rem;
+}
+
+:where(body:not(.accueil)) h1 {
+  margin: 1.5rem 0 1.25rem;
+  color: var(--titre);
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+:where(body:not(.accueil)) h2 {
+  margin-top: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bordure);
+  color: var(--primaire-fonce);
+  font-size: 1.25rem;
+  text-wrap: balance;
+  scroll-margin-top: 1rem;
+}
+
+:where(body:not(.accueil)) h3 {
+  color: var(--titre);
+}
+
+:where(body:not(.accueil)) :is(ul, ol) {
+  padding-left: 1.25rem;
+}
+
+:where(body:not(.accueil)) li {
+  margin-bottom: 0.5rem;
+}
+
+strong,
+b {
+  color: var(--titre);
+}
+
+.subtitle,
+body:not(.accueil) .sous-titre {
+  text-align: center;
+  color: var(--texte-doux);
+  margin-bottom: 2rem;
+}
+
+/* Blocs de cours (chaque page a gardé son nom de classe) */
+.loi-card,
+.carte-cours,
+.card,
+body:not(.accueil) .carte {
+  display: block;
+  height: auto;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  box-shadow: var(--ombre);
+  overflow-x: auto;
+  min-width: 0;
+}
+
+body:not(.accueil) .carte:hover {
+  border-left-width: 1px;
+  background: var(--surface);
+}
+
+@media (max-width: 37.5rem) {
+  .loi-card,
+  .carte-cours,
+  .card,
+  body:not(.accueil) .carte {
+    padding: 1rem 1.1rem;
+  }
+}
+
+/* Tableaux */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  margin-top: 1rem;
+}
+
+th,
+td {
+  border: 1px solid var(--bordure-forte);
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: var(--surface-2);
+  color: var(--titre);
+}
+
+.table-container,
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1rem;
+  border: 1px solid var(--bordure);
+  border-radius: 6px;
+}
+
+.table-container table,
+.table-wrapper table {
+  margin-top: 0;
+}
+
+mark {
+  background: var(--surligne);
+  color: inherit;
+  padding: 0.1em 0.25em;
+  border-radius: 3px;
+}
+
+/* ── Termes interactifs et infobulle ───────────────────────────────── */
+
+.terme {
+  color: var(--primaire);
+  font-weight: 600;
+  border-bottom: 2px dotted var(--primaire);
+  cursor: help;
+  transition: background-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.terme:hover,
+.terme:focus {
+  background-color: var(--survol);
+}
+
+#tooltip {
+  position: absolute;
+  display: none;
+  width: 380px;
+  max-width: 90vw;
+  padding: 1rem 1.25rem;
+  border-radius: var(--rayon);
+  background: var(--tip-fond);
+  color: var(--tip-texte);
+  box-shadow: 0 10px 25px color-mix(in srgb, #000 25%, transparent);
+  z-index: 1000;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+[data-hc="on"] #tooltip {
+  border: 2px solid var(--bordure);
+}
+
+#tooltip h3 {
+  margin: 0 0 0.5rem;
+  color: var(--tip-titre);
+  font-size: 1.05rem;
+}
+
+#tooltip p {
+  margin: 0 0 0.5rem;
+}
+
+#tooltip p:last-child {
+  margin-bottom: 0;
+}
+
+#tooltip strong {
+  color: inherit;
+}
+
+#tooltip code {
+  background: color-mix(in srgb, #fff 14%, transparent);
+  color: inherit;
+}
+
+.def-bloc {
+  display: none;
+}
+
+.def-bloc.actif {
+  display: block;
+}
+
+.astuce-tactile {
+  display: none;
+}
+
+@media (hover: none) {
+  .astuce-souris {
+    display: none;
+  }
+
+  .astuce-tactile {
+    display: inline;
+  }
+
+  #tooltip {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    width: auto;
+    max-width: none;
+    max-height: 60vh;
+    overflow-y: auto;
+    pointer-events: auto;
+  }
+}
+
+/* ── Encadrés ──────────────────────────────────────────────────────── */
+/* .a-retenir : l'essentiel à savoir
+   .astuce, .note-box, .intro-note, .demo-box : remarque ou exemple
+   .piege, .warning-box, .alerte-box : erreur fréquente */
+
+.a-retenir,
+.astuce,
+.note-box,
+.intro-note,
+.demo-box,
+.piege,
+.warning-box,
+.alerte-box {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid var(--barre);
+  border-radius: 0 6px 6px 0;
+  background: var(--info-fond);
+}
+
+.a-retenir {
+  border: 2px solid var(--primaire);
+  border-left-width: 6px;
+  background: var(--surface);
+}
+
+.a-retenir::before {
+  content: "À retenir";
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--primaire);
+  font-weight: 800;
+}
+
+.piege,
+.warning-box,
+.alerte-box {
+  border-left-color: var(--attention);
+  background: var(--attention-fond);
+}
+
+.a-retenir > :last-child,
+.astuce > :last-child,
+.note-box > :last-child,
+.intro-note > :last-child,
+.demo-box > :last-child,
+.piege > :last-child,
+.warning-box > :last-child,
+.alerte-box > :last-child {
+  margin-bottom: 0;
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   6. PAGES SOMMAIRE D'UNE MATIÈRE (cartes avec bouton « Accéder »)
+   █████████████████████████████████████████████████████████████████████ */
+
+.menu-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16.25rem), 1fr));
+  gap: 1.5rem;
+}
+
+.menu-card {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  box-shadow: var(--ombre);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
-main {
-  flex: 1;
+.menu-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px color-mix(in srgb, #000 8%, transparent);
 }
 
-/* ── Footer ── */
-footer {
-  background: #272343;
+.btn-lien {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  background: var(--primaire);
+  color: var(--primaire-texte);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.btn-lien:hover {
+  background: var(--primaire-fonce);
+  color: #fff;
+}
+
+[data-mode="sombre"] .btn-lien:hover,
+[data-hc="on"] .btn-lien:hover {
+  background: var(--titre);
   color: var(--fond);
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   7. CODE : blocs, coloration syntaxique, bouton copier
+   █████████████████████████████████████████████████████████████████████ */
+
+code {
+  font-family: var(--police-code);
+  background: var(--code-inline-fond);
+  color: var(--code-inline-texte);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.88em;
+}
+
+pre {
+  position: relative;
+  margin: 0.75rem 0;
+  padding: 1rem;
+  border-radius: 6px;
+  background: var(--code-fond);
+  color: var(--code-texte);
+  font-family: var(--police-code);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  max-width: 100%;
+  tab-size: 4;
+}
+
+[data-hc="on"] pre {
+  border: 1px solid var(--bordure);
+}
+
+pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+}
+
+.bloc-code {
+  position: relative;
+  margin: 0.75rem 0;
+}
+
+.bloc-code pre {
+  margin: 0;
+  padding-top: 2.6rem;
+}
+
+.btn-copier {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--code-texte) 22%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--code-fond) 80%, #fff 6%);
+  color: var(--code-texte);
+  font: 600 0.8rem var(--police);
+  cursor: pointer;
+  transition: background-color var(--vite) ease, border-color var(--vite) ease;
+}
+
+.btn-copier:hover {
+  background: color-mix(in srgb, var(--code-texte) 14%, var(--code-fond));
+}
+
+.btn-copier svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.btn-copier.copie {
+  border-color: var(--sx-chaine);
+  color: var(--sx-chaine);
+}
+
+/* Couleurs des mots du code (désactivables dans la page Thème) */
+.sx-mot { color: var(--sx-mot); font-weight: 600; }
+.sx-type { color: var(--sx-type); }
+.sx-chaine { color: var(--sx-chaine); }
+.sx-nombre { color: var(--sx-nombre); }
+.sx-commentaire { color: var(--sx-commentaire); font-style: italic; }
+.sx-annotation { color: var(--sx-annotation); }
+.sx-fonction { color: var(--sx-fonction); }
+.sx-balise { color: var(--sx-balise); }
+
+[data-syntaxe="off"] :is(.sx-mot, .sx-type, .sx-chaine, .sx-nombre, .sx-commentaire,
+  .sx-annotation, .sx-fonction, .sx-balise) {
+  color: inherit;
+  font-weight: inherit;
+  font-style: inherit;
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   8. PRÉCÉDENT / SUIVANT (bas des pages de cours)
+   █████████████████████████████████████████████████████████████████████ */
+
+.navigation-cours {
+  width: min(100% - 2 * var(--marge), var(--largeur-cours));
+  margin: 1rem auto 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem;
+}
+
+.navigation-cours a {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--vite) ease, border-color var(--vite) ease;
+}
+
+.navigation-cours a:hover {
+  background: var(--survol);
+  border-color: var(--primaire);
+}
+
+.navigation-cours .suivant {
+  grid-column: 2;
+  text-align: right;
+}
+
+.navigation-cours small {
+  color: var(--texte-doux);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.navigation-cours span {
+  color: var(--titre);
+  font-weight: 700;
+}
+
+@media (max-width: 34rem) {
+  .navigation-cours {
+    grid-template-columns: 1fr;
+  }
+
+  .navigation-cours .suivant {
+    grid-column: 1;
+  }
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   9. PIED DE PAGE
+   █████████████████████████████████████████████████████████████████████ */
+
+.pied {
+  margin-top: auto;
   padding: 1.5rem var(--marge);
-  font-family: var(--police);
+  background: var(--footer-fond);
+  color: var(--footer-texte);
   text-align: center;
 }
 
-.footer {
+[data-hc="on"] .pied {
+  border-top: 2px solid var(--bordure);
+}
+
+.pied__contenu {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.25rem;
-  width: min(100%, 60rem);
+  width: min(100%, var(--largeur));
   margin-inline: auto;
 }
 
-.footer .row {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* ligne du copyright */
-.footer .row:last-child {
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
-  opacity: 0.8;
-}
-
-/* liens */
-.footer .row ul {
+.pied ul {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -168,47 +1231,366 @@ footer {
   list-style: none;
 }
 
-.footer .row ul li a {
+.pied li {
+  margin: 0;
+}
+
+.pied ul a {
   display: inline-block;
   padding: 8px 18px;
   border-radius: 100px;
-  background: var(--fond);
-  color: var(--titre);
+  background: var(--footer-texte);
+  color: var(--footer-fond);
   font-size: 0.9rem;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-decoration: none;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.footer .row ul li a:hover,
-.footer .row ul li a:focus-visible {
-  background: var(--accent);
+.pied ul a:hover,
+.pied ul a:focus-visible {
+  background: var(--barre);
+  color: #111;
   transform: translateY(-3px);
 }
 
-.footer .row ul li a:focus-visible {
-  outline: 3px solid var(--fond);
+.pied ul a:focus-visible {
+  outline-color: var(--footer-texte);
   outline-offset: 3px;
 }
 
+.pied p {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   10. PAGE THÈME
+   █████████████████████████████████████████████████████████████████████ */
+
+.page-theme main {
+  flex: 1;
+  width: min(100% - 2 * var(--marge), var(--largeur-cours));
+  margin: 0 auto;
+  padding-bottom: 3rem;
+}
+
+.page-theme h1 {
+  margin: 1.75rem 0 0.4rem;
+  text-align: left;
+}
+
+.page-theme .intro {
+  margin: 0 0 2rem;
+  color: var(--texte-doux);
+}
+
+.reglage {
+  margin: 0 0 1.75rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  box-shadow: var(--ombre);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.reglage h2 {
+  margin-bottom: 1rem;
+}
+
+.reglage h3 {
+  margin: 1.25rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.reglage h3:first-of-type {
+  margin-top: 0;
+}
+
+.reglage__aide {
+  margin: 0 0 0.75rem;
+  color: var(--texte-doux);
+  font-size: 0.92rem;
+}
+
+.reglage.desactive {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.nuancier {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 7.25rem), 1fr));
+  gap: 0.75rem;
+}
+
+.nuance {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem 0.5rem 0.6rem;
+  border: 2px solid var(--bordure);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--vite) ease, transform var(--vite) ease;
+}
+
+.nuance:hover {
+  border-color: var(--bordure-forte);
+  transform: translateY(-2px);
+}
+
+.nuance[aria-checked="true"] {
+  border-color: var(--primaire);
+  box-shadow: 0 0 0 2px var(--primaire);
+}
+
+.nuance__apercu {
+  position: relative;
+  display: block;
+  height: 3.5rem;
+  border: 1px solid color-mix(in srgb, #000 10%, transparent);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--fond);
+}
+
+.nuance__apercu i {
+  position: absolute;
+  display: block;
+}
+
+.nuance__apercu .a-barre {
+  left: 0.5rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 4px;
+  background: var(--barre);
+}
+
+.nuance__apercu .a-titre {
+  left: 1rem;
+  top: 0.65rem;
+  width: 55%;
+  height: 0.5rem;
+  border-radius: 2px;
+  background: var(--primaire-fonce);
+}
+
+.nuance__apercu .a-texte {
+  left: 1rem;
+  top: 1.5rem;
+  width: 40%;
+  height: 0.35rem;
+  border-radius: 2px;
+  background: var(--texte);
+  opacity: 0.55;
+}
+
+.nuance__apercu .a-bouton {
+  right: 0.5rem;
+  bottom: 0.5rem;
+  width: 1.6rem;
+  height: 0.9rem;
+  border-radius: 3px;
+  background: var(--primaire);
+}
+
+.nuance__apercu .a-pied {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0.3rem;
+  background: var(--footer-fond);
+}
+
+.nuance__nom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-inline: 0.15rem;
+}
+
+.nuance__coche {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--primaire);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity var(--vite) ease, transform var(--vite) var(--doux);
+}
+
+.nuance[aria-checked="true"] .nuance__coche {
+  opacity: 1;
+  transform: none;
+}
+
+/* Choix clair / sombre */
+.segment {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.25rem;
+  border: 1.5px solid var(--bordure-forte);
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.segment button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0 1.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--texte);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.segment button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.segment button[aria-pressed="true"] {
+  background: var(--primaire);
+  color: var(--primaire-texte);
+}
+
+/* Interrupteurs */
+.interrupteur + .interrupteur {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bordure);
+}
+
+.interrupteur {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.interrupteur__texte {
+  font-weight: 700;
+}
+
+.interrupteur__texte small {
+  display: block;
+  color: var(--texte-doux);
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.interrupteur button {
+  position: relative;
+  flex: none;
+  width: 3.25rem;
+  height: 1.9rem;
+  border: 2px solid var(--bordure-forte);
+  border-radius: 999px;
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.interrupteur button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0.2rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: var(--texte-doux);
+  transform: translateY(-50%);
+  transition: transform 0.3s var(--doux), background-color 0.25s ease;
+}
+
+.interrupteur button[aria-checked="true"] {
+  background: var(--primaire);
+  border-color: var(--primaire);
+}
+
+.interrupteur button[aria-checked="true"]::after {
+  background: var(--primaire-texte);
+  transform: translate(1.3rem, -50%);
+}
+
+.apercu-theme {
+  margin-top: 0.5rem;
+}
+
+.apercu-theme .loi-card {
+  margin-bottom: 0;
+}
+
+.apercu-theme .bloc-code {
+  margin-bottom: 0;
+}
+
+.reinitialiser {
+  border: 1.5px solid var(--bordure-forte);
+  background: transparent;
+  color: var(--texte);
+}
+
+.reinitialiser:hover {
+  border-color: var(--primaire);
+  color: var(--primaire);
+}
+
+
+/* █████████████████████████████████████████████████████████████████████
+   11. ANIMATIONS RÉDUITES ET IMPRESSION
+   █████████████████████████████████████████████████████████████████████ */
+
 @media (prefers-reduced-motion: reduce) {
-  .carte,
-  .footer .row ul li a {
-    transition: none;
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
-  .footer .row ul li a:hover,
-  .footer .row ul li a:focus-visible {
-    transform: none;
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 }
 
-@media (max-width: 720px) {
-  footer {
-    padding: 1.5rem var(--marge);
+@media print {
+  .barre-site,
+  .navigation-cours,
+  .pied,
+  .btn-copier,
+  #tooltip {
+    display: none !important;
+  }
+
+  pre {
+    white-space: pre-wrap;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .carte {
-    transition: none;
-  }
+
+/* Cases surlignées à la main dans le HTML (style="background:#…") : texte foncé pour rester lisible */
+:is([data-mode="sombre"], [data-hc="on"]) [style*="background:#"],
+:is([data-mode="sombre"], [data-hc="on"]) [style*="background:#"] * {
+  color: #111 !important;
 }

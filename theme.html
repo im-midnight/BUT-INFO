@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thème · BUT INFO2</title>
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/site.js"></script>
+  <script src="js/script.js" defer></script>
+  <script src="js/theme.js" defer></script>
+</head>
+<body class="page-theme">
+  <main>
+    <h1>Thème</h1>
+    <p class="intro">Ton choix est gardé sur cet appareil et s'applique à toutes les pages.</p>
+
+    <section class="reglage" id="reglage-couleurs" aria-labelledby="titre-couleurs">
+      <h2 id="titre-couleurs">Couleurs</h2>
+
+      <h3 id="titre-blanc">Fond blanc</h3>
+      <p class="reglage__aide">Le fond et le texte ne bougent pas, seules les couleurs d'accent changent.</p>
+      <div class="nuancier" role="radiogroup" aria-labelledby="titre-blanc" data-groupe="blanc"></div>
+
+      <h3 id="titre-teinte">Fond teinté</h3>
+      <p class="reglage__aide">Le fond prend une couleur douce, le texte reste noir.</p>
+      <div class="nuancier" role="radiogroup" aria-labelledby="titre-teinte" data-groupe="teinte"></div>
+    </section>
+
+    <section class="reglage" id="reglage-mode" aria-labelledby="titre-mode">
+      <h2 id="titre-mode">Clair ou sombre</h2>
+      <p class="reglage__aide">Le mode sombre existe pour chacune des 12 couleurs.</p>
+      <div class="segment" role="group" aria-labelledby="titre-mode">
+        <button type="button" data-choix="clair" aria-pressed="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Clair
+        </button>
+        <button type="button" data-choix="sombre" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>
+          Sombre
+        </button>
+      </div>
+    </section>
+
+    <section class="reglage" aria-labelledby="titre-acces">
+      <h2 id="titre-acces">Lisibilité</h2>
+      <div class="interrupteur">
+        <span class="interrupteur__texte" id="texte-hc">High contrast
+          <small>Fond noir, texte blanc, contours très visibles. Remplace les couleurs ci-dessus.</small>
+        </span>
+        <button type="button" role="switch" id="choix-hc" aria-checked="false" aria-labelledby="texte-hc"></button>
+      </div>
+      <div class="interrupteur">
+        <span class="interrupteur__texte" id="texte-syntaxe">Coloration syntaxique
+          <small>Met en couleur les mots-clés, les chaînes et les commentaires dans les blocs de code.</small>
+        </span>
+        <button type="button" role="switch" id="choix-syntaxe" aria-checked="true" aria-labelledby="texte-syntaxe"></button>
+      </div>
+    </section>
+
+    <section class="reglage" aria-labelledby="titre-apercu">
+      <h2 id="titre-apercu">Aperçu</h2>
+      <div class="apercu-theme">
+        <div class="loi-card">
+          <h2>1. La structure minimale</h2>
+          <p>En Java, tout le code vit dans une <span class="terme">classe</span>. Le fichier <code>Main.java</code> porte le nom de la classe publique.</p>
+          <div class="a-retenir"><p>Une classe publique par fichier, avec le même nom que le fichier.</p></div>
+<pre><code>public class Main {
+    // Point d'entrée du programme
+    public static void main(String[] args) {
+        int annee = 2026;
+        System.out.println("Bonjour le monde !");
+    }
+}</code></pre>
+          <a class="btn-lien" href="index.html">Retour aux cours</a>
+        </div>
+      </div>
+    </section>
+
+    <button type="button" class="lien-bouton reinitialiser" id="reinitialiser">Revenir au thème d'origine</button>
+  </main>
+</body>
+</html>
