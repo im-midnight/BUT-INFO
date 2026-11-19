@@ -714,16 +714,12 @@ html.fondu-theme *::after {
    █████████████████████████████████████████████████████████████████████ */
 
 body:not(.accueil) > :where(:not(.barre-site, .pied, .navigation-cours, #tooltip, script, style, template)) {
-  width: min(100% - 2 * var(--marge), var(--largeur-cours));
+  width: 100%;
   margin-inline: auto;
 }
 
 body:not(.accueil) > h1 {
   margin-top: 2rem;
-}
-
-body:not(.accueil) > :last-child:not(.pied) {
-  margin-bottom: 3rem;
 }
 
 :where(body:not(.accueil)) h1 {
