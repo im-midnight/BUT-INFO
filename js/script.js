@@ -20,10 +20,38 @@ const matieres = [
     semestre: "S3",
   },
   {
+    id: "analyse",
+    titre: "R303 - Analyse",
+    description: "Rien n'a encore été ajouté.",
+    lien: "pages/analyse/indexAnalyse.html",
+    semestre: "S3",
+  },
+  {
     id: "qualite-dev",
     titre: "R304 - Qualité de développement",
     description: "Liste de tous les designs et implementations",
     lien: "pages/designPattern/DP.html",
+    semestre: "S3",
+  },
+  {
+    id: "prog-systeme",
+    titre: "R305 - Programmation système",
+    description: "Rien n'a encore été ajouté.",
+    lien: "pages/progSysteme/indexProgSysteme.html",
+    semestre: "S3",
+  },
+  {
+    id: "reseaux",
+    titre: "R306 - Architecture des réseaux",
+    description: "Rien n'a encore été ajouté.",
+    lien: "pages/reseaux/indexReseaux.html",
+    semestre: "S3",
+  },
+  {
+    id: "sql",
+    titre: "R307 - SQL dans un langage de programmation",
+    description: "Rien n'a encore été ajouté.",
+    lien: "pages/sql/indexSql.html",
     semestre: "S3",
   },
   {
@@ -526,7 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
     vide.className = "resultats__vide";
     vide.setAttribute("role", "status");
     const texte = document.createElement("p");
-    texte.textContent = `Le ${semestre} n'a pas encore commencé. Les cours arriveront ici au fur et à mesure.`;
+    texte.textContent = `Le ${semestre} n'a pas encore commencé. On ajoutera les cours dès qu'ils seront prêts.`;
 
     const bouton = document.createElement("button");
     bouton.type = "button";

@@ -988,6 +988,27 @@ mark {
 }
 
 
+/* Matière sans cours pour l'instant */
+.page-vide {
+  padding: 2rem 1.5rem;
+  border: 2px dashed var(--bordure-forte);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  text-align: center;
+}
+
+.page-vide h2 {
+  border-bottom: 0;
+  padding-bottom: 0;
+  margin-bottom: 0.5rem;
+}
+
+.page-vide p {
+  margin: 0;
+  color: var(--texte-doux);
+}
+
+
 /* █████████████████████████████████████████████████████████████████████
    7. CODE : blocs, coloration syntaxique, bouton copier
    █████████████████████████████████████████████████████████████████████ */
