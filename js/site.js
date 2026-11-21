@@ -63,7 +63,7 @@ const ButInfo = (() => {
 
   // ███ 2. BARRE DU HAUT █████████████████████████████████████████████
 
-  const ICONE_PINCEAU = `<svg class="btn-theme__icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+  const ICONE_PINCEAU = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
     <path d="M20.6 2.3a1.5 1.5 0 0 1 2.1 2.1l-8.4 8.4-2.1-2.1z" fill="currentColor"/>
     <path d="M11.4 11.5l2.1 2.1-1.4 1.4-2.1-2.1z" fill="currentColor"/>
     <path d="M9.2 13.9l1.9 1.9c.5 3.3-2.2 6.3-6.6 6.3-1 0-2-.2-3-.6 1.7-.9 2.3-2.2 2.5-3.8.3-2.6 2.6-4.3 5.2-3.8z" fill="currentColor"/>
@@ -74,7 +74,7 @@ const ButInfo = (() => {
   function boutonTheme() {
     const slot = document.createElement("div");
     slot.className = "slot-theme";
-    slot.innerHTML = `<a class="btn-theme" href="${racine}theme.html" aria-label="Thème">${ICONE_PINCEAU}<span class="btn-theme__texte" aria-hidden="true">Thème</span></a>`;
+    slot.innerHTML = `<a class="btn-theme" href="${racine}theme.html" aria-label="Thème">${ICONE_PINCEAU}</a>`;
     return slot;
   }
 
