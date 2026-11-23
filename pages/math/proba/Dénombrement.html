@@ -5,7 +5,7 @@
   <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dénombrement, Probabilités & Variables Aléatoires — BUT Info</title>
+  <title>Dénombrement, probabilités et variables aléatoires · BUT INFO2</title>
 
   <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
   <script>
@@ -34,9 +34,9 @@
 </head>
 <body>
 
-  <h1>Dénombrement, Probabilités & Variables Aléatoires</h1>
+  <h1>Dénombrement, probabilités et variables aléatoires</h1>
   <p class="subtitle">
-    <em>Support de révision BUT Informatique — Passe la souris sur les <span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="esperance">termes soulignés en bleu</span> pour afficher leur définition.</em>
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="esperance">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
   <!-- 1. LOGIQUE ET ENSEMBLES -->
@@ -124,7 +124,7 @@
 
   <!-- 3. ESPACE PROBABILISÉ & ÉQUIPROBABILITÉ -->
   <section class="loi-card">
-    <h2>3. Espace probabilisé et Équiprobabilité</h2>
+    <h2>3. Espace probabilisé et équiprobabilité</h2>
     <ul>
       <li><strong>Modélisation :</strong> Toute expérience aléatoire est modélisée par un <span class="terme" data-def="espace-proba">espace probabilisé</span> $(\Omega, \mathcal{A}, \mathbb{P})$ composé de :
         <ul>
@@ -144,7 +144,7 @@
 
   <!-- 4. VARIABLES ALÉATOIRES & RÉPARTITION -->
   <section class="loi-card">
-    <h2>4. Variables aléatoires discrètes et Fonction de répartition</h2>
+    <h2>4. Variables aléatoires discrètes et fonction de répartition</h2>
     <ul>
       <li><strong>Qu'est-ce qu'une <span class="terme" data-def="va">variable aléatoire $X$</span> ?</strong> Ce n'est pas un nombre, mais une <strong>fonction</strong> $X : \Omega \to \mathbb{R}$ qui traduit chaque issue concrète $\omega$ (ex. <code>(Pile, Face)</code>) en un score numérique (ex. $1$).</li>
       <li><strong>L'<span class="terme" data-def="univers-image">univers image $X(\Omega)$</span> :</strong> C'est l'ensemble de toutes les valeurs numériques que peut prendre $X$, noté <span class="terme" data-def="comprehension">en compréhension</span> :
@@ -166,7 +166,7 @@ univers_image = { X(omega) for omega in Omega }</code></pre>
 
   <!-- 5. ESPÉRANCE, VARIANCE ET ÉCART-TYPE -->
   <section class="loi-card">
-    <h2>5. Espérance, Variance et Écart-type (sans bloquer sur le symbole $\sum$)</h2>
+    <h2>5. Espérance, variance et écart-type (sans bloquer sur le symbole $\sum$)</h2>
     <p>En informatique, le symbole mathématique <span class="terme" data-def="somme">somme $\sum$</span> n'est rien d'autre qu'une <strong>boucle <code>for</code></strong> qui accumule un total.</p>
 
     <h3>1. L'<span class="terme" data-def="esperance">Espérance $\mathbb{E}(X)$</span> : la moyenne pondérée</h3>
@@ -211,7 +211,7 @@ for k, proba in loi_de_X:
     </div>
 
     <div id="def-union-intersection" class="def-bloc">
-      <h3>Union ($\cup$) et Intersection ($\cap$)</h3>
+      <h3>Union ($\cup$) et intersection ($\cap$)</h3>
       <ul>
         <li><strong>Union $A \cup B$ (« OU ») :</strong> Éléments qui sont dans $A$, dans $B$, ou dans les deux (<code>A || B</code>).</li>
         <li><strong>Intersection $A \cap B$ (« ET ») :</strong> Éléments qui sont simultanément dans $A$ et dans $B$ (<code>A && B</code>).</li>
@@ -341,7 +341,7 @@ for k, proba in loi_de_X:
     </div>
 
     <div id="def-somme" class="def-bloc">
-      <h3>Symbole Somme ($\sum$)</h3>
+      <h3>Symbole somme ($\sum$)</h3>
       <p>Équivalent mathématique d'une boucle <code>for</code> qui additionne des termes :</p>
       <ul>
         <li>$\sum_{k \in X(\Omega)}$ se lit : « Pour chaque valeur $k$ dans l'univers image, calculer l'expression à droite et tout additionner ».</li>

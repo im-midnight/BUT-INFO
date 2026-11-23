@@ -50,7 +50,7 @@
                 <th style="width: 8%;">Étape</th>
                 <th style="width: 25%;">Division $a = bq + r$</th>
                 <th style="width: 25%;">$a - bq = r$</th>
-                <th style="width: 30%;">Identité de Bézout (Substitutions)</th>
+                <th style="width: 30%;">Identité de Bézout (substitutions)</th>
                 <th style="width: 12%;">On passe à $(a, b)$</th>
               </tr>
             </thead>
@@ -123,7 +123,7 @@
       <li><strong>Calcul détaillé de l'inverse :</strong>
         <br>À la question 2.1, nous avons obtenu l'identité de Bézout :
         $$3315 \times (-19) + 154 \times 409 = 1$$
-        Passons cette égalité **modulo $3315$** :
+        Passons cette égalité modulo $3315$ :
         <ol style="margin-top: 0.5rem; padding-left: 1.5rem;">
           <li>Le terme $3315 \times (-19)$ est un multiple de $3315$, donc $3315 \times (-19) \equiv 0 \pmod{3315}$.</li>
           <li>L'égalité devient alors :
@@ -133,7 +133,7 @@
             $$154 \times 409 \equiv 1 \pmod{3315}$$
           </li>
         </ol>
-        Par définition de l'inverse modulaire ($a \times a^{-1} \equiv 1 \pmod n$), l'inverse de $154$ modulo $3315$ est donc **$409$** (ou sa classe $[409]_{3315}$).
+        Par définition de l'inverse modulaire ($a \times a^{-1} \equiv 1 \pmod n$), l'inverse de $154$ modulo $3315$ est donc <strong>$409$</strong> (ou sa classe $[409]_{3315}$).
       </li>
       <li><strong>Tous les éléments non nuls sont-ils inversibles ?</strong> <strong>Non.</strong> Un élément $x \in \mathbb{Z}/3315\mathbb{Z}$ n'est inversible que si $\operatorname{pgcd}(x, 3315) = 1$.
         <br>Or, $3315$ n'est pas un nombre premier ($3315 = 3 \times 5 \times 13 \times 17$). 
@@ -185,7 +185,7 @@ print(f"PGCD = {d}, u = {u}, v = {v}")
 
   <!-- SYNTHÈSE -->
   <section class="loi-card">
-    <h2>Synthèse de l'Exercice</h2>
+    <h2>Synthèse de l'exercice</h2>
     <table>
       <thead>
         <tr>
@@ -197,7 +197,7 @@ print(f"PGCD = {d}, u = {u}, v = {v}")
       <tbody>
         <tr>
           <td><strong>2.1</strong></td>
-          <td>Algorithme d'Euclide &amp; Remontée de Bézout</td>
+          <td>Algorithme d'Euclide et remontée de Bézout</td>
           <td>$\operatorname{pgcd}(3315, 154) = 1$ ; $3315(-19) + 154(409) = 1$</td>
         </tr>
         <tr>

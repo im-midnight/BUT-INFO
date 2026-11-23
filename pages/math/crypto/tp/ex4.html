@@ -32,7 +32,7 @@
 </head>
 <body>
 
-  <h1>Exercice 4 : Chiffrement affine</h1>
+  <h1>Exercice 4 : chiffrement affine</h1>
   <p style="text-align: center; color: var(--texte-doux);">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
@@ -168,7 +168,7 @@ assert dechiff_affine(chiffre, a, b) == message2</code></pre>
 
   <!-- 4.5. ÉCHANGE DE CLÉ SECRÈTE -->
   <section class="loi-card">
-    <h2>4.5. Échange secret de la clé $(a, b)$ : Protocole de Diffie-Hellman</h2>
+    <h2>4.5. Échange secret de la clé $(a, b)$ : protocole de Diffie-Hellman</h2>
     <p>Pour échanger secrètement la clé $(a, b)$ sur un canal non sécurisé sans rencontre préalable, les deux correspondants (Alice et Bob) utilisent le <span class="terme" data-def="diffie-hellman">protocole d'échange de clés de Diffie-Hellman</span>, fondé sur la difficulté du <span class="terme" data-def="log-discret">logarithme discret</span> :</p>
     <ol>
       <li><strong>Paramètres publics :</strong> Alice et Bob conviennent publiquement d'un grand <span class="terme" data-def="premier">nombre premier</span> $p$ et d'un entier générateur $g$ tel que $1 &lt; g &lt; p$.</li>
@@ -195,7 +195,7 @@ assert dechiff_affine(chiffre, a, b) == message2</code></pre>
 
   <!-- SYNTHÈSE -->
   <section class="loi-card">
-    <h2>Synthèse de l'Exercice</h2>
+    <h2>Synthèse de l'exercice</h2>
     <table>
       <thead>
         <tr>
@@ -218,8 +218,7 @@ assert dechiff_affine(chiffre, a, b) == message2</code></pre>
         <tr>
           <td><strong>4.3</strong></td>
           <td><code>inverse_modulaire(a)</code> &amp; <code>dechiff_affine(mess, a, b)</code></td>
-          <td>$x \equiv a^{-1} \cdot (y - b) \pmod{31}$ (valide pour tout $a 
-ot\equiv 0 \pmod{31}$)</td>
+          <td>$x \equiv a^{-1} \cdot (y - b) \pmod{31}$ (valide pour tout $a \not\equiv 0 \pmod{31}$)</td>
         </tr>
         <tr>
           <td><strong>4.5</strong></td>
@@ -244,7 +243,7 @@ ot\equiv 0 \pmod{31}$)</td>
 
     <div id="def-inverse" class="def-bloc">
       <h3>Inverse modulaire ($a^{-1}$)</h3>
-      <p>Un entier $u$ tel que $a 	imes u \equiv 1 \pmod{n}$. Il permet d'annuler la multiplication par $a$ lors du déchiffrement.</p>
+      <p>Un entier $u$ tel que $a \times u \equiv 1 \pmod{n}$. Il permet d'annuler la multiplication par $a$ lors du déchiffrement.</p>
     </div>
 
     <div id="def-diffie-hellman" class="def-bloc">

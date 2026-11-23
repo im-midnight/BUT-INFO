@@ -4,7 +4,7 @@
     <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/web/TD/Java/td-java.html">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Révision - Programmation Java & Pattern DAO</title>
+  <title>Révision : programmation Java et pattern DAO</title>
 
   <!-- Configuration de MathJax -->
   <script>
@@ -31,17 +31,17 @@
 </head>
 <body>
 
-  <h1>Révision Java : Classes, Promotion & Pattern DAO</h1>
+  <h1>Révision Java : classes, promotion et pattern DAO</h1>
   <p style="text-align: center; color: var(--texte-doux);">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
   <!-- 1. ETUDIANTS ET PROMOTION -->
   <section class="loi-card">
-    <h2>1. Gestion des Étudiants</h2>
+    <h2>1. Gestion des étudiants</h2>
     <ul>
-      <li><strong>Classes et Héritage :</strong> Implémentation d'une classe <span class="terme" data-def="etudiant">Etudiant</span> caractérisée par un numéro et une moyenne, et d'une classe fille <span class="terme" data-def="heritage">EtudiantAvecEtatMental</span> incluant un état mental via une énumération.</li>
-      <li><strong>Encapsulation et Collections :</strong> La classe <span class="terme" data-def="promotion">Promotion</span> gère une liste d'étudiants, calcule la moyenne globale et lève des exceptions en cas de doublons ou d'erreurs.</li>
+      <li><strong>Classes et héritage :</strong> Implémentation d'une classe <span class="terme" data-def="etudiant">Etudiant</span> caractérisée par un numéro et une moyenne, et d'une classe fille <span class="terme" data-def="heritage">EtudiantAvecEtatMental</span> incluant un état mental via une énumération.</li>
+      <li><strong>Encapsulation et collections :</strong> La classe <span class="terme" data-def="promotion">Promotion</span> gère une liste d'étudiants, calcule la moyenne globale et lève des exceptions en cas de doublons ou d'erreurs.</li>
     </ul>
 
     <h3>Code : Étudiant</h3>
@@ -195,7 +195,7 @@ public class EtudiantAvecEtatMental extends Etudiant  {
 
   <!-- 2. DAO CLASSIQUE -->
   <section class="loi-card">
-    <h2>2. Pattern DAO : Approche Classique</h2>
+    <h2>2. Pattern DAO : approche classique</h2>
     <ul>
       <li><strong>Principe :</strong> Permet d'isoler l'accès aux données (ici en mémoire via une <span class="terme" data-def="hashmap">HashMap</span>).</li>
       <li><strong>Gestion des erreurs :</strong> Utilisation d'exceptions de type <code>IllegalArgumentException</code> si un élément n'existe pas ou si les paramètres sont invalides.</li>
@@ -267,9 +267,9 @@ public class ProductMemoryDao implements Dao&lt;Product&gt; {
 
   <!-- 3. DAO OPTIONAL -->
   <section class="loi-card">
-    <h2>3. Pattern DAO : Approche Optional</h2>
+    <h2>3. Pattern DAO : approche Optional</h2>
     <ul>
-      <li><strong>Sécurité anti-null :</strong> Introduction des <span class="terme" data-def="optional">Optional</span> en Java 8 pour éviter les <code>NullPointerException</code> de manière fonctionnelle.</li>
+      <li><strong>Éviter les null :</strong> les <span class="terme" data-def="optional">Optional</span>, arrivés avec Java 8, évitent les <code>NullPointerException</code>.</li>
       <li><strong>Signature de méthode :</strong> La méthode <code>get(long id)</code> renvoie un <code>Optional&lt;T&gt;</code> au lieu de risquer de retourner <code>null</code>.</li>
     </ul>
 
@@ -335,7 +335,7 @@ public class ProductMemoryDaoOptional implements Dao&lt;Product&gt; {
 
   <!-- SYNTHÈSE -->
   <section class="loi-card">
-    <h2>Synthèse des Notions Clés</h2>
+    <h2>Synthèse des notions clés</h2>
     <table>
       <thead>
         <tr>
@@ -362,7 +362,7 @@ public class ProductMemoryDaoOptional implements Dao&lt;Product&gt; {
         </tr>
         <tr>
           <td><strong>DAO Optional</strong></td>
-          <td>Accès sécurisé moderne</td>
+          <td>Accès aux données sans renvoyer null</td>
           <td>Encapsule les résultats dans un <code>Optional</code></td>
         </tr>
       </tbody>
@@ -377,7 +377,7 @@ public class ProductMemoryDaoOptional implements Dao&lt;Product&gt; {
     </div>
 
     <div id="def-heritage" class="def-bloc">
-      <h3>Héritage et Extension</h3>
+      <h3>Héritage et extension</h3>
       <p>Permet à une classe fille (ex: <code>EtudiantAvecEtatMental</code>) de réutiliser les attributs et méthodes de la classe mère via le mot-clé <code>extends</code></p>
     </div>
 
@@ -388,11 +388,11 @@ public class ProductMemoryDaoOptional implements Dao&lt;Product&gt; {
 
     <div id="def-hashmap" class="def-bloc">
       <h3>HashMap</h3>
-      <p>Structure de données clé-valeur idéale en mémoire pour implémenter rapidement un DAO sans base de données relationnelle.</p>
+      <p>Structure clé-valeur en mémoire, pratique pour écrire un DAO sans base de données.</p>
     </div>
 
     <div id="def-optional" class="def-bloc">
-      <h3>Optional&lt;T&gt;</h3>Conteneur d'objet qui peut contenir ou non une valeur non nulle. Permet d'éviter proprement les erreurs de type <code>NullPointerException</code>.
+      <h3>Optional&lt;T&gt;</h3>Conteneur d'objet qui peut contenir ou non une valeur non nulle. Évite les erreurs de type <code>NullPointerException</code>.
     </div>
   </div>
 

@@ -4,7 +4,7 @@
     <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/math/proba/PobaCondi.html">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cours : Les Probabilités Conditionnelles</title>
+  <title>Cours : les probabilités conditionnelles</title>
 
   <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
   <script>
@@ -44,14 +44,14 @@
 </head>
 <body>
 
-  <h1>2.3 Les Probabilités Conditionnelles</h1>
+  <h1>2.3 Les probabilités conditionnelles</h1>
   <p class="intro-note">
-    <em>Passe la souris sur les <span class="terme" tabindex="0">termes soulignés en bleu</span> pour afficher leur définition ou explication méthodologique.</em>
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" tabindex="0">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
   
   <!-- 1. APPROCHE INTUITIVE -->
   <section class="loi-card">
-    <h2>1. Approche intuitive : Population vs Sous-population</h2>
+    <h2>1. Approche intuitive : population et sous-population</h2>
     <p>
       Le cours introduit la différence entre probabilité classique et probabilité conditionnelle en croisant la <strong>Préparation</strong> ($A$ ou <span class="terme" tabindex="0" data-def="contraire">$\overline{A}$</span>) et la <strong>Réussite</strong> ($R$ ou $\overline{R}$) sur un effectif de 500 individus :
     </p>
@@ -168,7 +168,7 @@
 
   <!-- 4. INDÉPENDANCE ET INCOMPATIBILITÉ -->
   <section class="loi-card">
-    <h2>4. Indépendance et Incompatibilité (Définition 2.8 & Théorème 2.9)</h2>
+    <h2>4. Indépendance et incompatibilité (Définition 2.8 & Théorème 2.9)</h2>
     <ul>
       <li>
         <strong>Définition 2.8 (Indépendance) :</strong> Deux événements $A$ et $B$ sont dits indépendants si :
@@ -220,7 +220,7 @@
       </ul>
     </div>
 
-    <h3>Exemple : La pizza Chorizo / Pesto</h3>
+    <h3>Exemple : la pizza chorizo / pesto</h3>
     <p>
       On considère les événements $C$ : « J'aime le chorizo », $E$ : « J'aime le pesto », et $I$ : « J'aime la pizza au chorizo et pesto ».<br>
       <strong>Données :</strong> $\mathbb{P}(C) = 0,8$ ; $\mathbb{P}(E \mid C) = 0,7$ ; $\mathbb{P}(I \mid E \cap C) = 0,95$ ; $\mathbb{P}(E \mid \overline{C}) = 0,4$ ; $\mathbb{P}(\overline{I} \mid \overline{E} \cap \overline{C}) = 1$.
@@ -254,7 +254,7 @@
 
   <!-- SYNTHÈSE -->
   <section class="loi-card">
-    <h2>Synthèse : Quel outil utiliser selon le problème ?</h2>
+    <h2>Synthèse : quel outil utiliser selon le problème ?</h2>
     <div class="table-wrapper">
       <table>
         <thead>
@@ -327,7 +327,7 @@
     </div>
 
     <div id="def-inversion" class="def-bloc">
-      <h3>Conditionnement inversé (Formule de Bayes)</h3>
+      <h3>Conditionnement inversé (formule de Bayes)</h3>
       <p>Situation où l'énoncé donne les probabilités selon une cause (ex. : taux de défaut selon l'usine $\mathbb{P}_C(D)$), mais demande la probabilité de la cause sachant la conséquence finale ($\mathbb{P}_D(C)$).</p>
       <ul>
         <li><strong>Méthode :</strong> Utiliser $\mathbb{P}_D(C) = \frac{\mathbb{P}(C \cap D)}{\mathbb{P}(D)}$ en calculant $\mathbb{P}(D)$ avec les probabilités totales.</li>

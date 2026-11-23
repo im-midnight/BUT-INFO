@@ -5,7 +5,7 @@
   <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Les 4 Lois de Probabilité</title>
+  <title>Les 4 lois de probabilité</title>
 
   <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
   <script>
@@ -31,17 +31,17 @@
 </head>
 <body>
 
-  <h1>Les 4 Lois de Probabilité</h1>
+  <h1>Les 4 lois de probabilité</h1>
   <p style="text-align: center; color: var(--texte-doux);">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
   <!-- 1. LOI BINOMIALE -->
   <section class="loi-card">
-    <h2>1. La loi binomiale $\mathcal{B}(n, p)$ — Le comptage discret par blocs</h2>
+    <h2>1. La loi binomiale $\mathcal{B}(n, p)$ : le comptage discret par blocs</h2>
     <ul>
       <li><strong>Nature :</strong> Discrète.</li>
-      <li><strong>Le problème :</strong> On répète $n$ fois de manière identique et indépendante une expérience à deux issues (succès avec probabilité $p$, échec avec $1-p$). On note $X$ le ...</li>
+      <li><strong>Le problème :</strong> On répète $n$ fois de manière identique et indépendante une expérience à deux issues (succès avec probabilité $p$, échec avec $1-p$). On note $X$ le nombre de succès.</li>
       <li><strong>Formule :</strong>
         $$\mathbb{P}(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \quad \text{pour } k \in \{0, 1, \dots, n\}$$
       </li>
@@ -52,7 +52,7 @@
 
   <!-- 2. LOI DE POISSON -->
   <section class="loi-card">
-    <h2>2. La loi de Poisson $\mathcal{P}(\lambda)$ — Le comptage en temps continu</h2>
+    <h2>2. La loi de Poisson $\mathcal{P}(\lambda)$ : le comptage en temps continu</h2>
     <ul>
       <li><strong>Nature :</strong> Discrète.</li>
       <li><strong>Le lien avec la binomiale :</strong> Dans la binomiale, on suppose au plus un événement par tranche de temps. Si l'on affine le découpage à l'extrême ($n \to +\infty$ et $p \to 0$ avec $np=\lambda$), la binomiale tend vers la loi de Poisson.</li>
@@ -67,7 +67,7 @@
 
   <!-- 3. LOI EXPONENTIELLE -->
   <section class="loi-card">
-    <h2>3. La loi exponentielle $\mathcal{E}(\lambda)$ — Le temps d'attente continu</h2>
+    <h2>3. La loi exponentielle $\mathcal{E}(\lambda)$ : le temps d'attente continu</h2>
     <ul>
       <li><strong>Nature :</strong> Continue.</li>
       <li><strong>Le lien avec la loi de Poisson :</strong> Elles décrivent le <strong>même processus</strong>, mais sous deux angles différents :
@@ -91,10 +91,10 @@
 
   <!-- 4. LOI UNIFORME -->
   <section class="loi-card">
-    <h2>4. La loi uniforme $\mathcal{U}(a, b)$ — La répartition égale sur un intervalle</h2>
+    <h2>4. La loi uniforme $\mathcal{U}(a, b)$ : la répartition égale sur un intervalle</h2>
     <ul>
       <li><strong>Nature :</strong> Continue.</li>
-      <li><strong>Le problème :</strong> Modéliser une variable aléatoire dont toutes les valeurs d'un intervalle $[a, b]$ sont équiprobables — il n'y a pas de préférence pour une sous-partie de l'intervalle.</li>
+      <li><strong>Le problème :</strong> Modéliser une variable aléatoire dont toutes les valeurs d'un intervalle $[a, b]$ sont équiprobables : aucune partie de l'intervalle n'est privilégiée.</li>
       <li><strong>Formule :</strong>
         <ul>
           <li><span class="terme" data-def="densite">Densité</span> :
@@ -106,7 +106,7 @@
         </ul>
       </li>
       <li><strong>Indicateurs :</strong> <span class="terme" data-def="esperance">Espérance</span> $\mathbb{E}(X) = \frac{a+b}{2}$, <span class="terme" data-def="variance">Variance</span> $\mathbb{V}(X) = \frac{(b-a)^2}{12}$.</li>
-      <li><strong>Propriété remarquable :</strong> Toutes les sous-intervalles de même longueur ont la même probabilité. La loi uniforme est souvent utilisée comme modèle de départ lorsqu'on manque d'information préférentielle.</li>
+      <li><strong>Propriété remarquable :</strong> Tous les sous-intervalles de même longueur ont la même probabilité. La loi uniforme est souvent utilisée comme modèle de départ lorsqu'on manque d'information préférentielle.</li>
       <li><strong>Exemple :</strong> Tirer au hasard un point sur une longueur de corde de 1 mètre donne la loi uniforme sur $[0, 1]$ pour la position du point.</li>
     </ul>
   </section>

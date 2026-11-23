@@ -4,7 +4,7 @@
     <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex1.html">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exercice 1 - Nombres Premiers & Cryptographie</title>
+  <title>Exercice 1 : nombres premiers et cryptographie</title>
 
   <!-- Configuration de MathJax pour afficher les formules mathématiques ($...$ et $$...$$) -->
   <script>
@@ -61,7 +61,7 @@
     <h2>2. Question 1.2 - Liste, proportion et raréfaction</h2>
     <ul>
       <li><strong>Objectif :</strong> Générer la liste des nombres premiers inférieurs à $n$, calculer leur proportion et la comparer à la densité théorique $\frac{1}{\ln(n)}$.</li>
-      <li><strong>Sans Stratégie :</strong></li>
+      <li><strong>Version naïve :</strong></li>
       <pre><code>def listePremiers(n : int):
     i = 2
     res = []
@@ -70,8 +70,8 @@
             res.append(i)
         i+=1
     return res</code></pre>
-      <li><strong>Stratégie algorithmique :</strong> Pour générer efficacement de grands volumes, on utilise le <span class="terme" data-def="crible">Crible d'Ératosthène</span> plutôt qu'un test naïf répété.</li>
-      <li><strong>Code du Crible d'Ératosthène :</strong>
+      <li><strong>Stratégie algorithmique :</strong> Pour générer efficacement de grands volumes, on utilise le <span class="terme" data-def="crible">crible d'Ératosthène</span> plutôt qu'un test naïf répété.</li>
+      <li><strong>Code du crible d'Ératosthène :</strong>
         <pre><code>def crible(n):
     premiers = []
     tab = [True] * (n + 1)
@@ -101,13 +101,13 @@
 for n in list_nb_a_tester:
     print(f"{n} est premier? : {est_premier(n)}")
     comparaison(n)</code></pre>
-      <li><strong>Observation mathématique :</strong> Selon le <span class="terme" data-def="theoreme">Théorème des nombres premiers</span>, la proportion de nombres premiers diminue progressivement à mesure que $n$ grandit.</li>
+      <li><strong>Observation :</strong> Selon le <span class="terme" data-def="theoreme">théorème des nombres premiers</span>, la proportion de nombres premiers diminue progressivement à mesure que $n$ grandit.</li>
     </ul>
   </section>
 
   <!-- SYNTHÈSE -->
   <section class="loi-card">
-    <h2>Synthèse des Méthodes</h2>
+    <h2>Synthèse des méthodes</h2>
     <table>
       <thead>
         <tr>
@@ -139,13 +139,13 @@ for n in list_nb_a_tester:
   <!-- INFOBULLE CONTENANT LES DÉFINITIONS PRÉ-CHARGÉES -->
   <div id="tooltip">
     <div id="def-premier" class="def-bloc">
-      <h3>Nombre Premier</h3>
+      <h3>Nombre premier</h3>
       <p>Un entier naturel strictement supérieur à 1 qui n'admet que deux diviseurs distincts : 1 et lui-même (ex : 2, 3, 5, 7, 11...).</p>
     </div>
 
     <div id="def-complexite" class="def-bloc">
-      <h3>Complexité Algorithmique ($\sqrt{n}$)</h3>
-      <p>Mesure le nombre d'opérations nécessaires. En s'arrêtant à $\sqrt{n}$, on réduit drastiquement le nombre de divisions de $n$ (linéaire) à $\sqrt{n}$ (sous-linéaire).</p>
+      <h3>Complexité algorithmique ($\sqrt{n}$)</h3>
+      <p>Mesure le nombre d'opérations nécessaires. En s'arrêtant à $\sqrt{n}$, on passe de $n$ divisions (linéaire) à $\sqrt{n}$ (sous-linéaire).</p>
     </div>
 
     <div id="def-crible" class="def-bloc">
@@ -154,7 +154,7 @@ for n in list_nb_a_tester:
     </div>
 
     <div id="def-theoreme" class="def-bloc">
-      <h3>Théorème des Nombres Premiers</h3>
+      <h3>Théorème des nombres premiers</h3>
       <p>Établit que la proportion de nombres premiers inférieurs à $n$ est approximativement inversement proportionnelle à son logarithme népérien : $\frac{1}{\ln(n)}$.</p>
     </div>
 

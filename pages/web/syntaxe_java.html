@@ -5,7 +5,7 @@
   <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Les Fondations du Langage Java</title>
+  <title>Les bases du langage Java</title>
 
   <link rel="stylesheet" href="../../css/themes.css">
   <link rel="stylesheet" href="../../css/style.css">
@@ -20,9 +20,9 @@
 </head>
 <body>
 
-  <h1>Les Fondations du Langage Java</h1>
+  <h1>Les bases du langage Java</h1>
   <p style="text-align: center; color: var(--texte-doux);">
-    <em>Passez la souris sur les <span class="terme" data-def="jvm">termes soulignés en bleu</span> pour afficher leur vulgarisation sans jargon.</em>
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="jvm">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
   <!-- 0. COMPRENDRE LE PARADIGME : DE QUOI PARLE-T-ON ? -->
@@ -30,8 +30,8 @@
     <h2>0. Le cycle de vie d'un programme</h2>
     <ul>
       <li><strong>Le fichier source :</strong> Un fichier texte contenant nos instructions (ex: <code>Main.java</code>).</li>
-      <li><strong>La <span class="terme" data-def="compilation">compilation</span> :</strong> Un outil nommé <code>javac</code> traduit nos mots humains en <span class="terme" data-def="bytecode">bytecode</span> (un fichier <code>Main.class</code>).</li>
-      <li><strong>L'exécution par la <span class="terme" data-def="jvm">JVM</span> :</strong> Cette machine virtuelle lit ce bytecode et le traduit instantanément pour votre système (Windows, Mac ou Linux).</li>
+      <li><strong>La <span class="terme" data-def="compilation">compilation</span> :</strong> Un outil nommé <code>javac</code> traduit ce code en <span class="terme" data-def="bytecode">bytecode</span> (un fichier <code>Main.class</code>).</li>
+      <li><strong>L'exécution par la <span class="terme" data-def="jvm">JVM</span> :</strong> Cette machine virtuelle lit ce bytecode et le traduit à la volée pour ton système (Windows, Mac ou Linux).</li>
     </ul>
   </section>
 
@@ -39,8 +39,8 @@
   <section class="loi-card">
     <h2>1. La structure minimale</h2>
     <ul>
-      <li><strong>Le principe :</strong> En Java, aucun code ne peut flotter dans le vide. Tout bloc d'instruction doit obligatoirement résider au sein d'une <span class="terme" data-def="classe">classe</span>.</li>
-      <li><strong>Le fichier modèle :</strong> Le fichier doit porter rigoureusement le même nom que la classe publique (ici <code>Main.java</code>).</li>
+      <li><strong>Le principe :</strong> En Java, tout le code s'écrit dans une <span class="terme" data-def="classe">classe</span>.</li>
+      <li><strong>Le fichier modèle :</strong> Le fichier porte exactement le même nom que la classe publique (ici <code>Main.java</code>).</li>
       <li><strong>Le code de démarrage :</strong>
 <pre><code>public class Main {
     public static void main(String[] args) {
@@ -50,10 +50,10 @@
       </li>
       <li><strong>Anatomie des mots-clés :</strong>
         <ul>
-          <li><code>public</code> : accessible par tout le système.</li>
-          <li><code>static</code> : la fonction peut démarrer immédiatement sans avoir besoin de fabriquer un <span class="terme" data-def="objet">objet</span> au préalable.</li>
-          <li><code>void</code> : indique que cette action accomplit une tâche sans renvoyer de résultat chiffré en retour.</li>
-          <li><code>main(...)</code> : le nom conventionnel du sas de lancement recherché en priorité par la machine.</li>
+          <li><code>public</code> : accessible depuis n'importe quelle autre classe.</li>
+          <li><code>static</code> : la méthode s'appelle sans créer d'<span class="terme" data-def="objet">objet</span> avant.</li>
+          <li><code>void</code> : la méthode ne renvoie rien.</li>
+          <li><code>main(...)</code> : le nom de la méthode que la JVM cherche pour lancer le programme.</li>
         </ul>
       </li>
     </ul>
@@ -63,18 +63,18 @@
   <section class="loi-card">
     <h2>2. Les variables et le typage statique</h2>
     <ul>
-      <li><strong>Le mécanisme :</strong> Java utilise un <span class="terme" data-def="typage">typage statique</span>. Chaque boîte mémoire doit déclarer à l'avance la nature exacte de ce qu'elle contiendra.</li>
-      <li><strong>Types primitifs (valeurs brutes directes) :</strong>
+      <li><strong>Le mécanisme :</strong> Java utilise un <span class="terme" data-def="typage">typage statique</span>. Chaque variable déclare à l'avance le type de ce qu'elle contient.</li>
+      <li><strong>Types primitifs (la valeur est stockée directement) :</strong>
         <ul>
           <li><code>int</code> : stocke un nombre entier sans virgule (ex: <code>int age = 25;</code>).</li>
           <li><code>double</code> : stocke un nombre décimal à virgule (ex: <code>double prix = 19.99;</code>).</li>
-          <li><code>boolean</code> : un interrupteur logique binaire, valant uniquement <code>true</code> ou <code>false</code>.</li>
-          <li><code>char</code> : un caractère alphanumérique unique entre apostrophes simples (ex: <code>char note = 'A';</code>).</li>
+          <li><code>boolean</code> : vaut <code>true</code> ou <code>false</code>.</li>
+          <li><code>char</code> : un seul caractère, entre apostrophes (ex: <code>char note = 'A';</code>).</li>
         </ul>
       </li>
-      <li><strong>Types objets / références (structures élaborées) :</strong>
+      <li><strong>Types objets (la variable contient une référence vers l'objet) :</strong>
         <ul>
-          <li><code>String</code> : une chaîne de caractères entre guillemets (ex: <code>String nom = "Alice";</code>). Elle bénéficie du principe d'<span class="terme" data-def="immutabilite">immutabilité</span>.</li>
+          <li><code>String</code> : une chaîne de caractères entre guillemets (ex: <code>String nom = "Alice";</code>). Elle est <span class="terme" data-def="immutabilite">immuable</span>.</li>
         </ul>
       </li>
     </ul>
@@ -108,9 +108,9 @@ if (score >= 50) {
 
   <!-- 4. LA PROGRAMMATION ORIENTÉE OBJET -->
   <section class="loi-card">
-    <h2>4. La Programmation Orientée Objet (POO), Classes, Héritage et Interfaces</h2>
+    <h2>4. La programmation orientée objet (POO) : classes, héritage et interfaces</h2>
     <ul>
-      <li><strong>L'architecture d'une classe :</strong> Une classe regroupe des <span class="terme" data-def="attribut">attributs</span> (variables) et des <span class="terme" data-def="methode">méthodes</span> (actions).
+      <li><strong>Structure d'une classe :</strong> Une classe regroupe des <span class="terme" data-def="attribut">attributs</span> (variables) et des <span class="terme" data-def="methode">méthodes</span> (actions).
 <pre><code>public class Etudiant {
     // 1. Attributs privés (Encapsulation)
     private String nom;
@@ -127,11 +127,11 @@ if (score >= 50) {
     }
 }</code></pre>
       </li>
-      <li><strong>Utilisation par instanciation :</strong> On crée des exemplaires distincts sur ce moule grâce au mot-clé <code>new</code>.
+      <li><strong>Instanciation :</strong> On crée des objets à partir de la classe avec le mot-clé <code>new</code>.
 <pre><code>Etudiant g1 = new Etudiant("Bruce", 165);
 g1.signeSowesign();</code></pre>
       </li>
-      <li><strong>La protection par <span class="terme" data-def="encapsulation">encapsulation</span> :</strong> Le mot <code>private</code> empêche tout code extérieur de corrompre arbitrairement les données d'un objet.</li>
+      <li><strong>L'<span class="terme" data-def="encapsulation">encapsulation</span> :</strong> Le mot <code>private</code> empêche le code des autres classes de modifier directement les données d'un objet.</li>
       
       <li><strong>L'héritage (<span class="terme" data-def="extends">extends</span>) :</strong> Permet à une classe fille de récupérer tous les attributs et méthodes d'une classe mère pour les étendre ou les modifier.
 <pre><code>// Classe Mère
@@ -168,8 +168,7 @@ public class Developpeur <span class="terme" data-def="implements">implements</s
 
   <!-- 5. LES STRUCTURES DE DONNÉES -->
   <section class="loi-card">
-    <h2>5. Les structures de données et leurs méthodes essentielles</h2>
-    <p>Java fournit un ensemble complet d'outils pour stocker, ajouter, modifier, supprimer et parcourir des données en mémoire.</p>
+    <h2>5. Les structures de données et leurs méthodes principales</h2>
     
     <table>
       <thead>
@@ -228,10 +227,10 @@ capitales.remove("Italie");           // Supprime la paire liée à la clé "Ita
 
   <!-- 6. PARCOURIR LES COLLECTIONS -->
   <section class="loi-card">
-    <h2>6. Comment parcourir des structures de données (Du classique à l'amélioré)</h2>
+    <h2>6. Parcourir une structure de données</h2>
     
-    <h3>A. La version normale (La boucle classique avec index)</h3>
-    <p>C'est la méthode fondamentale : on utilise un compteur <code>i</code> (partant de 0 jusqu'à la taille de la liste) pour aller chercher chaque élément un par un via son numéro de position.</p>
+    <h3>A. La boucle classique avec index</h3>
+    <p>On utilise un compteur <code>i</code>, de 0 jusqu'à la taille de la liste, pour récupérer chaque élément par sa position.</p>
 <pre><code>List&lt;String&gt; prenoms = List.of("Alice", "Bob", "Charlie");
 
 for (int i = 0; i &lt; prenoms.size(); i++) {
@@ -239,21 +238,21 @@ for (int i = 0; i &lt; prenoms.size(); i++) {
     System.out.println("À l'index " + i + " : " + prenom);
 }</code></pre>
 
-    <h3>B. La version améliorée (La méthode <span class="terme" data-def="foreach">forEach</span> et Lambdas)</h3>
-    <p>Plus moderne et concise, elle applique directement une instruction à chaque élément de la collection sans variable intermédiaire superflue.</p>
+    <h3>B. La méthode <span class="terme" data-def="foreach">forEach</span> et les lambdas</h3>
+    <p>Elle applique une instruction à chaque élément de la collection, sans compteur.</p>
 <pre><code>prenoms.forEach(prenom -> System.out.println("Bonjour " + prenom));</code></pre>
 
-    <h3>C. Version améliorée pour une HashMap (Dictionnaire)</h3>
-    <p>Pour parcourir des paires Clé/Valeur de manière moderne :</p>
+    <h3>C. forEach sur une HashMap (dictionnaire)</h3>
+    <p>Pour parcourir les paires clé/valeur :</p>
 <pre><code>Map&lt;String, Double&gt; prix = Map.of("Café", 1.50, "Thé", 2.00);
 
 prix.forEach((nom, tarif) -> {
     System.out.println(nom + " coûte " + tarif + " €");
 });</code></pre>
 
-    <h3>D. Les versions expertes : Iterator et Streams</h3>
+    <h3>D. Iterator et Streams</h3>
     <ul>
-      <li><strong>L' <span class="terme" data-def="iterator">Iterator</span> :</strong> Utile si vous devez <strong>modifier ou supprimer</strong> des éléments en plein milieu du parcours sans faire planter le programme.
+      <li><strong>L' <span class="terme" data-def="iterator">Iterator</span> :</strong> Utile si tu dois modifier ou supprimer des éléments pendant le parcours sans faire planter le programme.
 <pre><code>List&lt;Integer&gt; notes = new ArrayList&lt;&gt;(List.of(8, 12, 15, 5));
 Iterator&lt;Integer&gt; it = notes.iterator();
 
@@ -263,7 +262,7 @@ while (it.hasNext()) {
     }
 }</code></pre>
       </li>
-      <li><strong>L'API <span class="terme" data-def="stream">Stream</span> :</strong> Style fonctionnel très élégant pour filtrer et transformer les données en une seule ligne.
+      <li><strong>L'API <span class="terme" data-def="stream">Stream</span> :</strong> Style fonctionnel pour filtrer et transformer les données en une seule ligne.
 <pre><code>List&lt;String&gt; villes = List.of("Paris", "Lyon", "Marseille", "Lille");
 
 villes.stream()
@@ -290,39 +289,39 @@ villes.stream()
   <div id="tooltip">
     <div id="def-jvm" class="def-bloc">
       <h3>JVM (Java Virtual Machine)</h3>
-      <p>C'est un logiciel intermédiaire qui sert d'<strong>émulateur universel</strong>. Il exécute le bytecode Java quel que soit le système d'exploitation hôte (Windows, macOS, Linux).</p>
+      <p>Le logiciel qui exécute le bytecode Java, quel que soit le système d'exploitation (Windows, macOS, Linux).</p>
       <ul>
-        <li>Garantit la portabilité : aucun besoin de réécrire le code selon la machine.</li>
+        <li>C'est ce qui rend Java portable : pas besoin de réécrire le code selon la machine.</li>
       </ul>
     </div>
 
     <div id="def-compilation" class="def-bloc">
       <h3>Compilation</h3>
-      <p>L'opération de <strong>traduction intégrale</strong> d'un texte écrit par un humain vers un dialecte condensé et optimisé que la machine sait exploiter.</p>
+      <p>La traduction du code source écrit par un humain en un format que la machine sait exécuter.</p>
       <ul>
-        <li>En Java, c'est le compilateur <code>javac</code> qui effectue ce passage vers le fichier binaire.</li>
+        <li>En Java, c'est le compilateur <code>javac</code> qui fait cette traduction.</li>
       </ul>
     </div>
 
     <div id="def-bytecode" class="def-bloc">
       <h3>Bytecode</h3>
-      <p>Le <strong>langage intermédiaire</strong> produit par le compilateur Java (les fichiers d'extension <code>.class</code>).</p>
+      <p>Le langage intermédiaire produit par le compilateur Java (les fichiers d'extension <code>.class</code>).</p>
       <ul>
-        <li>Il n'est pas lisible par un humain ni directement par le processeur, mais spécifiquement par la JVM.</li>
+        <li>Ni un humain ni le processeur ne le lisent directement : c'est la JVM qui l'exécute.</li>
       </ul>
     </div>
 
     <div id="def-classe" class="def-bloc">
       <h3>Classe</h3>
-      <p>Le <strong>moule de fabrication</strong> ou la notice technique qui liste ce que posséderont et sauront faire les objets qui en découleront.</p>
+      <p>Le moule qui décrit ce que les objets auront (attributs) et sauront faire (méthodes).</p>
       <ul>
         <li>Sans classe, impossible de fabriquer des objets ni d'écrire des instructions en Java.</li>
       </ul>
     </div>
 
     <div id="def-objet" class="def-bloc">
-      <h3>Objet (ou Instance)</h3>
-      <p>Une <strong>entité vivante en mémoire</strong>, créée d'après le plan d'une classe.</p>
+      <h3>Objet (ou instance)</h3>
+      <p>Un exemplaire créé en mémoire à partir d'une classe.</p>
       <ul>
         <li>Chaque objet possède ses propres valeurs pour ses attributs (ex: deux guerriers distincts avec des noms différents).</li>
       </ul>
@@ -330,23 +329,23 @@ villes.stream()
 
     <div id="def-typage" class="def-bloc">
       <h3>Typage statique</h3>
-      <p>Une règle stricte qui oblige le programmeur à <strong>définir à l'avance</strong> le genre d'information qu'une variable recevra.</p>
+      <p>Le programmeur doit indiquer à l'avance le type de chaque variable.</p>
       <ul>
-        <li>Empêche de mettre du texte dans une case prévue pour des calculs numériques, limitant drastiquement les bugs.</li>
+        <li>Empêche par exemple de mettre du texte dans une variable prévue pour des nombres, ce qui évite beaucoup de bugs.</li>
       </ul>
     </div>
 
     <div id="def-immutabilite" class="def-bloc">
       <h3>Immutabilité</h3>
-      <p>Caractéristique d'une donnée qui <strong>ne peut plus jamais être modifiée</strong> une fois écrite en mémoire.</p>
+      <p>Caractéristique d'une donnée qui ne peut plus être modifiée une fois écrite en mémoire.</p>
       <ul>
-        <li>Quand on manipule un <code>String</code>, Java fabrique un nouveau texte sans jamais altérer l'original.</li>
+        <li>Quand on manipule un <code>String</code>, Java crée un nouveau texte sans toucher à l'original.</li>
       </ul>
     </div>
 
     <div id="def-attribut" class="def-bloc">
-      <h3>Attribut (ou Champ)</h3>
-      <p>Une <strong>caractéristique</strong> ou variable interne qui décrit l'état d'un objet.</p>
+      <h3>Attribut (ou champ)</h3>
+      <p>Une caractéristique ou variable interne qui décrit l'état d'un objet.</p>
       <ul>
         <li>Exemple : la couleur d'une voiture, l'âge d'un utilisateur ou le solde d'un compte bancaire.</li>
       </ul>
@@ -354,7 +353,7 @@ villes.stream()
 
     <div id="def-methode" class="def-bloc">
       <h3>Méthode</h3>
-      <p>Une <strong>action ou fonction</strong> qu'un objet est capable d'accomplir sur commande.</p>
+      <p>Une action ou fonction qu'un objet est capable d'accomplir sur commande.</p>
       <ul>
         <li>Exemple : freiner, calculer un résultat, ou afficher un message à l'écran.</li>
       </ul>
@@ -362,7 +361,7 @@ villes.stream()
 
     <div id="def-encapsulation" class="def-bloc">
       <h3>Encapsulation</h3>
-      <p>Un principe de sécurité consistant à <strong>verrouiller l'accès direct</strong> aux entrailles d'un objet (via <code>private</code>).</p>
+      <p>Le principe qui consiste à bloquer l'accès direct aux attributs d'un objet (avec <code>private</code>).</p>
       <ul>
         <li>Oblige le reste du programme à passer par des méthodes contrôlées pour consulter ou modifier une donnée.</li>
       </ul>
@@ -370,41 +369,41 @@ villes.stream()
 
     <div id="def-extends" class="def-bloc">
       <h3>Héritage (extends)</h3>
-      <p>Permet à une classe <strong>fille</strong> de récupérer automatiquement les attributs et méthodes d'une classe <strong>mère</strong> pour éviter de dupliquer le code.</p>
+      <p>Permet à une classe fille de récupérer automatiquement les attributs et méthodes d'une classe mère pour éviter de dupliquer le code.</p>
     </div>
 
     <div id="def-implements" class="def-bloc">
       <h3>Interface (implements)</h3>
-      <p>Contrat technique strict que s'engage à respecter une classe en écrivant obligatoirement les méthodes définies par l'interface.</p>
+      <p>Un contrat : la classe qui l'implémente doit écrire toutes les méthodes définies par l'interface.</p>
     </div>
 
     <div id="def-arraylist" class="def-bloc">
       <h3>ArrayList</h3>
-      <p>Un <strong>tableau dynamique</strong> qui agrandit ou réduit automatiquement sa taille selon les besoins.</p>
+      <p>Un tableau dynamique qui agrandit ou réduit automatiquement sa taille selon les besoins.</p>
       <ul>
-        <li>Permet d'ajouter/supprimer des éléments facilement sans préciser de taille fixe au départ.</li>
+        <li>On ajoute et on supprime des éléments sans fixer de taille au départ.</li>
       </ul>
     </div>
 
     <div id="def-hashmap" class="def-bloc">
       <h3>HashMap</h3>
-      <p>Une structure en <strong>paires Clé-Valeur</strong> (comme un annuaire où le nom est la clé et le numéro la valeur).</p>
+      <p>Une structure en paires clé-valeur (comme un annuaire où le nom est la clé et le numéro la valeur).</p>
       <ul>
-        <li>Permet de retrouver une donnée instantanément sans parcourir toute la liste.</li>
+        <li>On retrouve une valeur directement par sa clé, sans parcourir toute la liste.</li>
       </ul>
     </div>
 
     <div id="def-foreach" class="def-bloc">
       <h3>Méthode forEach()</h3>
-      <p>Une <strong>méthode intégrée</strong> aux collections Java qui applique une action (exprimée sous forme de fonction lambda) à chaque élément.</p>
+      <p>Une méthode des collections Java qui applique une action (exprimée sous forme de fonction lambda) à chaque élément.</p>
       <ul>
-        <li>Permet d'écrire des boucles ultra-courtes et très lisibles.</li>
+        <li>La boucle tient en une ligne.</li>
       </ul>
     </div>
 
     <div id="def-iterator" class="def-bloc">
       <h3>Iterator</h3>
-      <p>Un <strong>pointeur de parcours</strong> qui se déplace élément par élément dans une collection.</p>
+      <p>Un pointeur de parcours qui se déplace élément par élément dans une collection.</p>
       <ul>
         <li>Permet de supprimer des éléments pendant la lecture sans faire planter le programme.</li>
       </ul>
@@ -412,15 +411,15 @@ villes.stream()
 
     <div id="def-stream" class="def-bloc">
       <h3>Stream (API)</h3>
-      <p>Un <strong>tapis roulant de données</strong> sur lequel on applique des filtres et des transformations en chaîne.</p>
+      <p>Un tapis roulant de données sur lequel on applique des filtres et des transformations en chaîne.</p>
       <ul>
-        <li>Permet d'écrire du code de traitement très court, lisible et performant.</li>
+        <li>Le traitement tient en quelques lignes.</li>
       </ul>
     </div>
 
     <div id="def-exception" class="def-bloc">
       <h3>Exception</h3>
-      <p>Un <strong>événement d'erreur</strong> émis par le programme lorsqu'une situation anormale se produit.</p>
+      <p>Un événement d'erreur émis par le programme lorsqu'une situation anormale se produit.</p>
       <ul>
         <li>Si elle n'est pas "attrapée" (catch), elle interrompt immédiatement l'exécution de l'application.</li>
       </ul>

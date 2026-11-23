@@ -31,28 +31,28 @@
 </head>
 <body>
 
-  <h1>Conception d'Algorithmes Corrects et Efficaces</h1>
+  <h1>Conception d'algorithmes corrects et efficaces</h1>
   <p style="text-align: center; color: var(--texte-doux);">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
   <!-- 1. INTRODUCTION -->
   <section class="loi-card">
-    <h2>1. Introduction et Étapes de Développement</h2>
+    <h2>1. Introduction et étapes de développement</h2>
     <ul>
-      <li><strong>Le contexte :</strong> La construction de logiciels robustes nécessite des méthodes rigoureuses passant par l'analyse, la <span class="terme" data-def="conception">conception</span>, le développement, les tests et la maintenance.</li>
+      <li><strong>Le contexte :</strong> Construire un logiciel fiable demande de passer par l'analyse, la <span class="terme" data-def="conception">conception</span>, le développement, les tests et la maintenance.</li>
       <li><strong>Systèmes et états :</strong> Le fonctionnement d'un logiciel se traduit par une succession d'<span class="terme" data-def="etat">états</span> modifiés au fil du temps par l'exécution des instructions (perçus à travers les valeurs des variables).</li>
     </ul>
   </section>
 
   <!-- 2. OUTILS D'ANALYSE DE LA COMPLEXITÉ -->
   <section class="loi-card">
-    <h2>2. Outils d'Analyse : Complexité et Ordres de Grandeur</h2>
+    <h2>2. Outils d'analyse : complexité et ordres de grandeur</h2>
     <ul>
       <li><strong>Problème et Algorithme :</strong> Un algorithme est une méthode systématique de résolution d'un problème via des structures de contrôle. Certains problèmes n'ont pas de solution algorithmique (ex. : chemins d'Euler).</li>
       <li><strong>Évaluation des coûts :</strong> On analyse le <span class="terme" data-def="complexite-temporelle">coût en temps</span> (comptage des opérations élémentaires comme les affectations et comparaisons, et non élémentaires comme les accès mémoire ou réseaux) et le <span class="terme" data-def="complexite-spatiale">coût en mémoire</span> (selon les structures de données utilisées : tableaux, listes, arbres, graphes).</li>
       <li><strong>Impact environnemental :</strong> La complexité influence directement l'énergie consommée par les processeurs et les réseaux.</li>
-      <li><strong>Ordres de grandeur (Notation Grand $O$) :</strong> Pour comparer l'efficacité asymptotique des algorithmes quand la taille $n$ des données grandit :
+      <li><strong>Ordres de grandeur (notation grand $O$) :</strong> Pour comparer l'efficacité asymptotique des algorithmes quand la taille $n$ des données grandit :
         $$O(g(n)) = \{ h : \mathbb{N} \to \mathbb{R}_+ \mid \exists (c, n_0). (c \in \mathbb{R}, n_0 \in \mathbb{R} \wedge \forall n. (n \ge n_0 \implies h(n) \le c \cdot g(n))) \}$$
       </li>
     </ul>
@@ -60,7 +60,7 @@
 
   <!-- 3. SPÉCIFICATION ET LOGIQUE DE HOARE -->
   <section class="loi-card">
-    <h2>3. Spécification et Triplet de Hoare</h2>
+    <h2>3. Spécification et triplet de Hoare</h2>
     <ul>
       <li><strong>Le Contrat :</strong> La spécification d'un programme associe une <span class="terme" data-def="precondition">précondition</span> ($P$, exigée de l'utilisateur) et une <span class="terme" data-def="postcondition">postcondition</span> ($Q$, garantie par le programme).</li>
       <li><strong>Triplet de Hoare :</strong> Exprimé sous la forme $\{P\} \, S \, \{Q\}$. Il signifie que si l'exécution de $S$ commence dans un état vérifiant $P$ et qu'elle se termine, alors $Q$ est vraie.</li>
@@ -76,7 +76,7 @@
 
   <!-- 4. TERMINAISON DES PROGRAMMES -->
   <section class="loi-card">
-    <h2>4. Preuve de Terminaison</h2>
+    <h2>4. Preuve de terminaison</h2>
     <ul>
       <li><strong>Nécessité :</strong> Prouver la correction partielle d'un programme ne garantit pas qu'il s'arrête (pas de boucle infinie).</li>
       <li><strong>Méthode pour les boucles :</strong> Pour prouver la terminaison d'une boucle *tantque*, on exhibe une <span class="terme" data-def="expression-terminaison">expression de terminaison</span> (une suite scalaire entière) qui :
@@ -91,7 +91,7 @@
 
   <!-- 5. CONSTRUCTION INDUCTIVE ET BOUCLES -->
   <section class="loi-card">
-    <h2>5. Construction des Boucles et Invariant</h2>
+    <h2>5. Construction des boucles et invariant</h2>
     <ul>
       <li><strong>L'Invariant de boucle :</strong> Un prédicat $I$ qui caractérise l'état du calcul et qui reste vrai avant et après chaque itération.</li>
       <li><strong>Les 3 relations fondamentales :</strong>
@@ -116,7 +116,7 @@ fintantque
 
   <!-- 6. RAISONNEMENT ET STRUCTURES DE DONNÉES -->
   <section class="loi-card">
-    <h2>6. Raisonnement et Choix des Structures de Données</h2>
+    <h2>6. Raisonnement et choix des structures de données</h2>
     <ul>
       <li><strong>Techniques de raisonnement :</strong>
         <ul>
@@ -130,7 +130,7 @@ fintantque
 
   <!-- SYNTHÈSE -->
   <section class="loi-card">
-    <h2>Synthèse des Notions Clés</h2>
+    <h2>Synthèse des notions clés</h2>
     <div class="table-container">
       <table>
         <thead>
@@ -187,7 +187,7 @@ fintantque
   <div id="tooltip">
     <div id="def-conception" class="def-bloc">
       <h3>Conception algorithmique</h3>
-      <p>L'étape charnière entre l'analyse du problème et l'écriture du code source. Elle consiste à structurer les données et choisir les bons algorithmes pour garantir correction et performance.</p>
+      <p>L'étape entre l'analyse du problème et l'écriture du code. On y choisit les structures de données et les algorithmes pour que le programme soit correct et efficace.</p>
     </div>
 
     <div id="def-etat" class="def-bloc">

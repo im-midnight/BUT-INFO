@@ -5,7 +5,7 @@
   <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comprendre les Servlets Java</title>
+  <title>Comprendre les servlets Java</title>
 
   <!-- MathJax pour les notations formelles et schémas relationnels -->
   <script>
@@ -41,19 +41,20 @@
 </head>
 <body>
 
-  <h1>Introduction aux Servlets Java</h1>
+  <h1>Introduction aux servlets Java</h1>
   <p style="text-align: center; color: var(--texte-doux);">
-    <em>Passez la souris sur les <span class="terme" data-def="conteneur">termes soulignés en bleu</span> pour afficher leur explication vulgarisée.</em>
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="conteneur">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
   <!-- 1. DÉFINITION & RÔLE -->
   <section class="card">
-    <h2>1. Qu'est-ce qu'une Servlet ?</h2>
+    <h2>1. Qu'est-ce qu'une servlet ?</h2>
     <div class="card-content">
       <ul class="card-text">
         <li><strong>Nature :</strong> Un composant logiciel Java (une classe) exécuté côté serveur.</li>
-        <li><strong>Le problème d'origine :</strong> À l'origine, un serveur Web ne savait que délivrer des fichiers statiques existant déjà sur son disque dur. Pour afficher une page sur mesure (ex. la météo en direct), il fallait un programme capable de fabriquer la réponse à la demande.</li>
+        <li><strong>Le problème :</strong> Au départ, un serveur web ne savait envoyer que des fichiers statiques déjà présents sur son disque. Pour afficher une page sur mesure (ex. la météo en direct), il fallait un programme capable de fabriquer la réponse à la demande.</li>
         <li><strong>Le rôle :</strong> Intercepter la <span class="terme" data-def="requete-http">requête HTTP</span> envoyée par le navigateur, calculer la réponse (lire une base de données, vérifier des identifiants) et renvoyer le résultat.</li>
+      </ul>
         <div class="card-image">
         <img src="img/ExcalidrawServlet.png" alt="Schéma explicatif d'une Servlet">
       </div>
@@ -65,22 +66,22 @@
   <!-- 2. L'INTERMÉDIAIRE CLÉ : LE CONTENEUR -->
   <section class="card">
     <h2>2. Pourquoi la servlet ne parle pas directement au client ?</h2>
-    <p>Une servlet ne s’occupe jamais directement de la connexion physique ni des ports réseau d'une machine, car elle n'ouvre aucune <span class="terme" data-def="socket">socket</span> pour écouter les messages qui arrivent sur Internet. En réalité, elle confie entièrement cette tâche technique à un <span class="terme" data-def="conteneur">conteneur</span> comme Apache Tomcat, qui se charge de capter les requêtes des internautes, de les traduire en objets Java faciles à manipuler, puis de les transmettre à la servlet pour qu'elle puisse simplement exécuter son code et renvoyer la bonne page web.</p>
+    <p>Une servlet n'ouvre aucune <span class="terme" data-def="socket">socket</span> et ne gère ni la connexion ni les ports réseau. C'est un <span class="terme" data-def="conteneur">conteneur</span> comme Apache Tomcat qui reçoit les requêtes, les traduit en objets Java faciles à manipuler et les transmet à la servlet. Elle n'a plus qu'à exécuter son code et renvoyer la bonne page.</p>
     
-    <h3>Le travail d'orchestration :</h3>
+    <h3>Ce que fait le conteneur :</h3>
     <ul>
       <li>Le conteneur écoute les requêtes brutes qui arrivent d'Internet via le <span class="terme" data-def="protocole-http">protocole HTTP</span>.</li>
-      <li>Il traduit ces données texte en deux objets Java maniables : <code>HttpServletRequest</code> (la commande du client) et <code>HttpServletResponse</code> (la feuille blanche où écrire la réponse).</li>
-      <li>Il trouve la bonne servlet grâce à son <span class="terme" data-def="routage">routage URL</span>, l'exécute, puis transforme la réponse en signaux réseau renvoyés au client.</li>
+      <li>Il les traduit en deux objets Java : <code>HttpServletRequest</code> (la commande du client) et <code>HttpServletResponse</code> (la feuille blanche où écrire la réponse).</li>
+      <li>Il trouve la bonne servlet grâce à son <span class="terme" data-def="routage">routage URL</span>, l'exécute, puis renvoie la réponse au client sur le réseau.</li>
     </ul>
   </section>
 
   <!-- 3. CYCLE DE VIE -->
   <section class="card">
-    <h2>3. Le cycle de vie d'une Servlet</h2>
-    <p>Une servlet ne possède pas de méthode principale <code>main()</code>. C'est le serveur qui contrôle entièrement son existence à travers 3 étapes :</p>
+    <h2>3. Le cycle de vie d'une servlet</h2>
+    <p>Une servlet ne possède pas de méthode principale <code>main()</code>. C'est le serveur qui gère son cycle de vie, en 3 étapes :</p>
     <ul>
-      <li><strong>1. Initialisation (<code>init()</code>) :</strong> Exécutée une seule et unique fois lors de la création de la servlet. Elle sert aux préparatifs lourds (ouvrir la connexion à la base de données, lire des fichiers de réglages).</li>
+      <li><strong>1. Initialisation (<code>init()</code>) :</strong> Exécutée une seule fois, à la création de la servlet. On y met ce qui coûte cher à préparer (ouvrir la connexion à la base de données, lire des fichiers de réglages).</li>
       <li><strong>2. Service (<code>service()</code> / <code>doGet()</code> / <code>doPost()</code>) :</strong> Exécutée à <strong>chaque</strong> requête entrante. La servlet reçoit la demande, fait le calcul et écrit la réponse.</li>
       <li><strong>3. Destruction (<code>destroy()</code>) :</strong> Appelée juste avant l'extinction du serveur pour fermer proprement les connexions et libérer la mémoire.</li>
       <li><strong>Le piège du multithread :</strong> La servlet est généralement un <span class="terme" data-def="singleton">singleton</span> (une seule instance en mémoire pour tout le monde). Chaque visiteur est pris en charge par un <span class="terme" data-def="thread">thread distinct</span>.<br>
@@ -91,11 +92,11 @@
 
   <!-- 4. QUE FABRIQUE UNE SERVLET ? -->
   <section class="card">
-    <h2>4. Que produit une Servlet ? </h2>
-    <p>Une servlet est neutre vis-à-vis du format de données : elle renvoie simplement un flux d'octets. C'est le développeur qui spécifie l'étiquette appelée <span class="terme" data-def="mime-type">type MIME</span> :</p>
+    <h2>4. Que produit une servlet ?</h2>
+    <p>Une servlet renvoie un flux d'octets, quel que soit le format. C'est le développeur qui indique ce format avec le <span class="terme" data-def="mime-type">type MIME</span> :</p>
     <ul>
       <li><strong>Du texte balisé (HTML) :</strong> Générer des pages complètes via <code>response.getWriter()</code> (avec le type <code>text/html</code>).</li>
-      <li><strong>Des données structurées (API JSON / XML) :</strong> Envoyer des données brutes pour les applications mobiles ou les sites modernes via <code>application/json</code>.</li>
+      <li><strong>Des données structurées (API JSON / XML) :</strong> Envoyer des données aux applications mobiles ou à d'autres sites, avec <code>application/json</code>.</li>
       <li><strong>Des fichiers binaires :</strong> Transmettre directement des octets bruts (images à la volée, factures PDF, fichiers ZIP) via <code>response.getOutputStream()</code> avec le type <code>application/pdf</code> ou <code>image/png</code>.</li>
     </ul>
   </section>
@@ -105,23 +106,23 @@
   <div id="tooltip">
     <div id="def-conteneur" class="def-bloc">
       <h3>Conteneur de servlets (ou gestionnaire de servlets)</h3>
-      <p>Le <strong>moteur d'exécution</strong> (ex. Tomcat, Jetty). C'est lui qui héberge la servlet, gère les connexions Internet, applique la sécurité et lance les calculs au bon moment.</p>
+      <p>Le moteur d'exécution (ex. Tomcat, Jetty). Il héberge la servlet, gère les connexions réseau et la sécurité, et appelle les méthodes de la servlet quand une requête arrive.</p>
     </div>
 
 
     <div id="def-requete-http" class="def-bloc">
       <h3>Requête HTTP</h3>
-      <p>Le <strong>message envoyé par le navigateur</strong> pour demander une ressource (ex. « Donne-moi la page /produits » ou « Enregistre ce formulaire »).</p>
+      <p>Le message envoyé par le navigateur pour demander une ressource (ex. « Donne-moi la page /produits » ou « Enregistre ce formulaire »).</p>
     </div>
 
     <div id="def-socket" class="def-bloc">
       <h3>Socket (Prise réseau)</h3>
-      <p>Le <strong>point d'attache virtuel</strong> entre deux machines communicantes sur un réseau, composé d'une adresse IP et d'un numéro de port (ex. 80 pour le Web).</p>
+      <p>Une extrémité de la connexion entre deux machines sur un réseau, identifiée par une adresse IP et un numéro de port (ex. 80 pour le web).</p>
     </div>
 
     <div id="def-protocole-http" class="def-bloc">
       <h3>Protocole HTTP</h3>
-      <p>Est un <strong>protocole de communication </strong> de la couche application qui permet l'échange de contenus en ligne, tels que des pages web, des images ou du texte.</p>
+      <p>Le protocole de la couche application qui sert à échanger des pages web, des images ou du texte.</p>
       <p>
 Les principales méthodes HTTP sont : <br>
 
@@ -136,22 +137,22 @@ Les principales méthodes HTTP sont : <br>
 
     <div id="def-routage" class="def-bloc">
       <h3>Routage URL</h3>
-      <p>L'<strong>aiguillage</strong> du serveur : associer une adresse demandée (ex. <code>/panier</code>) au programme Java spécifique chargé de la traiter.</p>
+      <p>L'aiguillage du serveur : associer une adresse demandée (ex. <code>/panier</code>) au programme Java spécifique chargé de la traiter.</p>
     </div>
 
     <div id="def-singleton" class="def-bloc">
       <h3>Singleton</h3>
-      <p>Un composant dont il n'existe qu'<strong>un seul exemplaire</strong> actif en mémoire pour toute l'application, partagé par tous les utilisateurs.</p>
+      <p>Un composant dont il n'existe qu'un seul exemplaire actif en mémoire pour toute l'application, partagé par tous les utilisateurs.</p>
     </div>
 
     <div id="def-thread" class="def-bloc">
       <h3>Thread (Fil d'exécution)</h3>
-      <p>Un thread distinct (ou fil d'exécution séparé) <strong>est une séquence d'instructions</strong> exécutée de manière autonome et indépendante par le processeur, au sein d'un même programme, afin de permettre l'exécution simultanée de plusieurs tâches sans bloquer les autres.</p>
+      <p>Une suite d'instructions qui s'exécute en parallèle des autres, dans le même programme. Avec plusieurs threads, une tâche lente ne bloque pas les autres.</p>
     </div>
 
     <div id="def-mime-type" class="def-bloc">
       <h3>Type MIME (Content-Type)</h3>
-      <p>L'<strong>étiquette standardisée</strong> qui indique au navigateur ce qu'il reçoit pour savoir comment l'ouvrir (ex. une vidéo, une page web ou un document PDF).</p>
+      <p>L'étiquette standard qui indique au navigateur ce qu'il reçoit pour savoir comment l'ouvrir (ex. une vidéo, une page web ou un document PDF).</p>
     </div>
   </div>
 
