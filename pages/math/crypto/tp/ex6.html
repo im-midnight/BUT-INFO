@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercice 6 - RSA et signature numérique</title>
+
+  <!-- MathJax : affichage des formules écrites entre $...$ et $$...$$ -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <link rel="stylesheet" href="../../../../css/themes.css">
+  <link rel="stylesheet" href="../../../../css/style.css">
+  <script src="../../../../js/site.js"></script>
+  <script src="../../../../js/script.js" defer></script>
+  <style>
+    /* Spécifique à cette page */
+    table { width: 100%; min-width: 560px; border-collapse: collapse; background: var(--surface); margin-top: 1rem; }
+    th, td { border: 1px solid var(--bordure-forte); padding: 0.65rem 0.9rem; text-align: center; vertical-align: middle; }
+    th { background-color: var(--surface-2); }
+    .note-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    .warning-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    pre { white-space: pre-wrap; word-break: break-all; }
+    .ok { font-weight: bold; }
+    .demo-zone { width: 100%; box-sizing: border-box; min-height: 5rem; padding: 0.6rem; font: inherit;
+                 background: var(--surface); color: inherit; border: 1px solid var(--bordure-forte); border-radius: 6px; }
+    .demo-btn { padding: 0.5rem 1rem; font: inherit; cursor: pointer; background: var(--surface-2);
+                color: inherit; border: 1px solid var(--bordure-forte); border-radius: 6px; margin: 0.5rem 0; }
+    #demo-sortie { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <h1>Exercice 6 : RSA et signature numérique</h1>
+  <p style="text-align: center; color: var(--texte-doux);">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="cle-privee">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- INTRODUCTION -->
+  <section class="loi-card">
+    <h2>Principe général</h2>
+    <p>Dans le cryptosystème RSA, chaque personne possède un couple de clés : une <span class="terme" data-def="cle-publique">clé publique</span> $(n, e)$ que tout le monde peut connaître, et une <span class="terme" data-def="cle-privee">clé privée</span> $d$ qu'elle seule connaît. Ce qu'on chiffre avec l'une se déchiffre avec l'autre :</p>
+    $$ \left(m^{e}\right)^{d} \equiv m \pmod n \qquad \text{et} \qquad \left(m^{d}\right)^{e} \equiv m \pmod n $$
+    <ul>
+      <li><strong>Confidentialité :</strong> on chiffre avec la clé <em>publique</em> du destinataire, lui seul peut déchiffrer.</li>
+      <li><strong>Signature :</strong> on chiffre l'<span class="terme" data-def="empreinte">empreinte</span> du message avec sa clé <em>privée</em>, tout le monde peut vérifier avec la clé publique.</li>
+    </ul>
+    <div class="note-box">
+      <strong>Dans le sujet :</strong> c'est Bernard qui signe son message. Ici les rôles sont inversés (Alice signe, Bernard vérifie) : le mécanisme est strictement le même.
+    </div>
+  </section>
+
+  <!-- 6.1 GÉNÉRATION DES CLÉS -->
+  <section class="loi-card">
+    <h2>6.1 Génération de la clé : <code>key_creation()</code></h2>
+    <ul>
+      <li><strong>Principe :</strong> on choisit deux nombres premiers distincts $p$ et $q$ (entre le 26<sup>e</sup> et le 1000<sup>e</sup> nombre premier, donc $\geq 101$ pour que $n = pq > 10\,000$), puis on calcule :
+        $$n = p \cdot q \qquad \varphi(n) = (p-1)(q-1)$$
+      </li>
+      <li><strong>Clé publique $(n, e)$ :</strong> $e$ est choisi premier avec $\varphi(n)$ ($\text{pgcd}(e, \varphi(n)) = 1$), ce qui le rend <span class="terme" data-def="inverse">inversible</span> modulo $\varphi(n)$.</li>
+      <li><strong><span class="terme" data-def="cle-privee">Clé privée</span> $d$ :</strong> l'inverse de $e$ modulo $\varphi(n)$, trouvé par l'algorithme d'Euclide étendu :
+        $$e \cdot d \equiv 1 \pmod{\varphi(n)}$$
+      </li>
+    </ul>
+<pre><code>from rsa_math import *
+
+def key_creation() -&gt; tuple:
+
+    mini = n_premier(26)
+    maxi = n_premier(1000)
+
+    p = chercher_premier(mini, maxi)
+    q = chercher_premier(mini, maxi)
+    print("p :",p)
+    print("q :",q)
+
+    while q == p:
+        q = chercher_premier(mini, maxi)
+        
+    n = p * q
+    phi = (p-1)*(q-1)
+    e = chercher_premier_avec(phi, phi)
+    print("e :",e)
+    while e &lt;= 1:
+        e = chercher_premier_avec(phi, phi)
+    print("phi :",phi)
+    d = inverse_mod_euclide(e, phi)
+    return (n, e, d)</code></pre>
+  </section>
+
+  <!-- BOÎTE À OUTILS rsa_math.py -->
+  <section class="loi-card">
+    <h2>Les fonctions mathématiques de <code>rsa_math.py</code></h2>
+    <p><code>key_creation()</code> ne fait aucun calcul lui-même : tout repose sur six fonctions du fichier <code>rsa_math.py</code>, plus <code>pow</code> de Python pour le chiffrement. Chacune traduit une idée mathématique du cours.</p>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Qui appelle quoi ?</h3>
+<pre><code>key_creation()
+ ├─ n_premier(26), n_premier(10000)      -> bornes mini et maxi
+ │     └─ est_premier
+ ├─ chercher_premier(mini, maxi)  (x2)   -> p et q
+ │     └─ est_premier
+ ├─ chercher_premier_avec(phi, phi)      -> e
+ │     └─ sont_premiers
+ └─ inverse_mod_euclide(e, phi)          -> d
+
+encryption_int / decryption_int          -> pow(m, exposant, n)</code></pre>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Fonction</th>
+            <th>Rôle</th>
+            <th>Idée mathématique</th>
+            <th>Utilisée pour</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>est_premier(n)</code></td>
+            <td>Teste si $n$ est premier</td>
+            <td>Aucun diviseur $\leq \sqrt{n}$ (exercice 1.1)</td>
+            <td>Trouver $p$ et $q$</td>
+          </tr>
+          <tr>
+            <td><code>n_premier(k)</code></td>
+            <td>Renvoie le $k$-ième nombre premier</td>
+            <td>On compte les nombres premiers en parcourant les entiers</td>
+            <td>Les bornes de $p$ et $q$</td>
+          </tr>
+          <tr>
+            <td><code>chercher_premier(mini, maxi)</code></td>
+            <td>Un nombre premier au hasard dans $[\text{mini}, \text{maxi}]$</td>
+            <td>Tirage aléatoire, puis recherche du premier le plus proche</td>
+            <td>$p$ et $q$</td>
+          </tr>
+          <tr>
+            <td><code>sont_premiers(a, b)</code></td>
+            <td>Teste si $a$ et $b$ sont premiers entre eux</td>
+            <td><span class="terme" data-def="pgcd">pgcd</span>$(a, b) = 1$ par l'algorithme d'Euclide</td>
+            <td>Choisir $e$</td>
+          </tr>
+          <tr>
+            <td><code>chercher_premier_avec(n, maxi)</code></td>
+            <td>Un entier au hasard premier avec $n$</td>
+            <td>Tirage aléatoire, puis recherche proche avec <code>sont_premiers</code></td>
+            <td>$e$ premier avec $\varphi(n)$</td>
+          </tr>
+          <tr>
+            <td><code>inverse_mod_euclide(a, b)</code></td>
+            <td>Inverse de $a$ modulo $b$</td>
+            <td>Algorithme d'Euclide étendu, <span class="terme" data-def="bezout">relation de Bézout</span> $au + bv = 1$</td>
+            <td>$d = e^{-1} \bmod \varphi(n)$</td>
+          </tr>
+          <tr>
+            <td><code>pow(m, e, n)</code> (Python)</td>
+            <td>Calcule $m^e \bmod n$</td>
+            <td><span class="terme" data-def="exp-modulaire">Exponentiation modulaire rapide</span></td>
+            <td>Chiffrer, déchiffrer, signer</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">1. <code>est_premier(n)</code> : test de primalité</h3>
+    <p>Si $n$ n'est pas premier, son plus petit diviseur premier est inférieur ou égal à $\sqrt{n}$. Il suffit donc de tester les diviseurs $2, 3, 4, \ldots$ tant que $\text{div}^2 \leq n$, soit environ $\sqrt{n}$ divisions au maximum.</p>
+<pre><code>def est_premier(n:int) -&gt; bool:
+    div = 2
+    if n == 0 or n==1:
+        return False
+    
+    while div*div &lt;= n:
+        if n % div == 0:
+            return False        
+        div += 1
+    return True
+</code></pre>
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">2. <code>n_premier(n)</code> : le $n$-ième nombre premier</h3>
+    <p>On parcourt les entiers à partir de $2$, on compte ceux qui sont premiers, et on s'arrête quand on en a compté $n$. Le 26<sup>e</sup> nombre premier vaut $101$ : avec deux premiers distincts $p, q \geq 101$, on a $n = pq \geq 101 \times 103 = 10\,403 > 9\,999$, donc tous les paquets de 4 chiffres sont inférieurs à $n$.</p>
+<pre><code>def n_premier(n):
+    i=2
+    nbr = 0
+    while nbr &lt; n:
+        if(est_premier(i)):
+            nbr+=1
+        i+=1
+    return i-1</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3. <code>chercher_premier(mini, maxi)</code> : un premier aléatoire</h3>
+    <p>On tire un entier $n$ au hasard dans l'intervalle. S'il est premier, on le renvoie. Sinon on regarde $n+1, n-1, n+2, n-2, \ldots$ jusqu'à trouver un nombre premier. Les nombres premiers sont assez fréquents (environ un entier sur $\ln n$), donc la recherche s'arrête vite. La fonction renvoie $0$ si l'intervalle ne contient aucun premier.</p>
+<pre><code>def chercher_premier(mini:int, maxi:int) -&gt; int:
+    n = randint(mini, maxi)
+    if est_premier(n):
+        return n
+    
+    i = 1
+    while n - i &gt;= mini or n + i &lt;= maxi:
+        if n+i &lt;= maxi and est_premier(n + i):
+            return n + i
+        if n-i &gt;= mini and est_premier(n - i):
+            return n - i
+        i += 1
+    return 0</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">4. <code>sont_premiers(a, b)</code> : algorithme d'Euclide</h3>
+    <p>Le pgcd se calcule avec la relation $\text{pgcd}(a, b) = \text{pgcd}(b,\ a \bmod b)$, répétée jusqu'à obtenir un reste nul. Deux entiers sont premiers entre eux exactement quand ce pgcd vaut $1$.</p>
+<pre><code>def sont_premiers(a:int, b:int) -&gt; bool:
+    while b != 0:
+        a, b = b, a % b
+    return a == 1</code></pre>
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">5. <code>chercher_premier_avec(n, maxi)</code> : choisir $e$</h3>
+    <p>On cherche $e$ tel que $\text{pgcd}(e, \varphi(n)) = 1$. C'est exactement la condition pour que $e$ soit inversible modulo $\varphi(n)$, donc pour que $d$ existe. Même principe que <code>chercher_premier</code> : tirage aléatoire, puis recherche autour du tirage avec <code>sont_premiers</code>.</p>
+<pre><code>def chercher_premier_avec(n:int, maxi:int) -&gt; int:
+    x = randint(1, maxi)
+    if sont_premiers(x,n):
+        return x
+    i = 1
+    while x - i &gt;= n or x + i &lt;= maxi:
+        if x + i &lt;= maxi and sont_premiers(x + i, n):
+            return x + i
+        if x - i &gt;= 1 and sont_premiers(x - i, n):
+            return x - i
+        i += 1
+    return 0</code></pre>
+    <div class="note-box">
+      <strong>Détail :</strong> la valeur $1$ est toujours première avec $\varphi(n)$ mais ne chiffre rien ($m^1 = m$). C'est pourquoi <code>key_creation()</code> contient <code>while e &lt;= 1</code> : si la fonction renvoie $1$ (ou $0$ en cas d'échec), un nouvel $e$ est tiré. Dans la condition de la boucle, <code>x - i &gt;= n</code> n'est jamais vraie quand <code>maxi = n</code> (puisque $x \leq n$) : la recherche vers le bas n'est donc effectuée que tant que <code>x + i &lt;= maxi</code>. Cela ne change pas la correction grâce à ce nouveau tirage.
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">6. <code>inverse_mod_euclide(a, b)</code> : calcul de $d$</h3>
+    <p>L'algorithme d'Euclide étendu construit, à chaque division, des coefficients $u_i$ et $v_i$ tels que :</p>
+    $$ r_i = a\,u_i + b\,v_i $$
+    <p>Quand le dernier reste non nul vaut $1$ (donc $\text{pgcd}(a, b) = 1$), on a $au + bv = 1$, c'est-à-dire $au \equiv 1 \pmod b$ : $u$ est l'inverse de $a$ modulo $b$. On renvoie <code>u0 % b</code> pour obtenir une valeur positive, et <code>None</code> si $a$ n'est pas inversible.</p>
+<pre><code>def inverse_mod_euclide(a:int, b:int):
+    r0, r1 = a, b
+    u0, u1 = 1, 0
+    v0, v1 = 0, 1
+    while r1 != 0:
+        q = r0 // r1
+        r0, r1 = r1, r0 - q * r1
+        u0, u1 = u1, u0 - q * u1
+        v0, v1 = v1, v0 - q * v1
+
+    if r0 == 1:
+        return u0 % b
+
+    return None</code></pre>
+
+  <!-- 6.2 CHIFFREMENT D'UN ENTIER -->
+  <section class="loi-card">
+    <h2>6.2 Chiffrer et déchiffrer un entier</h2>
+    <ul>
+      <li><strong>Chiffrement :</strong> $c = m^{e} \bmod n$</li>
+      <li><strong>Déchiffrement :</strong> $m = c^{d} \bmod n$, valable pour $0 \leq m < n$.</li>
+      <li><strong>Pourquoi ça marche :</strong> $c^d \equiv m^{ed}$ et $ed = 1 + k\,\varphi(n)$. Par le <span class="terme" data-def="euler">théorème d'Euler</span>, $m^{\varphi(n)} \equiv 1 \pmod n$ (si $m$ est premier avec $n$), donc $m^{ed} \equiv m \cdot (m^{\varphi(n)})^k \equiv m \pmod n$.</li>
+      <li><strong>En Python :</strong> <code>pow(m, e, n)</code> fait l'exponentiation modulaire rapide, sans calculer l'énorme nombre $m^e$.</li>
+    </ul>
+  </section>
+
+  <!-- 6.3 / 6.4 PAR PAQUETS -->
+  <section class="loi-card">
+    <h2>6.3 et 6.4 Message long : découpage en paquets de 4 chiffres</h2>
+    <ul>
+      <li><strong>Pourquoi 4 chiffres ?</strong> Chaque paquet est un entier entre $0$ et $9999$. Comme $n > 10\,000$, chaque paquet est bien strictement inférieur à $n$ et ne perd donc aucune information lors du calcul modulo $n$.</li>
+      <li><strong>Chiffrement :</strong> on complète le nombre avec des $0$ à gauche pour que sa longueur soit un multiple de 4, on découpe en paquets $c_i$ et on calcule $c_i^{\,\text{exposant}} \bmod n$ pour chacun. Le résultat est une <strong>liste</strong> d'entiers.</li>
+      <li><strong>Déchiffrement :</strong> on déchiffre chaque élément de la liste puis on recolle les paquets avec <code>res = res * 10000 + paquet</code>.</li>
+      <li><strong>Remarque :</strong> les fonctions prennent l'exposant en paramètre (nommé <code>e</code> dans <code>encryption</code> et <code>d</code> dans <code>decryption</code>). Pour une signature on les utilise donc "à l'envers", voir 6.5.</li>
+    </ul>
+<pre><code>import math
+def encryption_int(n,e,m) -&gt; int:
+    return pow(m,e,n)
+
+def decryption_int(n,d,c) -&gt; int:
+    return pow(c,d,n)
+
+def encryption(n,e,msg) -&gt; str:
+    res=[]
+    s = str(msg)
+    while len(s) % 4 != 0:
+        s = "0" + s
+    for i in range(0, len(s), 4):
+        bits = int(s[i:i+4])
+        res.append(encryption_int(n,e,bits))
+    return res
+
+
+def decryption(n,d,msg) -&gt; int:
+    res = 0
+    for c in msg:
+        res = res * 10000 + decryption_int(n,d,c)
+    return res</code></pre>
+  </section>
+
+  <!-- 6.5 AUTHENTIFICATION -->
+  <section class="loi-card">
+    <h2>6.5 Message signé : Alice envoie $(m,\ h(m)^d)$</h2>
+    <p>La clé publique d'Alice $(n, e)$ est connue de tout le monde, seule Alice connaît $d$. Alice envoie à Bernard son message $m$ accompagné de $h(m)^d$, et Bernard vérifie avec $e$.</p>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">a. Calcul de l'<span class="terme" data-def="empreinte">empreinte</span></h3>
+<pre><code>import hashlib as hash
+message="Je déclare être bien l'auteur de ce texte par lequel je te déclare ma flamme. Bien romantiquement. Alice"
+message_utf8=message.encode()
+message_hash=hash.sha256(message_utf8).hexdigest()    # SHA-256, en hexadécimal
+number_message_hash=int(message_hash,16)              # conversion en entier base 10</code></pre>
+    <ul>
+      <li>Message utilisé : <em>« Je déclare être bien l'auteur de ce texte par lequel je te déclare ma flamme. Bien romantiquement. Alice »</em></li>
+      <li>Empreinte <span class="terme" data-def="sha256">SHA-256</span> (hexadécimal) :
+<pre><code>0adbd6e87ad369a21e80c5ea2b6747ec9dc08c5d402ea5900d013aa6d173a32c</code></pre>
+      </li>
+      <li>Empreinte convertie en entier base 10 ($h(m)$, 76 chiffres) :
+<pre><code>4911551234380039706606657750189788292486623056763336247687767279071288075052</code></pre>
+      </li>
+    </ul>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">b. Chiffrement de l'empreinte : ce qu'Alice envoie</h3>
+    <ul>
+      <li>Alice <strong>chiffre l'empreinte avec sa clé privée</strong> $d$ (et non avec $e$) : paquet par paquet,
+        $$S_i = c_i^{\,d} \bmod n$$
+        où les $c_i$ sont les paquets de 4 chiffres de $h(m)$. La signature est la liste $S = [S_1, \dots, S_{19}]$.
+      </li>
+      <li><strong>Alice envoie à Bernard le couple $(m, S)$</strong> : le message $m$ <strong>en clair</strong> (il n'est pas confidentiel) et la signature $S$ (le chiffrement de l'empreinte).</li>
+    </ul>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">c. Vérification par Bernard</h3>
+    <ul>
+      <li>Bernard reçoit $(m', S)$. Il fait <strong>deux calculs indépendants</strong> :
+        <ol>
+          <li><strong>Il hache lui-même le message reçu</strong> : $h(m')$.</li>
+          <li><strong>Il déchiffre la signature avec la clé publique d'Alice</strong> : $S_i^{\,e} \bmod n$ pour chaque paquet, puis il recolle les paquets pour obtenir un entier $h_{\text{déchiffré}}$.</li>
+        </ol>
+      </li>
+      <li>Il compare : si $h_{\text{déchiffré}} = h(m')$, la signature est valide.</li>
+      <li><strong>Pourquoi ça marche :</strong>
+        $$\left(h(m)^{d}\right)^{e} = h(m)^{ed} \equiv h(m) \pmod n \qquad \text{car } ed \equiv 1 \pmod{\varphi(n)}$$
+        (c'est la même égalité qu'en 6.2, avec les rôles de $e$ et $d$ échangés, car $e$ et $d$ sont inverses l'un de l'autre.)
+      </li>
+    </ul>
+<pre><code>from rsa_cles import *
+from rsa_encrypt import *
+import hashlib as hash
+
+n, e, d = key_creation()   # Alice : (n,e) est publique, d est privée
+
+# ---------- Côté Alice ----------
+message = "Je déclare être bien l'auteur de ce texte par lequel je te déclare ma flamme. Bien romantiquement. Alice"
+number_message_hash = int(hash.sha256(message.encode()).hexdigest(), 16)
+signature = encryption(n, d, number_message_hash)      # h(m)^d  (avec la clé PRIVÉE)
+# Alice envoie (message, signature) à Bernard
+
+# ---------- Côté Bernard ----------
+message_recu = message                                 # (ou une version modifiée en route)
+hash_recu = int(hash.sha256(message_recu.encode()).hexdigest(), 16)
+hash_decrypte = decryption(n, e, signature)            # (h(m)^d)^e  (avec la clé PUBLIQUE d'Alice)
+
+print("Signature valide :", hash_decrypte == hash_recu)</code></pre>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Étape</th><th>Alice (émettrice)</th><th>Bernard (récepteur)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>Calcule $h(m)$ (SHA-256 puis conversion en entier)</td><td></td></tr>
+          <tr><td><strong>2</strong></td><td>Calcule $S = h(m)^d \bmod n$ (par paquets de 4 chiffres)</td><td></td></tr>
+          <tr><td><strong>3</strong></td><td>Envoie $(m, S)$</td><td>Reçoit $(m', S)$</td></tr>
+          <tr><td><strong>4</strong></td><td></td><td>Calcule $h(m')$ à partir du message reçu</td></tr>
+          <tr><td><strong>5</strong></td><td></td><td>Calcule $S^e \bmod n$ avec la clé publique $(n, e)$ d'Alice</td></tr>
+          <tr><td><strong>6</strong></td><td></td><td>Compare : $S^e \bmod n = h(m')$ ?</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Ce que prouve la vérification</h3>
+    <ul>
+      <li><strong><span class="terme" data-def="non-repudiation">Non-répudiation</span> (authenticité) :</strong> seule Alice connaît $d$. Si le déchiffrement avec $e$ redonne bien une empreinte cohérente, c'est que la signature a été fabriquée avec $d$, donc par Alice. Elle ne peut pas nier en être l'auteur.</li>
+      <li><strong><span class="terme" data-def="integrite">Intégrité</span> :</strong> si le message est modifié en route, $h(m') \neq h(m)$ (une seule lettre changée donne une empreinte totalement différente) et la comparaison échoue.</li>
+    </ul>
+
+    <div class="warning-box">
+      <strong>Pourquoi pas $e$ pour signer ?</strong> Tout le monde connaît $e$ : n'importe qui pourrait produire une "signature" $h(m)^e$. Seul $d$, secret, rend la signature infalsifiable. C'est pour cela que <code>encryption(n, d, ...)</code> est appelée avec la clé privée.
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Cas d'un message modifié</h3>
+    <ul>
+      <li>Si un attaquant change « Alice » en « Alicia » dans $m$, Bernard obtient $h(m')$ :
+<pre><code>95055973276689786107989102804628048795374184475947868504737227745010401922767</code></pre>
+      </li>
+      <li>Or $S^e \bmod n$ redonne toujours $4911551234\dots075052$. Les deux entiers sont différents : <strong>la vérification échoue</strong>, Bernard rejette le message.</li>
+      <li>L'attaquant ne peut pas non plus recalculer une signature pour son message modifié sans connaître $d$.</li>
+    </ul>
+  </section>
+
+  <!-- DÉMO INTERACTIVE -->
+  <section class="loi-card">
+    <h2>Démo : signer et vérifier</h2>
+    <p>Mêmes clés que dans l'exemple ($n = 845\,479\,919$, $e = 423\,938\,503$, $d = 148\,621\,351$). Modifie le message reçu par Bernard et observe la vérification.</p>
+    <label for="msg-alice"><strong>Message envoyé par Alice ($m$)</strong></label>
+    <textarea id="msg-alice" class="demo-zone"></textarea>
+    <label for="msg-bernard"><strong>Message reçu par Bernard ($m'$)</strong></label>
+    <textarea id="msg-bernard" class="demo-zone"></textarea>
+    <button type="button" class="demo-btn" id="btn-recopier">Recopier le message d'Alice (aucune modification)</button>
+    <div id="demo-sortie"></div>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse des Notions Clés</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Notion / Outil</th>
+            <th>Rôle / Définition principale</th>
+            <th>Expression / Formule clé</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Clé publique / privée</strong></td>
+            <td>$(n, e)$ est publique, $d$ reste secrète (inverse de $e$ modulo $\varphi(n)$)</td>
+            <td>$e \cdot d \equiv 1 \pmod{\varphi(n)}$</td>
+          </tr>
+          <tr>
+            <td><strong>Chiffrement (confidentialité)</strong></td>
+            <td>On chiffre avec la clé publique du destinataire, lui seul déchiffre avec sa clé privée</td>
+            <td>$c = m^e \bmod n$, $m = c^d \bmod n$</td>
+          </tr>
+          <tr>
+            <td><strong>Signature (authenticité)</strong></td>
+            <td>L'émetteur chiffre l'empreinte avec sa clé privée, tout le monde vérifie avec sa clé publique</td>
+            <td>$S = h(m)^d \bmod n$, vérif : $S^e \bmod n = h(m')$</td>
+          </tr>
+          <tr>
+            <td><strong>Empreinte (hachage)</strong></td>
+            <td>Résumé de taille fixe du message, très sensible à toute modification</td>
+            <td>SHA-256 : 256 bits, soit 64 caractères hexadécimaux</td>
+          </tr>
+          <tr>
+            <td><strong>Paquets de 4 chiffres</strong></td>
+            <td>Permet de traiter un grand nombre avec un petit $n$</td>
+            <td>paquet $< 10\,000 < n$ ; recollage : <code>res * 10000 + c</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-box">
+      <strong>À retenir :</strong> pour signer, Alice chiffre l'empreinte avec sa clé privée $d$ ; Bernard déchiffre avec la clé publique $e$ et compare avec l'empreinte qu'il calcule lui-même. Égalité = message authentique et intègre.
+    </div>
+  </section>
+
+  <!-- INFOBULLE DES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-pgcd" class="def-bloc">
+      <h3>PGCD</h3>
+      <p>Le plus grand diviseur commun de deux entiers. Deux entiers sont premiers entre eux quand leur pgcd vaut $1$. L'algorithme d'Euclide le calcule par divisions successives.</p>
+    </div>
+
+    <div id="def-bezout" class="def-bloc">
+      <h3>Relation de Bézout</h3>
+      <p>Pour deux entiers $a$ et $b$ de pgcd $d$, il existe des entiers $u$ et $v$ tels que $au + bv = d$. Quand $d = 1$, $u$ est l'inverse de $a$ modulo $b$.</p>
+    </div>
+
+    <div id="def-exp-modulaire" class="def-bloc">
+      <h3>Exponentiation modulaire rapide</h3>
+      <p>Méthode qui calcule $a^b \bmod n$ en parcourant les bits de $b$ : à chaque étape on élève au carré et on réduit modulo $n$. Le nombre d'opérations est de l'ordre de $\log_2 b$.</p>
+    </div>
+
+    <div id="def-inverse" class="def-bloc">
+      <h3>Inverse modulaire</h3>
+      <p>Un entier $a$ est inversible modulo $m$ s'il existe $u$ tel que $a \cdot u \equiv 1 \pmod m$. C'est le cas exactement quand $\text{pgcd}(a, m) = 1$ ; $u$ se calcule avec l'algorithme d'Euclide étendu (coefficients de Bézout).</p>
+    </div>
+
+    <div id="def-cle-publique" class="def-bloc">
+      <h3>Clé publique</h3>
+      <p>Le couple $(n, e)$, diffusé à tout le monde. Elle sert à chiffrer un message pour son propriétaire, ou à vérifier une signature qu'il a produite.</p>
+    </div>
+
+    <div id="def-cle-privee" class="def-bloc">
+      <h3>Clé privée</h3>
+      <p>L'exposant $d$, connu uniquement de son propriétaire. Retrouver $d$ à partir de $(n, e)$ demande de factoriser $n$, ce qui est infaisable pour de grands nombres (ici $n$ est petit, c'est un exercice pédagogique).</p>
+    </div>
+
+    <div id="def-euler" class="def-bloc">
+      <h3>Théorème d'Euler</h3>
+      <p>Si $\text{pgcd}(a, n) = 1$, alors $a^{\varphi(n)} \equiv 1 \pmod n$. Pour $n = pq$ : $\varphi(n) = (p-1)(q-1)$. C'est ce qui garantit que le déchiffrement RSA retrouve le message.</p>
+    </div>
+
+    <div id="def-empreinte" class="def-bloc">
+      <h3>Empreinte</h3>
+      <p>Valeur de taille fixe $h(m)$ calculée à partir d'un message par une fonction de hachage. Deux messages différents ont (en pratique) deux empreintes différentes, et on ne peut pas retrouver le message à partir de son empreinte.</p>
+    </div>
+
+    <div id="def-sha256" class="def-bloc">
+      <h3>SHA-256</h3>
+      <p>Fonction de hachage cryptographique produisant une empreinte de 256 bits (64 caractères hexadécimaux), quelle que soit la taille du message.</p>
+    </div>
+
+    <div id="def-non-repudiation" class="def-bloc">
+      <h3>Non-répudiation</h3>
+      <p>Garantie qu'un auteur ne peut pas nier avoir produit un message, parce que sa signature n'a pu être fabriquée qu'avec sa clé privée.</p>
+    </div>
+
+    <div id="def-integrite" class="def-bloc">
+      <h3>Intégrité</h3>
+      <p>Garantie qu'un message reçu est identique à celui qui a été envoyé, sans modification en route.</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+  <!-- DÉMO : RSA avec BigInt, mêmes fonctions que le code Python -->
+  <script>
+    const N = 845479919n, E = 423938503n, D = 148621351n;
+
+    function modPow(base, exp, mod) {
+      let res = 1n;
+      base %= mod;
+      while (exp > 0n) {
+        if (exp & 1n) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp >>= 1n;
+      }
+      return res;
+    }
+
+    async function empreinte(texte) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texte));
+      const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      return { hex: hex, entier: BigInt('0x' + hex) };
+    }
+
+    // encryption(n, exposant, msg) : paquets de 4 chiffres
+    function encryption(n, exposant, msg) {
+      let s = msg.toString();
+      while (s.length % 4 !== 0) s = '0' + s;
+      const res = [];
+      for (let i = 0; i < s.length; i += 4) {
+        res.push(modPow(BigInt(parseInt(s.slice(i, i + 4), 10)), exposant, n));
+      }
+      return res;
+    }
+
+    // decryption(n, exposant, liste) : on recolle avec res * 10000 + paquet
+    function decryption(n, exposant, liste) {
+      let res = 0n;
+      for (const c of liste) res = res * 10000n + modPow(c, exposant, n);
+      return res;
+    }
+
+    function echapper(t) {
+      return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    const zoneAlice = document.getElementById('msg-alice');
+    const zoneBernard = document.getElementById('msg-bernard');
+    const sortie = document.getElementById('demo-sortie');
+
+    zoneAlice.value = "Je déclare être bien l'auteur de ce texte par lequel je te déclare ma flamme. Bien romantiquement. Alice";
+    zoneBernard.value = zoneAlice.value;
+
+    async function recalculer() {
+      try {
+        const hAlice = await empreinte(zoneAlice.value);
+        const signature = encryption(N, D, hAlice.entier);           // Alice : h(m)^d
+        const hBernard = await empreinte(zoneBernard.value);          // Bernard : h(m')
+        const hDecrypte = decryption(N, E, signature);                // Bernard : (h(m)^d)^e
+        const valide = (hDecrypte === hBernard.entier);
+
+        sortie.innerHTML =
+          '<p><strong>Alice envoie</strong> $(m, S)$ avec la signature S (' + signature.length + ' paquets) :</p>' +
+          '<pre><code>' + signature.join(', ') + '</code></pre>' +
+          '<p><strong>Bernard calcule</strong> h(m\u2032) sur le message reçu :</p>' +
+          '<pre><code>' + hBernard.entier.toString() + '</code></pre>' +
+          '<p><strong>Bernard déchiffre</strong> S avec la clé publique (n, e) :</p>' +
+          '<pre><code>' + hDecrypte.toString() + '</code></pre>' +
+          '<p class="ok">' + (valide
+            ? '✅ Les deux valeurs sont égales : signature valide (message authentique et intègre).'
+            : '❌ Les deux valeurs sont différentes : le message a été modifié, signature rejetée.') + '</p>';
+        if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([sortie]);
+      } catch (err) {
+        sortie.textContent = 'Calcul impossible dans ce contexte (SHA-256 du navigateur indisponible). Ouvre la page en https ou en local.';
+      }
+    }
+
+    zoneAlice.addEventListener('input', recalculer);
+    zoneBernard.addEventListener('input', recalculer);
+    document.getElementById('btn-recopier').addEventListener('click', () => {
+      zoneBernard.value = zoneAlice.value;
+      recalculer();
+    });
+    recalculer();
+  </script>
+
+</body>
+</html>
