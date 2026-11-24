@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TD3 : Ordonnancement en Go (Programmation système) | BUT Info Nantes</title>
+  <meta name="description" content="Comprendre et implémenter en Go les cinq algorithmes d'ordonnancement de tâches : FCFS, SJF, SRT, Round Robin et Priorités statiques.">
+  <meta name="theme-color" content="#2563eb">
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <!-- MathJax : affichage des formules écrites entre $...$ et $$...$$ -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <!-- Feuilles de style du site BUT INFO2 (avec styles de secours intégrés ci-dessous pour affichage autonome) -->
+  <link rel="stylesheet" href="../../../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../../../assets/css/style.css">
+  <script>
+    (function () {
+      var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true };
+      try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {}
+      var h = document.documentElement;
+      h.dataset.theme = r.theme;
+      h.dataset.mode = r.mode;
+      h.dataset.syntaxe = r.syntaxe ? "on" : "off";
+      if (r.hc) h.dataset.hc = "on";
+    })();
+  </script>
+  <script src="../../../../assets/js/site.js" defer></script>
+  <script src="../../../../assets/js/script.js" defer></script>
+
+  <style>
+    /* Variables et mise en page compatibles avec style.css / themes.css + rendu autonome */
+    :root {
+      --primaire: #2563eb;
+      --primaire-fonce: #1d4ed8;
+      --fond: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #eff6ff;
+      --texte: #0f172a;
+      --texte-doux: #475569;
+      --bordure: #cbd5e1;
+      --bordure-forte: #94a3b8;
+    }
+
+    html[data-mode="sombre"] {
+      --primaire: #60a5fa;
+      --primaire-fonce: #93c5fd;
+      --fond: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #172554;
+      --texte: #f1f5f9;
+      --texte-doux: #94a3b8;
+      --bordure: #334155;
+      --bordure-forte: #475569;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--fond);
+      color: var(--texte);
+      line-height: 1.6;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 4rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primaire-fonce);
+      margin-bottom: 0.4rem;
+    }
+
+    h2 {
+      color: var(--primaire-fonce);
+      border-bottom: 2px solid var(--surface-2);
+      padding-bottom: 0.35rem;
+      margin-top: 0;
+    }
+
+    .loi-card {
+      background: var(--surface);
+      border: 1px solid var(--bordure);
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: collapse;
+      background: var(--surface);
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid var(--bordure-forte);
+      padding: 0.65rem 0.9rem;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: var(--surface-2);
+    }
+
+    pre {
+      background: var(--fond);
+      border: 1px solid var(--bordure);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9rem;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .note-box {
+      background: var(--surface-2);
+      border-left: 4px solid var(--primaire);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+    }
+
+    .warning-box {
+      background: rgba(245, 158, 11, 0.12);
+      border-left: 4px solid #d97706;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+    }
+
+    .terme {
+      color: var(--primaire);
+      border-bottom: 1.5px dashed var(--primaire);
+      cursor: help;
+      font-weight: 500;
+    }
+
+    #tooltip {
+      display: none;
+      position: absolute;
+      z-index: 1000;
+      max-width: 340px;
+      background: var(--surface);
+      color: var(--texte);
+      border: 1px solid var(--primaire);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+      font-size: 0.9rem;
+    }
+
+    #tooltip h3 {
+      margin: 0 0 0.3rem;
+      font-size: 1rem;
+      color: var(--primaire-fonce);
+    }
+
+    #tooltip p {
+      margin: 0;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+
+    /* Spécifique simulateur TD3 */
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      margin: 0.75rem 0;
+    }
+
+    .demo-select, .demo-btn {
+      padding: 0.5rem 0.9rem;
+      font: inherit;
+      cursor: pointer;
+      background: var(--surface-2);
+      color: inherit;
+      border: 1px solid var(--bordure-forte);
+      border-radius: 6px;
+    }
+
+    .demo-btn.actif {
+      background: var(--primaire);
+      color: #ffffff;
+      border-color: var(--primaire);
+      font-weight: 600;
+    }
+
+    .gantt-wrapper {
+      overflow-x: auto;
+      margin-top: 1rem;
+      border: 1px solid var(--bordure);
+      border-radius: 8px;
+      padding: 0.75rem;
+      background: var(--fond);
+    }
+
+    .gantt-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+    }
+
+    .gantt-label {
+      width: 115px;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    .gantt-cells {
+      display: flex;
+    }
+
+    .gantt-cell {
+      width: 11px;
+      height: 18px;
+      border-right: 1px solid rgba(148, 163, 184, 0.35);
+      border-top: 1px solid rgba(148, 163, 184, 0.35);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+      background: #ffffff;
+      box-sizing: border-box;
+    }
+
+    .gantt-cell:first-child {
+      border-left: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .gantt-cell.run {
+      background: #22c55e;
+    }
+
+    .gantt-cell.idle {
+      background: #e2e8f0;
+    }
+
+    .astuce-tactile { display: none; }
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>TD3 : Ordonnancement des tâches en Go</h1>
+  <p style="text-align: center; color: var(--texte-doux);">
+    Programmation système - BUT Informatique, deuxième année<br>
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="ordonnanceur">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. PRINCIPE GÉNÉRAL DU TD -->
+  <section class="loi-card">
+    <h2>1. Principe général et architecture du projet</h2>
+    <p>L'objectif de ce TD est de comprendre et d'implémenter cinq algorithmes classiques d'<span class="terme" data-def="ordonnanceur">ordonnancement</span> de processus/tâches en langage <strong>Go</strong>. À chaque unité de temps (appelée <span class="terme" data-def="tick">pas de temps ou tick</span>), le programme principal interroge la fonction d'ordonnancement choisie pour savoir quelle tâche doit occuper le processeur.</p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Fichier</th>
+            <th>Rôle dans le module <code>ordo</code></th>
+            <th>Option <code>-sched</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ordo.go</code></td>
+            <td>Fonction <code>main</code>, lecture JSON, boucle temporelle et serveur web (<code>:8080</code>)</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td><code>fcfs.go</code></td>
+            <td><strong>FCFS</strong> - <em>First Come First Served</em> (premier arrivé, premier servi)</td>
+            <td><code>0</code> (défaut)</td>
+          </tr>
+          <tr>
+            <td><code>sjf.go</code></td>
+            <td><strong>SJF</strong> - <em>Shortest Job First</em> (tâche la plus courte d'abord, non préemptif)</td>
+            <td><code>1</code></td>
+          </tr>
+          <tr>
+            <td><code>srt.go</code></td>
+            <td><strong>SRT</strong> - <em>Shortest Remaining Time</em> (temps restant le plus court, préemptif)</td>
+            <td><code>2</code></td>
+          </tr>
+          <tr>
+            <td><code>rr.go</code></td>
+            <td><strong>RR</strong> - <em>Round Robin</em> (tourniquet avec quantum de temps)</td>
+            <td><code>3</code></td>
+          </tr>
+          <tr>
+            <td><code>static.go</code></td>
+            <td><strong>Priorités statiques</strong> - ordonnancement selon la priorité fixe de la tâche</td>
+            <td><code>4</code></td>
+          </tr>
+          <tr>
+            <td><code>tasks.json</code></td>
+            <td>Jeu de données d'entrée au format JSON (7 tâches avec ID, priorité, durée et arrivée)</td>
+            <td><code>-json</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem; margin-top: 1.2rem;">Questions du sujet sur <code>ordo.go</code></h3>
+    <ul>
+      <li><strong>Paramètres acceptés par le programme :</strong> le package <code>flag</code> définit deux options en ligne de commande :
+        <ul>
+          <li><code>-json &lt;fichier&gt;</code> : chemin vers le fichier JSON des tâches (valeur par défaut : <code>"tasks.json"</code>).</li>
+          <li><code>-sched &lt;entier&gt;</code> : numéro de l'ordonnanceur à utiliser (<code>0</code> = FCFS, <code>1</code> = SJF, <code>2</code> = SRT, <code>3</code> = RR, <code>4</code> = Priorités statiques ; défaut : <code>0</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Lancer l'ordonnanceur SRT sur <code>tasks2.json</code> :</strong>
+<pre><code>go run . -json tasks2.json -sched 2</code></pre>
+      </li>
+      <li><strong>Visualisation :</strong> une fois le planning calculé, <code>displaySchedule</code> démarre un serveur HTTP local accessible sur <code>http://localhost:8080</code> qui dessine un <span class="terme" data-def="gantt">diagramme de Gantt</span> (histogramme temporel) en vert pour chaque tâche.</li>
+    </ul>
+  </section>
+
+  <!-- 2. FONCTIONNEMENT DE ORDO.GO & TASKS.JSON -->
+  <section class="loi-card">
+    <h2>2. Le moteur de simulation (<code>ordo.go</code>) et les données (<code>tasks.json</code>)</h2>
+    <p>Chaque tâche est modélisée par la structure <code>task</code> et lue depuis <code>tasks.json</code> :</p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><code>ID</code></th>
+            <th><code>Priority</code></th>
+            <th><code>Duration</code></th>
+            <th><code>Arrival</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td>10</td><td>23</td><td>5</td></tr>
+          <tr><td>1</td><td>8</td><td>7</td><td>0</td></tr>
+          <tr><td>2</td><td>5</td><td>21</td><td>2</td></tr>
+          <tr><td>3</td><td>4</td><td>18</td><td>4</td></tr>
+          <tr><td>4</td><td>3</td><td>5</td><td>1</td></tr>
+          <tr><td>5</td><td>2</td><td>1</td><td>3</td></tr>
+          <tr><td>6</td><td>1</td><td>35</td><td>6</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top: 0.9rem;">La somme des durées vaut $23 + 7 + 21 + 18 + 5 + 1 + 35 = 110$ pas de temps. La boucle principale de <code>ordo.go</code> s'exécute pour $t \in [0, 110]$ :</p>
+    <ol>
+      <li>Elle récupère la tranche <code>tasks[from:to]</code> contenant uniquement les tâches dont <code>Arrival == t</code>.</li>
+      <li>Elle appelle <code>runningTask := sched(tasks[from:to])</code>.</li>
+      <li>Si <code>runningTask != nil</code>, elle enregistre <code>schedule[t] = runningTask.ID</code> et décrémente <code>runningTask.Duration--</code> directement via le pointeur retourné.</li>
+    </ol>
+
+    <div class="note-box">
+      <strong>Point technique important :</strong> comme chaque ordonnanceur renvoie un pointeur <code>*task</code> vers l'élément stocké dans sa file interne (<code>&amp;tasks[0]</code>, <code>&amp;chosen</code>...), la décrémentation <code>runningTask.Duration--</code> effectuée dans <code>ordo.go</code> met directement à jour la durée restante de la tâche dans l'ordonnanceur (sauf copie locale par valeur).
+    </div>
+
+<pre><code>// Extrait de ordo.go : boucle d'ordonnancement
+nextTask := 0
+for t := 0; t &lt; totalDuration+1; t++ {
+	from := nextTask
+	for nextTask &lt; len(tasks) &amp;&amp; tasks[nextTask].Arrival == t {
+		nextTask++
+	}
+	to := nextTask
+
+	runningTask := sched(tasks[from:to])
+	if runningTask != nil {
+		schedule[t] = runningTask.ID
+		runningTask.Duration--
+	} else {
+		schedule[t] = -1
+	}
+}</code></pre>
+  </section>
+
+  <!-- 3. LES CINQ ALGORITHMES D'ORDONNANCEMENT -->
+  <section class="loi-card">
+    <h2>3. Les cinq fonctions d'ordonnancement implémentées</h2>
+    <p>Voici les cinq algorithmes codés pour le TD3, avec leur principe de fonctionnement et leur code Go exact.</p>
+
+    <!-- 3.1 FCFS -->
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.1 First Come First Served - <code>fcfs.go</code> (<code>-sched 0</code>)</h3>
+    <ul>
+      <li><strong>Principe :</strong> politique <span class="terme" data-def="fifo">FIFO</span> et <span class="terme" data-def="non-preemptif">non préemptive</span>. Les nouvelles tâches sont ajoutées à la fin de la tranche globale <code>tasks</code>.</li>
+      <li><strong>Fonctionnement du code :</strong> si la tâche en tête (<code>tasks[0]</code>) a une durée $\leq 0$, elle est retirée (<code>tasks = tasks[1:]</code>) et <code>fcfs</code> s'appelle récursivement jusqu'à trouver une tâche active ou vider la file.</li>
+    </ul>
+<pre><code>package main
+
+var tasks = []task{}
+
+// Ordonnanceur premier arrivé premier servi (first come first served)
+func fcfs(newTasks []task) (currentTask *task) {
+	tasks = append(tasks, newTasks...)
+
+	if len(tasks) &gt; 0 &amp;&amp; tasks[0].Duration &lt;= 0 {
+		tasks = tasks[1:]
+		return fcfs(tasks)
+	}
+
+	if len(tasks) == 0 {
+		return nil
+	}
+
+	return &amp;tasks[0]
+}</code></pre>
+
+    <!-- 3.2 SJF -->
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.2 Shortest Job First - <code>sjf.go</code> (<code>-sched 1</code>)</h3>
+    <ul>
+      <li><strong>Principe :</strong> politique <span class="terme" data-def="non-preemptif">non préemptive</span> qui choisit, parmi toutes les tâches déjà arrivées, celle ayant la plus petite durée totale d'exécution (en départageant les égalités par <code>Arrival</code>).</li>
+      <li><strong>Fonctionnement du code :</strong> tant que la tâche pointée par <code>chosen</code> a encore <code>Duration &gt; 0</code>, elle conserve le processeur sans être interrompue. Une fois terminée, la liste <code>tasks</code> est filtrée et triée par durée croissante via <code>sort.Slice</code>.</li>
+    </ul>
+<pre><code>package main
+
+import "sort"
+
+var chosen *task
+
+func sjf(newTasks []task) (chosenTask *task) {
+	tasks = append(tasks, newTasks...)
+
+	// Purge les tâches déjà terminées
+	filtered := tasks[:0]
+	for _, t := range tasks {
+		if t.Duration &gt; 0 {
+			filtered = append(filtered, t)
+		}
+	}
+	tasks = filtered
+
+	// Si une tâche est déjà en cours et non terminée, on continue (non préemptif)
+	if chosen != nil &amp;&amp; chosen.Duration &gt; 0 {
+		for i := range tasks {
+			if tasks[i].ID == chosen.ID {
+				chosen = &amp;tasks[i]
+				return chosen
+			}
+		}
+	}
+
+	if len(tasks) == 0 {
+		chosen = nil
+		return nil
+	}
+
+	// Sélectionne la tâche restante de plus petite Duration
+	sort.Slice(tasks, func(i, j int) bool {
+		if tasks[i].Duration == tasks[j].Duration {
+			return tasks[i].Arrival &lt; tasks[j].Arrival
+		}
+		return tasks[i].Duration &lt; tasks[j].Duration
+	})
+
+	chosen = &amp;tasks[0]
+	return chosen
+}</code></pre>
+
+    <!-- 3.3 SRT -->
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.3 Shortest Remaining Time - <code>srt.go</code> (<code>-sched 2</code>)</h3>
+    <ul>
+      <li><strong>Principe :</strong> version <span class="terme" data-def="preemptif">préemptive</span> de SJF. À chaque tick, on réévalue toutes les tâches actives et on exécute celle dont la durée restante (<code>Duration</code>) est la plus faible.</li>
+      <li><strong>Fonctionnement du code :</strong> contrairement à <code>sjf</code>, il n'y a pas de verrouillage sur <code>chosen</code> : si une tâche plus courte arrive à l'instant $t$, le tri <code>sort.Slice</code> la place immédiatement en <code>tasks[0]</code> et interrompt la tâche précédente.</li>
+    </ul>
+<pre><code>package main
+
+import "sort"
+
+
+// Ordonnanceur selon la durée de calcul restante (shortest remaining time)
+func srt(newTasks []task) (currentTask *task) {
+	tasks = append(tasks, newTasks...)
+
+	// Purge les tâches déjà terminées
+	filtered := tasks[:0]
+	for _, t := range tasks {
+		if t.Duration &gt; 0 {
+			filtered = append(filtered, t)
+		}
+	}
+	tasks = filtered
+
+	if len(tasks) == 0 {
+		chosen = nil
+		return nil
+	}
+
+	// Sélectionne la tâche restante de plus petite Duration
+	sort.Slice(tasks, func(i, j int) bool {
+		return tasks[i].Duration &lt; tasks[j].Duration
+	})
+
+	return &amp;tasks[0]
+}</code></pre>
+
+    <!-- 3.4 ROUND ROBIN -->
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.4 Round Robin (Tourniquet) - <code>rr.go</code> (<code>-sched 3</code>)</h3>
+    <ul>
+      <li><strong>Principe :</strong> partage équitable du temps processeur par <span class="terme" data-def="quantum">quantum</span> de temps. Chaque tâche s'exécute au maximum pendant un quantum avant d'être replacée en queue de file.</li>
+      <li><strong>Fonctionnement du code :</strong>
+        <ul>
+          <li>Maintient une file circulaire <code>file</code> bornée à 5 tâches actives maximum et un compteur <code>ticks</code>.</li>
+          <li>Lorsque <code>ticks &gt;= 5</code>, la tâche en tête est replacée à la fin de <code>file</code> et <code>ticks</code> est remis à <code>0</code>.</li>
+          <li>On incrémente <code>ticks++</code> et on retourne l'adresse de la tâche sélectionnée (<code>chosen := file[0]; return &amp;chosen</code>).</li>
+        </ul>
+      </li>
+    </ul>
+<pre><code>package main
+
+var (
+	file  = []task{} // liste de max 5 taches
+	ticks = 0        // compte les unites de temps
+)
+
+func rr(newTasks []task) (currentTask *task) {
+	//Ajout les nouvelles tâches (5 max)
+	for _, t := range newTasks {
+		if t.Duration &gt; 0 &amp;&amp; len(file) &lt; 5 {
+			file = append(file, t)
+		}
+	}
+
+	//Retire les taches termines
+	actives := file[:0]
+	for _, t := range file {
+		if t.Duration &gt; 0 {
+			actives = append(actives, t)
+		}
+	}
+	file = actives
+
+	if len(file) == 0 {
+		ticks = 0
+		return nil
+	}
+
+	//Apres 5 unites de temps , on pop devant et on remet a la fin
+	if ticks &gt;= 5 {
+		tete := file[0]
+		file = append(file[1:], tete)
+		ticks = 0
+	}
+
+	ticks++
+	chosen := file[0]
+	return &amp;chosen
+}</code></pre>
+    <div class="warning-box">
+      <strong>Attention en Go sur <code>chosen := file[0]; return &amp;chosen</code> :</strong> <code>chosen</code> est une copie locale de <code>file[0]</code>. Lorsque <code>ordo.go</code> fait <code>runningTask.Duration--</code>, il décrémente la copie <code>chosen</code> et non l'élément <code>file[0]</code> dans la slice, ce qui maintient <code>file[0].Duration</code> inchangé dans <code>file</code>.
+    </div>
+
+    <!-- 3.5 PRIORITÉS STATIQUES -->
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.5 Priorités statiques - <code>static.go</code> (<code>-sched 4</code>)</h3>
+    <ul>
+      <li><strong>Principe :</strong> ordonnancement <span class="terme" data-def="preemptif">préemptif</span> basé sur le champ <code>Priority</code> de chaque tâche (à priorité égale, la plus anciennement arrivée passe en premier).</li>
+      <li><strong>Fonctionnement du code :</strong> filtre les tâches terminées puis trie <code>tasks</code> avec <code>tasks[i].Priority &lt; tasks[j].Priority</code> (ordre croissant de la valeur numérique de <code>Priority</code>, donc la valeur numérique la plus petite passe en tête).</li>
+    </ul>
+<pre><code>package main
+
+import (
+	"sort"
+)
+
+// Ordonnanceur à priorités statiques
+func static(newTasks []task) (currentTask *task) {
+	tasks = append(tasks, newTasks...)
+
+	// Purge les tâches déjà terminées
+	filtered := tasks[:0]
+	for _, t := range tasks {
+		if t.Duration &gt; 0 {
+			filtered = append(filtered, t)
+		}
+	}
+	tasks = filtered
+
+	if len(tasks) == 0 {
+		chosen = nil
+		return nil
+	}
+
+	// Sélectionne la tâche restante de plus petite Duration
+	sort.Slice(tasks, func(i, j int) bool {
+		if tasks[i].Priority == tasks[j].Priority {
+			return tasks[i].Arrival &lt; tasks[j].Arrival
+		}
+		return tasks[i].Priority &lt; tasks[j].Priority
+	})
+
+	return &amp;tasks[0]
+}</code></pre>
+  </section>
+
+  <!-- 4. SIMULATEUR INTERACTIF (HISTOGRAMME DE GANTT) -->
+  <section class="loi-card">
+    <h2>4. Visualisation interactive des histogrammes (sur <code>tasks.json</code>)</h2>
+    <p>Sélectionne un ordonnanceur pour visualiser l'histogramme d'exécution généré sur les 7 tâches de <code>tasks.json</code> (comme sur <code>http://localhost:8080</code>).</p>
+
+    <div class="demo-controls">
+      <button type="button" class="demo-btn actif" data-algo="fcfs">0 : FCFS</button>
+      <button type="button" class="demo-btn" data-algo="sjf">1 : SJF</button>
+      <button type="button" class="demo-btn" data-algo="srt">2 : SRT</button>
+      <button type="button" class="demo-btn" data-algo="rr">3 : Round Robin (q=5)</button>
+      <button type="button" class="demo-btn" data-algo="static">4 : Priorités statiques</button>
+    </div>
+
+    <div id="sim-resume" class="note-box"></div>
+    <div id="gantt-container" class="gantt-wrapper"></div>
+  </section>
+
+  <!-- 5. SYNTHÈSE COMPARATIVE -->
+  <section class="loi-card">
+    <h2>5. Synthèse des techniques d'ordonnancement</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Algorithme</th>
+            <th>Type</th>
+            <th>Critère de sélection</th>
+            <th>Avantage / Risque principal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>FCFS</strong> (<code>-sched 0</code>)</td>
+            <td>Non préemptif</td>
+            <td>Ordre d'arrivée (<code>Arrival</code>)</td>
+            <td>Simple, mais effet de convoi si une tâche longue arrive tôt</td>
+          </tr>
+          <tr>
+            <td><strong>SJF</strong> (<code>-sched 1</code>)</td>
+            <td>Non préemptif</td>
+            <td>Durée totale (<code>Duration</code>) minimale</td>
+            <td>Minimise le temps d'attente moyen (non préemptif), risque de <span class="terme" data-def="famine">famine</span></td>
+          </tr>
+          <tr>
+            <td><strong>SRT</strong> (<code>-sched 2</code>)</td>
+            <td>Préemptif</td>
+            <td>Durée restante (<code>Duration</code>) minimale</td>
+            <td>Très réactif aux tâches courtes, mais risque de <span class="terme" data-def="famine">famine</span> pour les longues</td>
+          </tr>
+          <tr>
+            <td><strong>Round Robin</strong> (<code>-sched 3</code>)</td>
+            <td>Préemptif</td>
+            <td>Tourniquet FIFO par quantum ($q = 5$)</td>
+            <td>Équitable, aucune famine, temps de réponse borné</td>
+          </tr>
+          <tr>
+            <td><strong>Priorités statiques</strong> (<code>-sched 4</code>)</td>
+            <td>Préemptif</td>
+            <td>Niveau de priorité fixe (<code>Priority</code>)</td>
+            <td>Respecte l'urgence métier, risque de <span class="terme" data-def="famine">famine</span> pour les basses priorités</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INFOBULLE DES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-ordonnanceur" class="def-bloc">
+      <h3>Ordonnanceur (Scheduler)</h3>
+      <p>Composant du système d'exploitation qui décide quelle tâche prête obtient le processeur à chaque instant, et pendant combien de temps.</p>
+    </div>
+
+    <div id="def-tick" class="def-bloc">
+      <h3>Pas de temps (Tick)</h3>
+      <p>Unité de temps discrète utilisée par la simulation. À chaque tick $t$, une tâche active voit sa durée restante diminuer de $1$.</p>
+    </div>
+
+    <div id="def-gantt" class="def-bloc">
+      <h3>Diagramme de Gantt</h3>
+      <p>Représentation graphique horizontale du planning : chaque ligne correspond à une tâche et chaque colonne colorée indique qu'elle s'exécute à l'instant $t$.</p>
+    </div>
+
+    <div id="def-fifo" class="def-bloc">
+      <h3>FIFO (First In, First Out)</h3>
+      <p>File d'attente classique où le premier élément inséré est le premier traité, sans dépassement.</p>
+    </div>
+
+    <div id="def-preemptif" class="def-bloc">
+      <h3>Ordonnancement préemptif</h3>
+      <p>L'ordonnanceur peut interrompre une tâche en cours d'exécution avant sa fin pour attribuer le processeur à une autre tâche jugée plus urgente.</p>
+    </div>
+
+    <div id="def-non-preemptif" class="def-bloc">
+      <h3>Ordonnancement non préemptif</h3>
+      <p>Une fois qu'une tâche démarre sur le processeur, elle le conserve jusqu'à ce qu'elle ait complètement terminé sa durée d'exécution.</p>
+    </div>
+
+    <div id="def-quantum" class="def-bloc">
+      <h3>Quantum de temps</h3>
+      <p>Durée maximale consécutive (ici $5$ unités de temps) accordée à une tâche en Round Robin avant qu'elle ne cède sa place à la suivante.</p>
+    </div>
+
+    <div id="def-famine" class="def-bloc">
+      <h3>Famine (Starvation)</h3>
+      <p>Situation où une tâche prête attend indéfiniment le processeur parce que d'autres tâches plus courtes ou plus prioritaires arrivent continuellement.</p>
+    </div>
+  </div>
+
+  <!-- SCRIPT INFOBULLES (identique à ex6.html) -->
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+  <!-- SCRIPT SIMULATEUR DE PLANNING -->
+  <script>
+    const BASE_TASKS = [
+      { ID: 0, Priority: 10, Duration: 23, Arrival: 5 },
+      { ID: 1, Priority: 8,  Duration: 7,  Arrival: 0 },
+      { ID: 2, Priority: 5,  Duration: 21, Arrival: 2 },
+      { ID: 3, Priority: 4,  Duration: 18, Arrival: 4 },
+      { ID: 4, Priority: 3,  Duration: 5,  Arrival: 1 },
+      { ID: 5, Priority: 2,  Duration: 1,  Arrival: 3 },
+      { ID: 6, Priority: 1,  Duration: 35, Arrival: 6 }
+    ];
+
+    const DESCRIPTIONS = {
+      fcfs: "<strong>FCFS :</strong> Exécution stricte dans l'ordre d'arrivée : T1 (0→6), T4 (7→11), T2 (12→32), T5 (33), T3 (34→51), T0 (52→74), T6 (75→109).",
+      sjf: "<strong>SJF (non préemptif) :</strong> T1 démarre à t=0 (durée 7). À t=7, toutes les tâches sont arrivées : elles s'enchaînent par durée croissante : T5 (1), T4 (5), T3 (18), T2 (21), T0 (23), T6 (35).",
+      srt: "<strong>SRT (préemptif) :</strong> T1 démarre à t=0, est préemptée à t=1 par T4 (durée 5 < 6), puis T5 (durée 1) passe à t=3, avant de reprendre par temps restant croissant.",
+      rr: "<strong>Round Robin (quantum = 5, file max 5) :</strong> Les 5 premières tâches entrées dans la file tournent par tranches de 5 ticks jusqu'à épuisement.",
+      static: "<strong>Priorités statiques (tri croissant sur Priority) :</strong> Les tâches avec la plus petite valeur numérique de Priority passent en premier : T6 (prio 1) préempte dès t=6."
+    };
+
+    function simuler(algo) {
+      const sortedInput = BASE_TASKS.map(t => ({ ...t })).sort((a, b) => a.Arrival - b.Arrival);
+      const totalDuration = sortedInput.reduce((acc, t) => acc + t.Duration, 0);
+      const schedule = new Array(totalDuration + 1).fill(-1);
+
+      let file = [];
+      let chosen = null;
+      let ticks = 0;
+      let nextTask = 0;
+
+      for (let t = 0; t < totalDuration + 1; t++) {
+        const newTasks = [];
+        while (nextTask < sortedInput.length && sortedInput[nextTask].Arrival === t) {
+          newTasks.push({ ...sortedInput[nextTask] });
+          nextTask++;
+        }
+
+        let running = null;
+
+        if (algo === 'fcfs') {
+          file.push(...newTasks);
+          while (file.length > 0 && file[0].Duration <= 0) file.shift();
+          running = file.length > 0 ? file[0] : null;
+        } else if (algo === 'sjf') {
+          file.push(...newTasks);
+          file = file.filter(x => x.Duration > 0);
+          if (chosen && chosen.Duration > 0) {
+            running = file.find(x => x.ID === chosen.ID) || null;
+          }
+          if (!running && file.length > 0) {
+            file.sort((a, b) => a.Duration === b.Duration ? a.Arrival - b.Arrival : a.Duration - b.Duration);
+            chosen = file[0];
+            running = chosen;
+          }
+        } else if (algo === 'srt') {
+          file.push(...newTasks);
+          file = file.filter(x => x.Duration > 0);
+          if (file.length > 0) {
+            file.sort((a, b) => a.Duration - b.Duration);
+            running = file[0];
+          }
+        } else if (algo === 'rr') {
+          for (const nt of newTasks) {
+            if (nt.Duration > 0 && file.length < 5) file.push(nt);
+          }
+          file = file.filter(x => x.Duration > 0);
+          if (file.length === 0) {
+            ticks = 0;
+            running = null;
+          } else {
+            if (ticks >= 5) {
+              file.push(file.shift());
+              ticks = 0;
+            }
+            ticks++;
+            // Fidèle au comportement de rr.go (copie locale décrémentée dans main)
+            running = { ...file[0] };
+          }
+        } else if (algo === 'static') {
+          file.push(...newTasks);
+          file = file.filter(x => x.Duration > 0);
+          if (file.length > 0) {
+            file.sort((a, b) => a.Priority === b.Priority ? a.Arrival - b.Arrival : a.Priority - b.Priority);
+            running = file[0];
+          }
+        }
+
+        if (running) {
+          schedule[t] = running.ID;
+          running.Duration--;
+        }
+      }
+      return schedule;
+    }
+
+    function afficherGantt(algo) {
+      const schedule = simuler(algo);
+      const container = document.getElementById('gantt-container');
+      const resume = document.getElementById('sim-resume');
+      resume.innerHTML = DESCRIPTIONS[algo];
+
+      const tasksById = [...BASE_TASKS].sort((a, b) => a.ID - b.ID);
+      let html = '';
+
+      for (const task of tasksById) {
+        html += `<div class="gantt-row"><div class="gantt-label">Task ${task.ID} (p:${task.Priority}, d:${task.Duration})</div><div class="gantt-cells">`;
+        for (let t = 0; t < schedule.length; t++) {
+          const active = schedule[t] === task.ID;
+          html += `<div class="gantt-cell ${active ? 'run' : ''}" title="t=${t} : ${active ? 'Task ' + task.ID : 'inactif'}"></div>`;
+        }
+        html += `</div></div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    document.querySelectorAll('.demo-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('actif'));
+        btn.classList.add('actif');
+        afficherGantt(btn.dataset.algo);
+      });
+    });
+
+    afficherGantt('fcfs');
+  </script>
+
+</body>
+</html>
