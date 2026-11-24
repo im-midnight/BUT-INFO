@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/">
   <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BUT INFO2</title>
+  <title>BUT Info Nantes : cours, TD et TP de 2e année</title>
+  <meta name="description" content="Fiches de révision du BUT Informatique 2 de l'IUT de Nantes, écrites par des étudiants : développement web, design patterns, probabilités, cryptographie.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="BUT Info Nantes : cours, TD et TP de 2e année">
+  <meta property="og:description" content="Fiches de révision du BUT Informatique 2 de l'IUT de Nantes, écrites par des étudiants : développement web, design patterns, probabilités, cryptographie.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" href="img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
   <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/site.js"></script>
   <script src="js/script.js" defer></script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "WebSite", "name": "BUT INFO2", "alternateName": "BUT Info Nantes", "url": "https://butinfo-iutnantes.vercel.app/", "inLanguage": "fr"}
+  </script>
 </head>
 <body class="accueil">
   <!--
@@ -26,7 +43,7 @@
     <div class="conteneur">
       <div>
         <h1>BUT INFO2</h1>
-        <p class="sous-titre">Sommaire des matières</p>
+        <p class="sous-titre">Cours, TD et TP de 2e année, IUT de Nantes</p>
       </div>
       <div data-bouton-theme class="slot-theme"></div>
     </div>
@@ -55,7 +72,17 @@
 
     <!-- Liste volontairement vide : js/script.js y crée un <li> par matière.
          Pour ajouter une matière, ne rien écrire ici, voir le tableau `matieres`. -->
-    <ul class="grille" id="liste-matieres"></ul>
+    <ul class="grille" id="liste-matieres">
+      <li><a class="carte" id="matiere-dev-web" href="pages/web/indexWeb.html"><span class="carte__code">R301</span><h2 class="carte__titre">Développement web</h2><p class="carte__texte">Syntaxe Java, servlets, JSP.</p><span class="carte__compte">5 pages</span></a></li>
+      <li><a class="carte" id="matiere-dev-efficace" href="pages/algos_corrects_efficaces/cours.html"><span class="carte__code">R302</span><h2 class="carte__titre">Algos corrects et efficaces (Dev. efficace)</h2><p class="carte__texte">Complexité, triplets de Hoare, invariants de boucle.</p><span class="carte__compte">1 page</span></a></li>
+      <li><a class="carte carte--vide" id="matiere-analyse" href="pages/analyse/indexAnalyse.html"><span class="carte__code">R303</span><h2 class="carte__titre">Analyse</h2><p class="carte__texte">Rien n'a encore été ajouté.</p><span class="carte__compte"></span></a></li>
+      <li><a class="carte" id="matiere-qualite-dev" href="pages/designPattern/DP.html"><span class="carte__code">R304</span><h2 class="carte__titre">Qualité de développement</h2><p class="carte__texte">Design patterns en Kotlin, avec leurs diagrammes UML.</p><span class="carte__compte">1 page</span></a></li>
+      <li><a class="carte carte--vide" id="matiere-prog-systeme" href="pages/progSysteme/indexProgSysteme.html"><span class="carte__code">R305</span><h2 class="carte__titre">Programmation système</h2><p class="carte__texte">Rien n'a encore été ajouté.</p><span class="carte__compte"></span></a></li>
+      <li><a class="carte carte--vide" id="matiere-reseaux" href="pages/reseaux/indexReseaux.html"><span class="carte__code">R306</span><h2 class="carte__titre">Architecture des réseaux</h2><p class="carte__texte">Rien n'a encore été ajouté.</p><span class="carte__compte"></span></a></li>
+      <li><a class="carte carte--vide" id="matiere-sql" href="pages/sql/indexSql.html"><span class="carte__code">R307</span><h2 class="carte__titre">SQL dans un langage de programmation</h2><p class="carte__texte">Rien n'a encore été ajouté.</p><span class="carte__compte"></span></a></li>
+      <li><a class="carte" id="matiere-probabilites" href="pages/math/proba/indexProba.html"><span class="carte__code">R308</span><h2 class="carte__titre">Probabilités</h2><p class="carte__texte">Dénombrement, probabilités conditionnelles, lois usuelles.</p><span class="carte__compte">4 pages</span></a></li>
+      <li><a class="carte" id="matiere-crypto" href="pages/math/crypto/indexCrypto.html"><span class="carte__code">R309</span><h2 class="carte__titre">Cryptographie et sécurité</h2><p class="carte__texte">Arithmétique modulaire et TP de chiffrement.</p><span class="carte__compte">6 pages</span></a></li>
+    </ul>
     <section class="resultats" id="resultats" aria-label="Résultats de recherche" hidden></section>
   </main>
 

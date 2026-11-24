@@ -1,4 +1,11 @@
-/* Les couleurs sont dans css/themes.css. Ce fichier ne contient que la mise en forme. */
+/* Les couleurs sont dans css/themes.css. Ce fichier ne contient que la mise en forme.
+
+   Direction : un polycopié de cours, pas une appli.
+   - L'accueil est un sommaire : une ligne par matière, son code (R301…) en gros.
+   - Les cours se lisent sur une seule colonne, sans cartes ni ombres : les parties
+     sont séparées par un filet et de l'espace.
+   - Le texte des cours est en serif (comme les formules MathJax), les titres et
+     l'interface en sans-serif. Polices système uniquement (pas de dépendance). */
 
 
 /* █████████████████████████████████████████████████████████████████████
@@ -7,13 +14,13 @@
 
 :root {
   --marge: clamp(1rem, 4vw, 2rem);
-  --largeur: 60rem;
-  --largeur-cours: 53rem;
-  --police: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --police-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --rayon: 8px;
-  --ombre: 0 1px 3px color-mix(in srgb, #000 6%, transparent);
-  --vite: 0.18s;
+  --largeur: 56rem;
+  --largeur-cours: 46rem;
+  --police: "Avenir Next", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --police-lecture: Charter, "Bitstream Charter", "Sitka Text", Cambria, "Iowan Old Style", Georgia, serif;
+  --police-code: ui-monospace, "Cascadia Code", SFMono-Regular, Menlo, Consolas, monospace;
+  --rayon: 6px;
+  --vite: 0.15s;
   --doux: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -34,16 +41,19 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  border-top: 5px solid var(--barre);
   background: var(--fond);
   color: var(--texte);
   font-family: var(--police);
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.55;
   overflow-wrap: break-word;
+  font-variant-numeric: lining-nums;
 }
 
 a {
   color: var(--primaire);
+  text-underline-offset: 0.18em;
 }
 
 img {
@@ -98,12 +108,12 @@ html.fondu-theme *::after {
 .barre-site {
   width: min(100% - 2 * var(--marge), var(--largeur-cours));
   margin: 0 auto;
-  padding: 0.9rem 0 0.75rem;
+  padding: 0.75rem 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 2px solid var(--secondaire);
+  border-bottom: 2px solid var(--barre);
 }
 
 .fil-ariane {
@@ -118,7 +128,7 @@ html.fondu-theme *::after {
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .fil-ariane li {
@@ -129,26 +139,24 @@ html.fondu-theme *::after {
 }
 
 .fil-ariane li + li::before {
-  content: "›";
-  color: var(--texte-doux);
+  content: "/";
+  color: var(--bordure-forte);
 }
 
 .fil-ariane a {
   color: var(--texte);
-  font-weight: 600;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .fil-ariane a:hover {
   color: var(--primaire);
   text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 .fil-ariane li:first-child a {
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .fil-ariane [aria-current="page"] {
@@ -187,8 +195,6 @@ html.fondu-theme *::after {
 
 /* █████████████████████████████████████████████████████████████████████
    3. BOUTON THÈME (le pinceau)
-   Rond au repos. Au survol il s'allonge, le pinceau roule
-   et le mot « Thème » se peint derrière lui.
    █████████████████████████████████████████████████████████████████████ */
 
 .slot-theme {
@@ -202,21 +208,22 @@ html.fondu-theme *::after {
   place-items: center;
   width: 2.75rem;
   height: 2.75rem;
+  border: 1px solid var(--bordure-forte);
   border-radius: 50%;
-  background: var(--primaire);
-  color: var(--primaire-texte);
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  background: var(--surface);
+  color: var(--primaire);
+  transition: background-color var(--vite) ease, border-color var(--vite) ease;
 }
 
 .btn-theme svg {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.3rem;
+  height: 1.3rem;
   transition: transform 0.3s var(--doux);
 }
 
 .btn-theme:hover {
-  background: color-mix(in srgb, var(--primaire) 85%, #000);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primaire) 35%, transparent);
+  border-color: var(--primaire);
+  background: var(--survol);
 }
 
 .btn-theme:hover svg {
@@ -225,11 +232,11 @@ html.fondu-theme *::after {
 
 
 /* █████████████████████████████████████████████████████████████████████
-   4. ACCUEIL : titre, recherche, filtres, grille des matières
+   4. ACCUEIL : titre, recherche, filtres, sommaire des matières
    █████████████████████████████████████████████████████████████████████ */
 
 .entete {
-  padding-top: clamp(1.5rem, 6vw, 2.25rem);
+  padding-top: clamp(1.75rem, 6vw, 3rem);
 }
 
 .entete .conteneur {
@@ -237,38 +244,34 @@ html.fondu-theme *::after {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 2px solid var(--secondaire);
 }
 
 .entete h1 {
-  margin: 0 0 0.5rem;
+  margin: 0;
   color: var(--titre);
-  font-size: clamp(2rem, 7vw, 3.25rem);
+  font-size: clamp(2.25rem, 8vw, 3.5rem);
   font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  line-height: 1;
+  letter-spacing: -0.035em;
 }
 
 .entete .sous-titre {
-  margin: 0;
+  margin: 0.6rem 0 0;
   max-width: 60ch;
-}
-
-.entete .slot-theme {
-  margin-top: 0.4rem;
+  color: var(--texte-doux);
+  font-size: 1.05rem;
 }
 
 .accueil main {
   flex: 1;
-  padding-block: 1.5rem clamp(2rem, 8vw, 4rem);
+  padding-block: 1.75rem clamp(2.5rem, 8vw, 4.5rem);
 }
 
 /* ── Recherche ─────────────────────────────────────────────────────── */
 
 .recherche {
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
 }
 
 .recherche__ligne {
@@ -276,22 +279,22 @@ html.fondu-theme *::after {
   align-items: center;
   gap: 0.5rem;
   min-height: 3.25rem;
-  padding: 0 0.4rem 0 0.9rem;
-  border: 2px solid var(--bordure-forte);
-  border-radius: 12px;
+  padding: 0 0.35rem 0 0.9rem;
+  border: 1px solid var(--bordure-forte);
+  border-radius: 10px;
   background: var(--surface);
   transition: border-color var(--vite) ease, box-shadow var(--vite) ease;
 }
 
 .recherche__ligne:focus-within {
   border-color: var(--primaire);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primaire) 18%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primaire) 22%, transparent);
 }
 
 .recherche__loupe {
   flex: none;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.2rem;
+  height: 1.2rem;
   color: var(--texte-doux);
 }
 
@@ -312,6 +315,7 @@ html.fondu-theme *::after {
 
 .recherche input::placeholder {
   color: var(--texte-doux);
+  opacity: 1;
 }
 
 .recherche input::-webkit-search-cancel-button {
@@ -321,16 +325,16 @@ html.fondu-theme *::after {
 .recherche__effacer,
 .recherche__envoyer {
   flex: none;
-  min-height: 2.5rem;
+  min-height: 2.6rem;
   border: 0;
-  border-radius: 8px;
+  border-radius: 7px;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
 }
 
 .recherche__effacer {
-  width: 2.5rem;
+  width: 2.6rem;
   display: grid;
   place-items: center;
   background: transparent;
@@ -348,9 +352,10 @@ html.fondu-theme *::after {
 }
 
 .recherche__envoyer {
-  padding: 0 1rem;
+  padding: 0 1.1rem;
   background: var(--primaire);
   color: var(--primaire-texte);
+  transition: background-color var(--vite) ease;
 }
 
 .recherche__envoyer:hover {
@@ -367,7 +372,7 @@ html.fondu-theme *::after {
   flex: none;
   padding: 0.05rem 0.45rem;
   border: 1px solid var(--bordure-forte);
-  border-radius: 5px;
+  border-radius: 4px;
   color: var(--texte-doux);
   font-family: var(--police-code);
   font-size: 0.8rem;
@@ -388,17 +393,17 @@ html.fondu-theme *::after {
 /* Suggestions sous le champ */
 .suggestions {
   position: absolute;
-  top: calc(100% + 0.4rem);
+  top: calc(100% + 0.35rem);
   left: 0;
   right: 0;
   z-index: 20;
   margin: 0;
-  padding: 0.35rem;
+  padding: 0.3rem;
   list-style: none;
   border: 1px solid var(--bordure-forte);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--surface);
-  box-shadow: 0 14px 34px color-mix(in srgb, #000 16%, transparent);
+  box-shadow: 0 12px 28px color-mix(in srgb, #000 14%, transparent);
   max-height: min(26rem, 60vh);
   overflow-y: auto;
 }
@@ -414,7 +419,7 @@ html.fondu-theme *::after {
   gap: 0.75rem;
   min-height: 44px;
   padding: 0.5rem 0.7rem;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
@@ -448,7 +453,7 @@ html.fondu-theme *::after {
 .suggestions__tout {
   margin-top: 0.25rem;
   border-top: 1px solid var(--bordure);
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 6px 6px;
   color: var(--primaire);
   font-weight: 700;
 }
@@ -463,15 +468,15 @@ html.fondu-theme *::after {
 .filtres {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 0.6rem 1.75rem;
+  margin-bottom: 2.25rem;
 }
 
 .filtre {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
   margin: 0;
   padding: 0;
   border: 0;
@@ -479,10 +484,10 @@ html.fondu-theme *::after {
 
 .filtre legend {
   float: left;
-  margin-right: 0.35rem;
+  margin-right: 0.4rem;
   padding: 0;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--texte-doux);
 }
 
@@ -502,10 +507,10 @@ html.fondu-theme *::after {
   display: inline-flex;
   align-items: center;
   min-height: 2.25rem;
-  padding: 0 0.9rem;
-  border: 1.5px solid var(--bordure-forte);
+  padding: 0 0.85rem;
+  border: 1px solid var(--bordure-forte);
   border-radius: 999px;
-  background: var(--surface);
+  background: transparent;
   font-size: 0.92rem;
   font-weight: 600;
   transition: background-color var(--vite) ease, border-color var(--vite) ease, color var(--vite) ease;
@@ -526,46 +531,115 @@ html.fondu-theme *::after {
   outline-offset: 2px;
 }
 
-/* ── Grille des matières ───────────────────────────────────────────── */
+/* ── Sommaire des matières ─────────────────────────────────────────── */
+/* Une ligne par matière :  R301 | nom + résumé | nombre de pages        */
 
 .grille {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-  gap: 0.875rem;
   margin: 0;
   padding: 0;
   list-style: none;
+  border-top: 2px solid var(--primaire);
+}
+
+.grille li {
+  border-bottom: 1px solid var(--bordure-forte);
 }
 
 .carte {
   display: grid;
-  align-content: start;
-  height: 100%;
-  padding: 0.875rem 1rem 0.875rem 1.1rem;
-  border-left: 4px solid var(--barre);
-  border-radius: 0 var(--rayon) var(--rayon) 0;
-  background: var(--fond);
+  grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  grid-template-areas:
+    "code titre compte"
+    "code texte compte";
+  column-gap: 1.25rem;
+  align-items: baseline;
+  padding: 1.1rem 0.75rem 1.15rem;
   color: inherit;
   text-decoration: none;
-  transition: background-color var(--vite) ease, border-left-width var(--vite) ease;
+  transition: background-color var(--vite) ease;
 }
 
 .carte:hover,
 .carte:focus-visible {
   background: var(--survol);
-  border-left-width: 7px;
+}
+
+.carte:focus-visible {
+  outline-offset: -3px;
+}
+
+.carte__code {
+  grid-area: code;
+  color: var(--primaire);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
 }
 
 .carte__titre {
+  grid-area: titre;
   margin: 0;
   color: var(--titre);
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.carte:hover .carte__titre {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
 }
 
 .carte__texte {
-  margin: 0.25rem 0 0;
+  grid-area: texte;
+  margin: 0.2rem 0 0;
+  color: var(--texte-doux);
+}
+
+.carte__compte {
+  grid-area: compte;
+  color: var(--texte-doux);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* Matière sans aucune page : on la voit, mais en retrait */
+.carte--vide .carte__code {
+  color: var(--texte-doux);
+}
+
+.carte--vide .carte__titre {
+  color: var(--texte-doux);
+  font-weight: 600;
+}
+
+@media (max-width: 40rem) {
+  .carte {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    grid-template-areas:
+      "code titre"
+      "code texte"
+      "code compte";
+    column-gap: 0.9rem;
+    padding-inline: 0.25rem;
+  }
+
+  .carte__code {
+    font-size: 1.45rem;
+  }
+
+  .carte__titre {
+    font-size: 1.08rem;
+  }
+
+  .carte__compte {
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+  }
 }
 
 /* ── Résultats de recherche ────────────────────────────────────────── */
@@ -582,11 +656,14 @@ html.fondu-theme *::after {
 }
 
 .resultats ol {
-  display: grid;
-  gap: 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
+  border-top: 2px solid var(--primaire);
+}
+
+.resultats li {
+  border-bottom: 1px solid var(--bordure-forte);
 }
 
 .resultat {
@@ -594,11 +671,7 @@ html.fondu-theme *::after {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.8rem 1rem;
-  border: 1px solid var(--bordure);
-  border-left: 4px solid var(--barre);
-  border-radius: 0 var(--rayon) var(--rayon) 0;
-  background: var(--surface);
+  padding: 0.8rem 0.75rem;
   color: inherit;
   text-decoration: none;
   transition: background-color var(--vite) ease;
@@ -606,6 +679,10 @@ html.fondu-theme *::after {
 
 .resultat:hover {
   background: var(--survol);
+}
+
+.resultat:focus-visible {
+  outline-offset: -3px;
 }
 
 .resultat__titre {
@@ -622,18 +699,17 @@ html.fondu-theme *::after {
 
 .type {
   flex: none;
-  padding: 0.1rem 0.6rem;
-  border: 1.5px solid var(--primaire);
-  border-radius: 999px;
-  color: var(--primaire);
+  padding: 0.05rem 0.55rem;
+  border: 1px solid var(--bordure-forte);
+  border-radius: 4px;
+  color: var(--texte-doux);
   font-size: 0.8rem;
   font-weight: 700;
 }
 
 .resultats__vide {
-  padding: 1.25rem;
-  border: 2px dashed var(--bordure-forte);
-  border-radius: var(--rayon);
+  padding: 1.25rem 0;
+  border-top: 2px solid var(--primaire);
 }
 
 .resultats__vide p {
@@ -643,10 +719,10 @@ html.fondu-theme *::after {
 .lien-bouton {
   display: inline-flex;
   align-items: center;
-  min-height: 2.5rem;
+  min-height: 2.6rem;
   padding: 0 1rem;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--rayon);
   background: var(--primaire);
   color: var(--primaire-texte);
   font: inherit;
@@ -666,36 +742,38 @@ body:not(.accueil) > :where(:not(.barre-site, .pied, footer, .navigation-cours, 
   margin-inline: auto;
 }
 
-body:not(.accueil) > h1 {
-  margin-top: 2rem;
-}
-
 body:not(.accueil) > :last-child:not(.pied, footer) {
   margin-bottom: 3rem;
 }
 
 :where(body:not(.accueil)) h1 {
-  margin: 1.5rem 0 1.25rem;
+  margin: 2.25rem 0 0.5rem;
   color: var(--titre);
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
   font-weight: 800;
-  line-height: 1.15;
-  text-align: center;
-  letter-spacing: -0.02em;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
 :where(body:not(.accueil)) h2 {
-  margin-top: 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--bordure);
+  margin: 0 0 0.85rem;
   color: var(--primaire-fonce);
-  font-size: 1.25rem;
+  font-family: var(--police);
+  font-size: 1.4rem;
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
   text-wrap: balance;
   scroll-margin-top: 1rem;
 }
 
 :where(body:not(.accueil)) h3 {
+  margin: 1.5rem 0 0.4rem;
   color: var(--titre);
+  font-family: var(--police);
+  font-size: 1.08rem;
+  line-height: 1.3;
 }
 
 :where(body:not(.accueil)) :is(ul, ol) {
@@ -703,7 +781,7 @@ body:not(.accueil) > :last-child:not(.pied, footer) {
 }
 
 :where(body:not(.accueil)) li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.45rem;
 }
 
 strong,
@@ -711,42 +789,49 @@ b {
   color: var(--titre);
 }
 
-.subtitle,
-body:not(.accueil) .sous-titre {
-  text-align: center;
+/* Phrase d'aide sous le titre (« Passe la souris sur… ») */
+.consigne {
+  margin: 0 0 2.25rem;
   color: var(--texte-doux);
-  margin-bottom: 2rem;
+  font-size: 0.95rem;
 }
 
-/* Blocs de cours (chaque page a gardé son nom de classe) */
+.consigne em {
+  font-style: normal;
+}
+
+/* Phrase sous le titre des pages sommaire */
+.subtitle,
+body:not(.accueil) .sous-titre {
+  margin: 0 0 1.75rem;
+  color: var(--texte-doux);
+}
+
+/* Parties d'un cours (chaque page a gardé son nom de classe).
+   Pas de boîte : un filet au-dessus, de l'air, et le texte en serif. */
 .loi-card,
 .carte-cours,
 .card,
 body:not(.accueil) .carte {
   display: block;
-  height: auto;
-  margin-bottom: 1.5rem;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  background: var(--surface);
-  box-shadow: var(--ombre);
+  margin-top: 0;
+  margin-bottom: 2.5rem;
+  padding: 1.6rem 0 0;
+  border-top: 1px solid var(--bordure-forte);
+  font-family: var(--police-lecture);
+  font-size: 1.0625rem;
+  line-height: 1.65;
   overflow-x: auto;
   min-width: 0;
 }
 
-body:not(.accueil) .carte:hover {
-  border-left-width: 1px;
-  background: var(--surface);
+/* Les éléments d'interface gardent la police sans-serif */
+:is(.loi-card, .carte-cours, .card, body:not(.accueil) .carte) :is(table, .btn-lien, .exemple-titre, figcaption) {
+  font-family: var(--police);
 }
 
-@media (max-width: 37.5rem) {
-  .loi-card,
-  .carte-cours,
-  .card,
-  body:not(.accueil) .carte {
-    padding: 1rem 1.1rem;
-  }
+:is(.loi-card, .carte-cours, .card, body:not(.accueil) .carte) > :last-child {
+  margin-bottom: 0;
 }
 
 /* Tableaux */
@@ -755,6 +840,8 @@ table {
   border-collapse: collapse;
   background: var(--surface);
   margin-top: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 th,
@@ -775,8 +862,6 @@ th {
   width: 100%;
   overflow-x: auto;
   margin-top: 1rem;
-  border: 1px solid var(--bordure);
-  border-radius: 6px;
 }
 
 .table-container table,
@@ -787,16 +872,15 @@ th {
 mark {
   background: var(--surligne);
   color: inherit;
-  padding: 0.1em 0.25em;
-  border-radius: 3px;
+  padding: 0.05em 0.25em;
+  border-radius: 2px;
 }
 
 /* ── Termes interactifs et infobulle ───────────────────────────────── */
 
 .terme {
   color: var(--primaire);
-  font-weight: 600;
-  border-bottom: 2px dotted var(--primaire);
+  border-bottom: 1.5px dotted currentColor;
   cursor: help;
   transition: background-color 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -812,13 +896,15 @@ mark {
   display: none;
   width: 380px;
   max-width: 90vw;
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.15rem;
   border-radius: var(--rayon);
   background: var(--tip-fond);
   color: var(--tip-texte);
   box-shadow: 0 10px 25px color-mix(in srgb, #000 25%, transparent);
   z-index: 1000;
-  font-size: 0.9rem;
+  font-family: var(--police);
+  font-size: 0.92rem;
+  line-height: 1.5;
   pointer-events: none;
 }
 
@@ -827,9 +913,9 @@ mark {
 }
 
 #tooltip h3 {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.45rem;
   color: var(--tip-titre);
-  font-size: 1.05rem;
+  font-size: 1.02rem;
 }
 
 #tooltip p {
@@ -896,24 +982,25 @@ mark {
 .piege,
 .warning-box,
 .alerte-box {
-  margin: 1rem 0;
-  padding: 0.85rem 1rem;
-  border-left: 4px solid var(--barre);
-  border-radius: 0 6px 6px 0;
-  background: var(--info-fond);
+  margin: 1.1rem 0;
+  padding: 0.8rem 1rem;
+  border-left: 3px solid var(--bordure-forte);
+  border-radius: 0 var(--rayon) var(--rayon) 0;
+  background: var(--surface-2);
 }
 
 .a-retenir {
-  border: 2px solid var(--primaire);
-  border-left-width: 6px;
-  background: var(--surface);
+  border-left-color: var(--primaire);
+  background: var(--info-fond);
 }
 
 .a-retenir::before {
   content: "À retenir";
   display: block;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
   color: var(--primaire);
+  font-family: var(--police);
+  font-size: 0.92rem;
   font-weight: 800;
 }
 
@@ -937,43 +1024,87 @@ mark {
 
 
 /* █████████████████████████████████████████████████████████████████████
-   6. PAGES SOMMAIRE D'UNE MATIÈRE (cartes avec bouton « Accéder »)
+   6. PAGES SOMMAIRE D'UNE MATIÈRE
+   Même principe que l'accueil : une liste, toute la ligne est cliquable.
    █████████████████████████████████████████████████████████████████████ */
 
 .menu-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16.25rem), 1fr));
-  gap: 1.5rem;
+  display: block;
+  border-top: 2px solid var(--primaire);
 }
 
 .menu-card {
+  position: relative;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  background: var(--surface);
-  box-shadow: var(--ombre);
-  transition: transform 0.15s, box-shadow 0.15s;
+  gap: 1rem;
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid var(--bordure-forte);
+  transition: background-color var(--vite) ease;
 }
 
 .menu-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px color-mix(in srgb, #000 8%, transparent);
+  background: var(--survol);
+}
+
+.menu-card h2 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.menu-card:hover h2 {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+/* Chevron à droite */
+.menu-card::after {
+  content: "";
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-top: 2px solid var(--texte-doux);
+  border-right: 2px solid var(--texte-doux);
+  transform: rotate(45deg);
+}
+
+/* Le lien couvre toute la ligne ; son texte « Accéder » reste pour les lecteurs d'écran */
+.menu-card .btn-lien {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: transparent;
+  font-size: 0;
+}
+
+.menu-card .btn-lien:hover {
+  background: transparent;
+}
+
+.menu-card .btn-lien:focus-visible {
+  outline-offset: -3px;
 }
 
 .btn-lien {
   display: inline-block;
   margin-top: 1rem;
   padding: 0.6rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--rayon);
   background: var(--primaire);
   color: var(--primaire-texte);
+  font-family: var(--police);
   font-weight: 700;
   text-align: center;
   text-decoration: none;
-  transition: background-color 0.15s;
+  transition: background-color var(--vite);
 }
 
 .btn-lien:hover {
@@ -987,25 +1118,23 @@ mark {
   color: var(--fond);
 }
 
-
 /* Matière sans cours pour l'instant */
 .page-vide {
-  padding: 2rem 1.5rem;
-  border: 2px dashed var(--bordure-forte);
-  border-radius: var(--rayon);
-  background: var(--surface);
-  text-align: center;
+  padding: 1.5rem 0;
+  border-top: 2px solid var(--primaire);
 }
 
 .page-vide h2 {
-  border-bottom: 0;
-  padding-bottom: 0;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .page-vide p {
-  margin: 0;
+  margin: 0 0 1rem;
   color: var(--texte-doux);
+}
+
+.page-vide .btn-lien {
+  margin-top: 0;
 }
 
 
@@ -1017,16 +1146,16 @@ code {
   font-family: var(--police-code);
   background: var(--code-inline-fond);
   color: var(--code-inline-texte);
-  padding: 0.15rem 0.35rem;
-  border-radius: 4px;
-  font-size: 0.88em;
+  padding: 0.12rem 0.32rem;
+  border-radius: 3px;
+  font-size: 0.86em;
 }
 
 pre {
   position: relative;
-  margin: 0.75rem 0;
+  margin: 0.9rem 0;
   padding: 1rem;
-  border-radius: 6px;
+  border-radius: var(--rayon);
   background: var(--code-fond);
   color: var(--code-texte);
   font-family: var(--police-code);
@@ -1050,7 +1179,7 @@ pre code {
 
 .bloc-code {
   position: relative;
-  margin: 0.75rem 0;
+  margin: 0.9rem 0;
 }
 
 .bloc-code pre {
@@ -1069,7 +1198,7 @@ pre code {
   min-height: 2rem;
   padding: 0 0.65rem;
   border: 1px solid color-mix(in srgb, var(--code-texte) 22%, transparent);
-  border-radius: 6px;
+  border-radius: 5px;
   background: color-mix(in srgb, var(--code-fond) 80%, #fff 6%);
   color: var(--code-texte);
   font: 600 0.8rem var(--police);
@@ -1115,27 +1244,26 @@ pre code {
 
 .navigation-cours {
   width: min(100% - 2 * var(--marge), var(--largeur-cours));
-  margin: 1rem auto 3rem;
+  margin: 0 auto 3rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.875rem;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--primaire);
 }
 
 .navigation-cours a {
   display: grid;
-  gap: 0.15rem;
-  padding: 0.9rem 1.1rem;
-  border: 1px solid var(--bordure);
+  gap: 0.1rem;
+  padding: 0.6rem 0.75rem;
   border-radius: var(--rayon);
-  background: var(--surface);
   color: inherit;
   text-decoration: none;
-  transition: background-color var(--vite) ease, border-color var(--vite) ease;
+  transition: background-color var(--vite) ease;
 }
 
 .navigation-cours a:hover {
   background: var(--survol);
-  border-color: var(--primaire);
 }
 
 .navigation-cours .suivant {
@@ -1146,21 +1274,26 @@ pre code {
 .navigation-cours small {
   color: var(--texte-doux);
   font-size: 0.85rem;
-  font-weight: 600;
 }
 
 .navigation-cours span {
-  color: var(--titre);
+  color: var(--primaire);
   font-weight: 700;
+}
+
+.navigation-cours a:hover span {
+  text-decoration: underline;
 }
 
 @media (max-width: 34rem) {
   .navigation-cours {
     grid-template-columns: 1fr;
+    gap: 0.25rem;
   }
 
   .navigation-cours .suivant {
     grid-column: 1;
+    text-align: left;
   }
 }
 
@@ -1171,30 +1304,31 @@ pre code {
 
 .pied {
   margin-top: auto;
-  padding: 1.5rem var(--marge);
-  background: var(--footer-fond);
-  color: var(--footer-texte);
-  text-align: center;
-}
-
-[data-hc="on"] .pied {
-  border-top: 2px solid var(--bordure);
+  padding: 1.5rem var(--marge) 2rem;
+  color: var(--texte-doux);
+  font-size: 0.88rem;
 }
 
 .pied__contenu {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1.25rem;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
   width: min(100%, var(--largeur));
   margin-inline: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--bordure-forte);
+}
+
+body:not(.accueil) .pied__contenu {
+  width: min(100%, var(--largeur-cours));
 }
 
 .pied ul {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 0.75rem 1rem;
+  gap: 0.25rem 1.25rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1205,34 +1339,18 @@ pre code {
 }
 
 .pied ul a {
-  display: inline-block;
-  padding: 8px 18px;
-  border-radius: 100px;
-  background: var(--footer-texte);
-  color: var(--footer-fond);
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-  text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: var(--texte);
 }
 
-.pied ul a:hover,
-.pied ul a:focus-visible {
-  background: var(--barre);
-  color: #111;
-  transform: translateY(-3px);
-}
-
-.pied ul a:focus-visible {
-  outline-color: var(--footer-texte);
-  outline-offset: 3px;
+.pied ul a:hover {
+  color: var(--primaire);
 }
 
 .pied p {
   margin: 0;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
-  opacity: 0.85;
 }
 
 
@@ -1248,8 +1366,7 @@ pre code {
 }
 
 .page-theme h1 {
-  margin: 1.75rem 0 0.4rem;
-  text-align: left;
+  margin: 2.25rem 0 0.4rem;
 }
 
 .page-theme .intro {
@@ -1258,21 +1375,18 @@ pre code {
 }
 
 .reglage {
-  margin: 0 0 1.75rem;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  background: var(--surface);
-  box-shadow: var(--ombre);
+  margin: 0 0 2.25rem;
+  padding: 1.4rem 0 0;
+  border-top: 1px solid var(--bordure-forte);
   transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 .reglage h2 {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .reglage h3 {
-  margin: 1.25rem 0 0.25rem;
+  margin: 1.25rem 0 0.2rem;
   font-size: 1rem;
 }
 
@@ -1300,21 +1414,20 @@ pre code {
 .nuance {
   display: grid;
   gap: 0.5rem;
-  padding: 0.5rem 0.5rem 0.6rem;
-  border: 2px solid var(--bordure);
-  border-radius: 10px;
+  padding: 0.45rem 0.45rem 0.55rem;
+  border: 1px solid var(--bordure-forte);
+  border-radius: 8px;
   background: var(--surface);
   color: var(--texte);
   font: inherit;
   font-weight: 700;
   text-align: left;
   cursor: pointer;
-  transition: border-color var(--vite) ease, transform var(--vite) ease;
+  transition: border-color var(--vite) ease;
 }
 
 .nuance:hover {
-  border-color: var(--bordure-forte);
-  transform: translateY(-2px);
+  border-color: var(--texte-doux);
 }
 
 .nuance[aria-checked="true"] {
@@ -1327,7 +1440,7 @@ pre code {
   display: block;
   height: 3.5rem;
   border: 1px solid color-mix(in srgb, #000 10%, transparent);
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
   background: var(--fond);
 }
@@ -1407,8 +1520,8 @@ pre code {
 .segment {
   display: inline-grid;
   grid-template-columns: 1fr 1fr;
-  padding: 0.25rem;
-  border: 1.5px solid var(--bordure-forte);
+  padding: 0.2rem;
+  border: 1px solid var(--bordure-forte);
   border-radius: 999px;
   background: var(--surface-2);
 }
@@ -1502,12 +1615,18 @@ pre code {
   transform: translate(1.3rem, -50%);
 }
 
+/* L'aperçu montre un vrai morceau de cours, dans un cadre pour le distinguer de la page */
 .apercu-theme {
   margin-top: 0.5rem;
+  padding: 0 1.25rem 1.25rem;
+  border: 1px solid var(--bordure-forte);
+  border-radius: 8px;
+  background: var(--fond);
 }
 
 .apercu-theme .loi-card {
   margin-bottom: 0;
+  border-top: 0;
 }
 
 .apercu-theme .bloc-code {
@@ -1515,7 +1634,7 @@ pre code {
 }
 
 .reinitialiser {
-  border: 1.5px solid var(--bordure-forte);
+  border: 1px solid var(--bordure-forte);
   background: transparent;
   color: var(--texte);
 }

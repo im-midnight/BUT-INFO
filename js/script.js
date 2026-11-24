@@ -8,14 +8,14 @@ const matieres = [
   {
     id: "dev-web",
     titre: "R301 - Développement web",
-    description: "Syntaxe Java, Servlets...",
+    description: "Syntaxe Java, servlets, JSP.",
     lien: "pages/web/indexWeb.html",
     semestre: "S3",
   },
   {
     id: "dev-efficace",
     titre: "R302 - Algos corrects et efficaces (Dev. efficace)",
-    description: "Cours",
+    description: "Complexité, triplets de Hoare, invariants de boucle.",
     lien: "pages/algos_corrects_efficaces/cours.html",
     semestre: "S3",
   },
@@ -29,7 +29,7 @@ const matieres = [
   {
     id: "qualite-dev",
     titre: "R304 - Qualité de développement",
-    description: "Liste de tous les designs et implementations",
+    description: "Design patterns en Kotlin, avec leurs diagrammes UML.",
     lien: "pages/designPattern/DP.html",
     semestre: "S3",
   },
@@ -57,14 +57,14 @@ const matieres = [
   {
     id: "probabilites",
     titre: "R308 - Probabilités",
-    description: "Probabilités, lois usuelles.",
+    description: "Dénombrement, probabilités conditionnelles, lois usuelles.",
     lien: "pages/math/proba/indexProba.html",
     semestre: "S3",
   },
   {
     id: "crypto",
     titre: "R309 - Cryptographie et sécurité",
-    description: "Cryptographie et sécurité",
+    description: "Arithmétique modulaire et TP de chiffrement.",
     lien: "pages/math/crypto/indexCrypto.html",
     semestre: "S3",
   },
@@ -301,27 +301,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const semestreMatiere = Object.fromEntries(matieres.map((m) => [m.id, m.semestre]));
 
   // ── Grille ────────────────────────────────────────────────────────
+  // Une ligne par matière : code (R301), nom, résumé et nombre de pages
   function creerCarte({ id, titre, description, lien }) {
+    const [, code = "", nomCourt = titre] = titre.match(/^(R\d+)\s*-\s*(.*)$/) || [];
+    const nbPages = pages.filter((p) => p.matiere === id && !p.sommaire).length;
+
     const item = document.createElement("li");
     const carte = document.createElement("a");
-    carte.className = "carte";
+    carte.className = nbPages ? "carte" : "carte carte--vide";
     carte.id = `matiere-${id}`;
     carte.href = lien;
 
+    const numero = document.createElement("span");
+    numero.className = "carte__code";
+    numero.textContent = code;
+
     const nom = document.createElement("h2");
     nom.className = "carte__titre";
-    nom.textContent = titre;
+    nom.textContent = nomCourt;
 
     const resume = document.createElement("p");
     resume.className = "carte__texte";
     resume.textContent = description;
 
-    carte.append(nom, resume);
+    const compte = document.createElement("span");
+    compte.className = "carte__compte";
+    compte.textContent = nbPages ? `${nbPages} page${nbPages > 1 ? "s" : ""}` : "";
+
+    carte.append(numero, nom, resume, compte);
     item.append(carte);
     return item;
   }
 
-  grille.append(...matieres.map(creerCarte));
+  grille.replaceChildren(...matieres.map(creerCarte));
 
   // ── Filtres (générés à partir des données) ────────────────────────
   function creerPuce(nom, valeur, texte, coche) {

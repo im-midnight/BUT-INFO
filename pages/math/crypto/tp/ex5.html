@@ -1,10 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex5.html">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exercice 5 - Problème du logarithme discret</title>
+  <title>Exercice 5 : logarithme discret (TP R309) | BUT Info Nantes</title>
+  <meta name="description" content="Trouver un générateur de (Z/pZ)*, calculer un logarithme discret en testant tous les exposants, puis plus vite avec l'algorithme de Shanks.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex5.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Exercice 5 : logarithme discret (TP R309)">
+  <meta property="og:description" content="Trouver un générateur de (Z/pZ)*, calculer un logarithme discret en testant tous les exposants, puis plus vite avec l'algorithme de Shanks.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex5.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../../../favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../../../img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../../../img/apple-touch-icon.png">
+  <link rel="manifest" href="../../../../site.webmanifest">
 
   <!-- MathJax : affichage des formules écrites entre $...$ et $$...$$ -->
   <script>
@@ -29,12 +43,15 @@
     .note-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
     .warning-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
   </style>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R309 - Cryptographie et sécurité", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/indexCrypto.html"}, {"@type": "ListItem", "position": 3, "name": "TP", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp.html"}, {"@type": "ListItem", "position": 4, "name": "Exercice 5 : logarithme discret", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex5.html"}]}
+  </script>
 </head>
 <body>
 
   <h1>Exercice 5 : problème du logarithme discret</h1>
-  <p style="text-align: center; color: var(--texte-doux);">
-    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="generateur">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  <p class="consigne">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="generateur">termes soulignés en pointillé</span> pour afficher leur définition.</em>
   </p>
 
   <!-- INTRODUCTION -->

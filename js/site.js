@@ -210,6 +210,18 @@ const ButInfo = (() => {
     return pied;
   }
 
+  // Pages sommaire : toute la ligne est cliquable, et le lien « Accéder »
+  // prend le nom de la page pour les lecteurs d'écran.
+  function liensSommaire() {
+    document.querySelectorAll(".menu-card").forEach((carte) => {
+      const titre = carte.querySelector("h2");
+      const lien = carte.querySelector(".btn-lien");
+      if (titre && lien && !lien.hasAttribute("aria-label")) {
+        lien.setAttribute("aria-label", titre.textContent.trim());
+      }
+    });
+  }
+
   // Ancres sur les titres de section, utilisées par la recherche (#section-1, #section-2…)
   function ancres() {
     document.querySelectorAll("body > h2, body > * h2").forEach((h2, i) => {
@@ -420,6 +432,7 @@ const ButInfo = (() => {
       if (nav) body.append(nav);
       if (!body.querySelector(".pied, body > footer")) body.append(piedDePage());
       ancres();
+      liensSommaire();
     }
 
     preparerCode();

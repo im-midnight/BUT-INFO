@@ -26,7 +26,7 @@
   --bordure-forte: #d1d5db;
 
   --primaire-texte: #ffffff;
-  --survol: color-mix(in srgb, var(--primaire) 14%, var(--surface));
+  --survol: color-mix(in srgb, var(--primaire) 9%, var(--surface));
   --focus: var(--primaire);
 
   --code-texte: #f8fafc;
@@ -241,7 +241,7 @@
   --primaire-texte: #121316;
   --primaire-fonce: color-mix(in srgb, var(--barre) 55%, #ffffff);
   --secondaire: color-mix(in srgb, var(--barre) 45%, #3d4048);
-  --survol: color-mix(in srgb, var(--barre) 20%, var(--surface));
+  --survol: color-mix(in srgb, var(--barre) 13%, var(--surface));
 
   --code-fond: color-mix(in srgb, var(--teinte) 8%, #0d0e10);
   --code-inline-fond: color-mix(in srgb, var(--barre) 16%, #2a2c32);
@@ -253,9 +253,15 @@
 
   --tip-fond: color-mix(in srgb, var(--teinte) 10%, #2a2c31);
 
-  --info-fond: color-mix(in srgb, var(--barre) 12%, var(--surface));
+  --info-fond: color-mix(in srgb, var(--barre) 9%, var(--surface));
   --attention: #f5b45a;
   --attention-fond: color-mix(in srgb, #f59e0b 12%, var(--surface));
+}
+
+
+/* Lagon a un accent très foncé : en sombre, on l'éclaircit plus que les autres */
+[data-theme="lagon"][data-mode="sombre"]:not([data-hc="on"]) {
+  --primaire: color-mix(in srgb, var(--barre) 52%, #ffffff);
 }
 
 

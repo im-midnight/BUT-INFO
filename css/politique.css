@@ -443,3 +443,71 @@ footer > a {
     font-style: italic;
     opacity: 0.75;
 }
+
+
+/* ── Alignement sur le reste du site (même police, même colonne, même pied) ── */
+body {
+    font-family: var(--police);
+}
+
+.policy-wrap {
+    width: 100%;
+    max-width: none;
+    padding: 0 0 4rem;
+}
+
+.policy-title {
+    margin: 2.25rem 0 1.5rem;
+    font-family: var(--police);
+    font-size: clamp(1.9rem, 6vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+}
+
+.policy-section {
+    padding: 1.6rem 0 0;
+    margin-bottom: 2rem;
+    border-top: 1px solid var(--bordure-forte);
+}
+
+.policy-section-title {
+    font-family: var(--police);
+    font-size: 1.4rem;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+}
+
+.policy-section p,
+.policy-list li {
+    font-size: 1rem;
+    line-height: 1.65;
+    letter-spacing: normal;
+}
+
+.policy-updated,
+.policy-example-label {
+    font-family: var(--police);
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.policy-example {
+    border-radius: 6px;
+}
+
+footer.pied {
+    display: block;
+    padding: 1.5rem var(--marge) 2rem;
+    background: transparent;
+    color: var(--texte-doux);
+    text-align: left;
+}
+
+@media screen and (max-width: 600px) {
+    .policy-wrap {
+        padding: 0 0 3rem;
+    }
+}

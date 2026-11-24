@@ -10,6 +10,9 @@ Le site est en HTML, CSS et JavaScript natifs, sans framework ni bibliothèque. 
 BUT-INFO/
 ├── index.html           l'accueil : recherche, filtres, grille des matières
 ├── theme.html           la page Thème (bouton pinceau en haut des pages)
+├── 404.html             page affichée par Vercel quand une adresse n'existe pas
+├── sitemap.xml          liste des pages pour Google (sans les matières vides)
+├── favicon.ico, site.webmanifest, img/   icône du site et image de partage
 ├── css/
 │   ├── themes.css       toutes les couleurs : 12 thèmes, mode sombre, high contrast
 │   ├── style.css        la mise en forme commune à toutes les pages
@@ -86,7 +89,21 @@ Les semestres du filtre sont dans le tableau `semestres` du même fichier. Un se
 
 On n'écrit pas la barre du haut, le fil d'Ariane, les liens précédent / suivant ni le pied de page dans la page : `js/site.js` les ajoute au chargement.
 
-Le style commun gère déjà les classes qu'on utilise partout (`loi-card`, `terme`, `def-bloc`, `#tooltip`, `menu-card`, `btn-lien`), ainsi que les tableaux et le code. Si une page a besoin d'un style à elle, on le met dans un petit `<style>` après les liens. Les couleurs passent par les variables, sinon elles ne suivent pas le thème.
+3. Pour Google, compléter le `<head>` juste après `<title>`, puis ajouter l'adresse de la page dans `sitemap.xml` avec la date du jour :
+
+```html
+<title>Les registres (R305) | BUT Info Nantes</title>
+<meta name="description" content="Une ou deux phrases qui disent ce qu'on trouve dans la page, 160 caractères au plus.">
+<link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/architecture/registres.html">
+<link rel="icon" href="../../favicon.ico" sizes="48x48">
+<link rel="icon" href="../../img/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../img/apple-touch-icon.png">
+<link rel="manifest" href="../../site.webmanifest">
+```
+
+Les pages existantes ont aussi des balises `og:` (aperçu quand on partage le lien) et un fil d'Ariane en JSON-LD : on peut les recopier d'une page voisine en changeant le titre, la description et les adresses. Une page sans contenu (matière vide) prend `<meta name="robots" content="noindex">` et ne va pas dans le sitemap ; on retire ces deux choses le jour où le premier cours arrive.
+
+Le style commun gère déjà les classes qu'on utilise partout (`loi-card`, `terme`, `def-bloc`, `#tooltip`, `menu-card`, `btn-lien`, `consigne` pour la phrase d'aide sous le titre), ainsi que les tableaux et le code. Le texte des parties de cours est en serif, comme les formules MathJax ; les titres et l'interface restent en sans-serif. Si une page a besoin d'un style à elle, on le met dans un petit `<style>` après les liens. Les couleurs passent par les variables, sinon elles ne suivent pas le thème.
 
 ## Encadrés
 
@@ -125,7 +142,7 @@ Le site doit rester lisible du téléphone (320 px) au grand écran (2560 px), s
 
 ## Règles du projet
 
-- Les matières et les pages viennent des tableaux de `js/script.js`, jamais d'une carte écrite en dur dans l'accueil.
+- Les matières et les pages viennent des tableaux de `js/script.js`. La liste écrite dans `index.html` n'est qu'une copie pour Google, que le JavaScript remplace au chargement : quand on ajoute une matière, on y recopie une ligne `<li>` existante en changeant le texte et le lien.
 - Aucune couleur en dehors de `css/themes.css` : on utilise les variables (`var(--primaire)`, `var(--texte)`...).
 - Aucune dépendance externe en plus de MathJax et Umami.
 - Chaque nouvelle page se vérifie sur téléphone et en mode sombre.
