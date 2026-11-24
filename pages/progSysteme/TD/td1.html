@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TD1 : Accès concurrents aux ressources en Go (Programmation système) | BUT Info Nantes</title>
+  <meta name="description" content="Analyse des race conditions, synchronisation par sync.Mutex, test avec go run -race et finalisation de ex2.go (Mutex et canaux) en Go.">
+  <meta name="theme-color" content="#2563eb">
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <!-- MathJax : affichage des formules écrites entre $...$ et $$...$$ -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <!-- Feuilles de style du site BUT INFO2 (avec styles de secours intégrés ci-dessous pour affichage autonome) -->
+  <link rel="stylesheet" href="../../../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../../../assets/css/style.css">
+  <script>
+    (function () {
+      var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true };
+      try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {}
+      var h = document.documentElement;
+      h.dataset.theme = r.theme;
+      h.dataset.mode = r.mode;
+      h.dataset.syntaxe = r.syntaxe ? "on" : "off";
+      if (r.hc) h.dataset.hc = "on";
+    })();
+  </script>
+  <script src="../../../../assets/js/site.js" defer></script>
+  <script src="../../../../assets/js/script.js" defer></script>
+
+  <style>
+    :root {
+      --primaire: #2563eb;
+      --primaire-fonce: #1d4ed8;
+      --fond: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #eff6ff;
+      --texte: #0f172a;
+      --texte-doux: #475569;
+      --bordure: #cbd5e1;
+      --bordure-forte: #94a3b8;
+    }
+
+    html[data-mode="sombre"] {
+      --primaire: #60a5fa;
+      --primaire-fonce: #93c5fd;
+      --fond: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #172554;
+      --texte: #f1f5f9;
+      --texte-doux: #94a3b8;
+      --bordure: #334155;
+      --bordure-forte: #475569;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--fond);
+      color: var(--texte);
+      line-height: 1.6;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 4rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primaire-fonce);
+      margin-bottom: 0.4rem;
+    }
+
+    h2 {
+      color: var(--primaire-fonce);
+      border-bottom: 2px solid var(--surface-2);
+      padding-bottom: 0.35rem;
+      margin-top: 0;
+    }
+
+    .loi-card {
+      background: var(--surface);
+      border: 1px solid var(--bordure);
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: collapse;
+      background: var(--surface);
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid var(--bordure-forte);
+      padding: 0.65rem 0.9rem;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: var(--surface-2);
+    }
+
+    pre {
+      background: var(--fond);
+      border: 1px solid var(--bordure);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9rem;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .note-box {
+      background: var(--surface-2);
+      border-left: 4px solid var(--primaire);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+    }
+
+    .warning-box {
+      background: rgba(245, 158, 11, 0.12);
+      border-left: 4px solid #d97706;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+    }
+
+    .terme {
+      color: var(--primaire);
+      border-bottom: 1.5px dashed var(--primaire);
+      cursor: help;
+      font-weight: 500;
+    }
+
+    #tooltip {
+      display: none;
+      position: absolute;
+      z-index: 1000;
+      max-width: 340px;
+      background: var(--surface);
+      color: var(--texte);
+      border: 1px solid var(--primaire);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+      font-size: 0.9rem;
+    }
+
+    #tooltip h3 {
+      margin: 0 0 0.3rem;
+      font-size: 1rem;
+      color: var(--primaire-fonce);
+    }
+
+    #tooltip p {
+      margin: 0;
+    }
+
+    .def-bloc {
+      display: none;
+    }
+
+    .def-bloc.actif {
+      display: block;
+    }
+
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      margin: 0.75rem 0;
+    }
+
+    .demo-btn {
+      padding: 0.5rem 0.9rem;
+      font: inherit;
+      cursor: pointer;
+      background: var(--surface-2);
+      color: inherit;
+      border: 1px solid var(--bordure-forte);
+      border-radius: 6px;
+    }
+
+    .demo-btn.actif {
+      background: var(--primaire);
+      color: #ffffff;
+      border-color: var(--primaire);
+      font-weight: 600;
+    }
+
+    .astuce-tactile { display: none; }
+    @media (hover: none) {
+      .astuce-souris { display: none; }
+      .astuce-tactile { display: inline; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>TD1 : Accès concurrents aux ressources</h1>
+  <p style="text-align: center; color: var(--texte-doux);">
+    Programmation système — BUT Informatique, deuxième année[cite: 18]<br>
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="race-condition">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. CONSIGNES & MÉTHODE -->
+  <section class="loi-card">
+    <h2>1. Principe général et questions du TD1</h2>
+    <p>Lorsqu'au moins deux <span class="terme" data-def="goroutine">goroutines</span> accèdent simultanément à une même variable partagée et qu'au moins l'un des accès est une écriture sans synchronisation, il y a une <span class="terme" data-def="race-condition">race condition</span> (accès concurrent).</p>
+
+    <ol>
+      <li>Déterminer s'il existe une ou plusieurs <em>race conditions</em>[cite: 18].</li>
+      <li>Justifier en cas d'absence, ou identifier les variables et lignes en concurrence[cite: 18].</li>
+      <li>Protéger les accès critiques avec un <span class="terme" data-def="mutex"><code>sync.Mutex</code></span>[cite: 18].</li>
+      <li>Vérifier l'absence de conflit avec l'option <code>-race</code> de Go[cite: 18] :
+<pre><code>go run -race ex1-4.go</code></pre>
+      </li>
+      <li>En bonus sur <code>ex2.go</code> : remplacer les tranches partagées (<code>com1</code>, <code>com2</code>) par des <span class="terme" data-def="canal">canaux (<code>chan</code>)</span>[cite: 18].</li>
+    </ol>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Fichier</th>
+            <th>Parallélisme (<code>go</code>)</th>
+            <th>Mémoire partagée</th>
+            <th>Race condition ?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>ex0.go</code></td><td>Oui (1000 goroutines)[cite: 11]</td><td><code>x</code>, <code>y</code> (protégés par <code>mutex</code>)[cite: 11]</td><td>Non (protégé par <code>mutex.Lock()</code>)[cite: 11]</td></tr>
+          <tr><td><code>ex1-1.go</code></td><td>Non (séquentiel)[cite: 12]</td><td>Aucune (retour de valeur)[cite: 12]</td><td>Non[cite: 12]</td></tr>
+          <tr><td><code>ex1-2.go</code></td><td>Oui (30 goroutines)[cite: 13]</td><td>Aucune (<code>res</code> local à chaque appel)[cite: 13]</td><td>Non[cite: 13]</td></tr>
+          <tr><td><code>ex1-3.go</code></td><td>Non (séquentiel)[cite: 14]</td><td>Variable globale <code>res</code>[cite: 14]</td><td>Non (exécution séquentielle)[cite: 14]</td></tr>
+          <tr><td><code>ex1-4.go</code></td><td>Oui (30 goroutines)[cite: 15]</td><td>Variable globale <code>res</code> + <code>mu</code>[cite: 15]</td><td>Non (<code>mu.Lock()</code> entoure l'accès à <code>res</code>)[cite: 15]</td></tr>
+          <tr><td><code>ex1-5.go</code></td><td>Oui (30 goroutines)[cite: 16]</td><td>Pointeur partagé <code>*res</code> + <code>mu</code>[cite: 16]</td><td>Non (<code>mu.Lock()</code> entoure l'accès à <code>*res</code>)[cite: 16]</td></tr>
+          <tr><td><code>ex2.go</code></td><td>Oui (3 goroutines)[cite: 17]</td><td>Tranches globales <code>com1</code>, <code>com2</code>[cite: 17]</td><td><strong>Oui</strong> dans l'ébauche ; corrigé ci-dessous[cite: 17]</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2. ANALYSE DE EX0 ET EX1-1 À EX1-5 -->
+  <section class="loi-card">
+    <h2>2. Analyse des codes <code>ex0.go</code> et <code>ex1-1.go</code> à <code>ex1-5.go</code></h2>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex0.go</code> — Échange de <code>x</code> et <code>y</code> avec <code>sync.Mutex</code></h3>
+    <p>Même si un commentaire indique <code>x, y = y, x // race condition</code>, l'échange est entouré de <code>mutex.Lock()</code> et <code>mutex.Unlock()</code> dans la boucle de <code>switchxy()</code>[cite: 11]. L'accès concurrent à <code>x</code> et <code>y</code> est donc sérialisé[cite: 11].</p>
+<pre><code>package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var x, y int
+var w sync.WaitGroup
+var mutex sync.Mutex
+
+func switchxy() {
+	for i := 0; i &lt; 1000; i++ {
+		mutex.Lock()
+		x, y = y, x // race condition
+		mutex.Unlock()
+	}
+	w.Done()
+}
+
+func main() {
+	x = 5
+	y = 7
+	w.Add(1000)
+	for i := 0; i &lt; 1000; i++ {
+		go switchxy()
+	}
+	w.Wait()
+	fmt.Println("x vaut", x, "et y vaut", y)
+}</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-1.go</code> — Séquentiel et sans mémoire partagée</h3>
+    <p>Pas de mot-clé <code>go</code> et <code>res</code> est une variable locale retournée par valeur : aucune <em>race condition</em> possible[cite: 12].</p>
+<pre><code>package main
+
+import "fmt"
+
+// calcule n puissance m
+// sequentiel dont pas de race condition
+func puissance(n, m int) (res int) {
+	res = 1
+	for i := 0; i &lt; m; i++ {
+		res *= n
+	}
+	return
+}
+
+func main() {
+
+	for i := 0; i &lt; 10; i++ {
+		for j := 0; j &lt; 3; j++ {
+			fmt.Println(i, "puissance", j, "vaut", puissance(i, j))
+		}
+	}
+
+}</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-2.go</code> — Parallèle mais sans mémoire partagée</h3>
+    <p>Chaque goroutine exécute <code>puissance(i, j)</code> avec sa propre variable locale <code>var res int = 1</code>[cite: 13]. Comme il n'y a pas d'état partagé mutable entre goroutines, il n'y a pas de <em>race condition</em>[cite: 13].</p>
+<pre><code>package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var w sync.WaitGroup
+
+// calcule n puissance m
+// pas sequentiel
+// pas de memoire partage =&gt; pas de race contion
+func puissance(n, m int) {
+	var res int = 1
+	for i := 0; i &lt; m; i++ {
+		res *= n
+	}
+	fmt.Println(n, "puissance", m, "vaut", res)
+	w.Done()
+	return
+}
+
+func main() {
+	//w.Add(10*3)
+	for i := 0; i &lt; 10; i++ {
+		for j := 0; j &lt; 3; j++ {
+			w.Add(1)
+			go puissance(i, j)
+		}
+	}
+
+	w.Wait()
+}</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-3.go</code> — Variable globale <code>res</code> mais exécution séquentielle</h3>
+    <p>La variable globale <code>res</code> est modifiée à chaque appel, mais il n'y a aucune goroutine (<code>go</code> n'est pas utilisé)[cite: 14]. L'exécution reste strictement séquentielle, donc pas de <em>race condition</em>[cite: 14].</p>
+<pre><code>package main
+
+import "fmt"
+
+var res int //variable global
+
+// calcule n puissance m
+// sequentiel dont pas de race condition (pas de mot go),pas demande de parallélisme
+func puissance(n, m int) {
+	res = 1
+	for i := 0; i &lt; m; i++ {
+		res *= n
+	}
+	fmt.Println(n, "puissance", m, "vaut", res)
+	return
+}
+
+func main() {
+
+	for i := 0; i &lt; 10; i++ {
+		for j := 0; j &lt; 3; j++ {
+			puissance(i, j)
+		}
+	}
+
+}</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-4.go</code> — Variable globale <code>res</code> protégée par <code>mu.Lock()</code></h3>
+    <p>Plusieurs goroutines s'exécutent en concurrence et accèdent à la variable globale <code>res</code>, mais <code>mu.Lock()</code> est posé avant <code>res = 1</code> et <code>mu.Unlock()</code> après <code>fmt.Println</code> : la <span class="terme" data-def="section-critique">section critique</span> est protégée[cite: 15].</p>
+<pre><code>package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var res int
+var w sync.WaitGroup
+var mu sync.Mutex
+// calcule n puissance m
+//pas sequentiel (mot cle go)
+// memoire partage =&gt; race condition
+func puissance(n, m int) {
+	mu.Lock()// Lock avant l'utilsation de la variable global
+	res = 1
+
+	for i := 0; i &lt; m; i++ {
+		res *= n // race condition
+	}
+	
+	fmt.Println(n, "puissance", m, "vaut", res)// unlock apres la derniere utilisation
+	mu.Unlock()
+	w.Done()
+	return
+}
+
+func main() {
+
+	for i := 0; i &lt; 10; i++ {
+		for j := 0; j &lt; 3; j++ {
+			w.Add(1)
+			go puissance(i, j)
+		}
+	}
+
+	w.Wait()
+}</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-5.go</code> — Pointeur partagé <code>*res</code> protégé par <code>mu.Lock()</code></h3>
+    <p>Toutes les goroutines reçoivent l'adresse <code>&amp;res</code> de la variable <code>res</code> de <code>main</code>[cite: 16]. L'accès à <code>*res</code> est protégé par <code>mu.Lock()</code> et <code>mu.Unlock()</code>[cite: 16].</p>
+<pre><code>package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+var w sync.WaitGroup
+var mu sync.Mutex
+// calcule n puissance m
+// pas sequentiel , ya du parallelisme
+// memoire partage =&gt; race condition
+func puissance(n, m int, res *int) {
+	mu.Lock()
+	*res = 1
+	for i := 0; i &lt; m; i++ {
+		*res *= n
+	}
+	fmt.Println(n, "puissance", m, "vaut", *res)
+	mu.Unlock()
+	w.Done()
+	return
+}
+
+func main() {
+	var res int
+
+	for i := 0; i &lt; 10; i++ {
+		for j := 0; j &lt; 3; j++ {
+			w.Add(1)
+			go puissance(i, j, &amp;res)
+		}
+	}
+
+	w.Wait()
+}</code></pre>
+  </section>
+
+  <!-- 3. EX2.GO : ÉBAUCHE CONSERVÉE + CORRECTION MUTEX + BONUS CANAUX -->
+  <section class="loi-card">
+    <h2>3.Ex2.go</h2>
+<pre><code>package main
+
+import (
+	"log"
+	"sync"
+)
+
+var com1, com2 []int
+var w sync.WaitGroup
+
+func prod(n int, com chan int) {
+	defer w.Done()
+	for i := 0; i &lt; n; i++ {
+		com1 = append(com1, i)
+	}
+}
+
+func trans(com1 chan int,com2 chan int) {
+	defer w.Done()
+	for {
+		// if len(com1) &gt; 0 {
+		// 	com2 = append(com2, com1[0])
+		// 	com1 = com1[1:]
+		// }
+		temp:=&lt;-com1
+		com2&lt;-temp
+	}
+}
+
+func cons(com chan int) {
+	defer w.Done()
+	for {
+		if len(com2) &gt; 0 {
+			log.Print(com2[0])
+			com2 = com2[1:]
+		}
+	}
+}
+
+func main() {
+	var c chan int = make(chan int,5)
+	var c2 chan int = make(chan int,5)
+	w.Add(3)
+	go prod(1000)
+	go trans()
+	go cons()
+	w.Wait()
+}</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.2 Version terminée avec <code>sync.Mutex</code> (question 3 &amp; 4)</h3>
+    <p>Chaque accès à <code>com1</code> et <code>com2</code> est protégé par <code>mu1</code> et <code>mu2</code>, et chaque étape s'arrête proprement une fois les <code>n</code> éléments produits, transférés et consommés :</p>
+<pre><code>package main
+
+import (
+	"log"
+	"sync"
+)
+
+var com1, com2 []int
+var mu1, mu2 sync.Mutex
+var w sync.WaitGroup
+
+func prod(n int) {
+	defer w.Done()
+	for i := 0; i &lt; n; i++ {
+		mu1.Lock()
+		com1 = append(com1, i)
+		mu1.Unlock()
+	}
+}
+
+func trans(n int) {
+	defer w.Done()
+	traites := 0
+	for traites &lt; n {
+		mu1.Lock()
+		if len(com1) &gt; 0 {
+			val := com1[0]
+			com1 = com1[1:]
+			mu1.Unlock()
+
+			mu2.Lock()
+			com2 = append(com2, val)
+			mu2.Unlock()
+
+			traites++
+		} else {
+			mu1.Unlock()
+		}
+	}
+}
+
+func cons(n int) {
+	defer w.Done()
+	consommes := 0
+	for consommes &lt; n {
+		mu2.Lock()
+		if len(com2) &gt; 0 {
+			val := com2[0]
+			com2 = com2[1:]
+			mu2.Unlock()
+
+			log.Print(val)
+			consommes++
+		} else {
+			mu2.Unlock()
+		}
+	}
+}
+
+func main() {
+	const n = 1000
+	w.Add(3)
+	go prod(n)
+	go trans(n)
+	go cons(n)
+	w.Wait()
+}</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.3 Version bonus avec canaux (question 5)</h3>
+    <p>En utilisant les canaux <code>c</code> et <code>c2</code> créés dans <code>main</code>[cite: 17, 18], il n'y a plus de tranches partagées : <code>prod</code> ferme <code>c</code> à la fin, <code>trans</code> lit <code>c</code> avec <code>range</code> et ferme <code>c2</code> à la fin, et <code>cons</code> lit <code>c2</code> avec <code>range</code> :</p>
+<pre><code>package main
+
+import (
+	"log"
+	"sync"
+)
+
+var w sync.WaitGroup
+
+func prod(n int, com chan int) {
+	defer w.Done()
+	defer close(com)
+	for i := 0; i &lt; n; i++ {
+		com &lt;- i
+	}
+}
+
+func trans(com1 chan int, com2 chan int) {
+	defer w.Done()
+	defer close(com2)
+	for temp := range com1 {
+		com2 &lt;- temp
+	}
+}
+
+func cons(com chan int) {
+	defer w.Done()
+	for val := range com {
+		log.Print(val)
+	}
+}
+
+func main() {
+	c := make(chan int, 5)
+	c2 := make(chan int, 5)
+	w.Add(3)
+	go prod(1000, c)
+	go trans(c, c2)
+	go cons(c2)
+	w.Wait()
+}</code></pre>
+  </section>
+  <!-- INFOBULLE DES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-race-condition" class="def-bloc">
+      <h3>Race condition (Accès concurrent)</h3>
+      <p>Situation où plusieurs goroutines accèdent en même temps à une ressource partagée et qu'au moins une écriture n'est pas synchronisée, rendant le résultat dépendant de l'entrelacement des exécutions.</p>
+    </div>
+
+    <div id="def-goroutine" class="def-bloc">
+      <h3>Goroutine</h3>
+      <p>Fil d'exécution léger géré par le runtime Go, lancé avec le mot-clé <code>go</code> pour exécuter une fonction de manière concurrente.</p>
+    </div>
+
+    <div id="def-mutex" class="def-bloc">
+      <h3>Mutex (<code>sync.Mutex</code>)</h3>
+      <p>Verrou d'exclusion mutuelle : une seule goroutine peut détenir le verrou (<code>Lock()</code>) à la fois ; les autres attendent jusqu'à <code>Unlock()</code>.</p>
+    </div>
+
+    <div id="def-section-critique" class="def-bloc">
+      <h3>Section critique</h3>
+      <p>Portion de code qui lit ou modifie une variable partagée et qui doit être exécutée de manière atomique vis-à-vis des autres goroutines.</p>
+    </div>
+
+    <div id="def-canal" class="def-bloc">
+      <h3>Canal (<code>chan</code>)</h3>
+      <p>Tube typé en Go permettant aux goroutines de communiquer et de synchroniser l'échange de valeurs (<code>ch &lt;- val</code> et <code>&lt;-ch</code>) plutôt que de partager de la mémoire brute.</p>
+    </div>
+  </div>
+
+  <!-- SCRIPT INFOBULLES -->
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+  <!-- SCRIPT SIMULATEUR -->
+  <script>
+    function lancerSim(mode) {
+      const goroutines = 100;
+      const tours = 100;
+      const attendu = goroutines * tours;
+      let compteur = 0;
+
+      if (mode === 'race') {
+        let perdues = 0;
+        for (let t = 0; t < tours; t++) {
+          let lecture = compteur;
+          for (let g = 0; g < goroutines; g++) {
+            if (g % 7 === 0) perdues++;
+          }
+          compteur = lecture + goroutines - Math.floor(perdues / tours);
+        }
+        document.getElementById('sim-output').innerHTML =
+          `<strong>Résultat (sans Mutex) :</strong> compteur = <code>${compteur}</code> (attendu : <code>${attendu}</code>). Des mises à jour sont écrasées lors d'accès concurrents.`;
+      } else if (mode === 'mutex') {
+        compteur = attendu;
+        document.getElementById('sim-output').innerHTML =
+          `<strong>Résultat (avec sync.Mutex) :</strong> compteur = <code>${compteur}</code> (attendu : <code>${attendu}</code>). Chaque goroutine verrouille avant de modifier la variable et déverrouille ensuite.`;
+      } else {
+        compteur = attendu;
+        document.getElementById('sim-output').innerHTML =
+          `<strong>Résultat (avec canal) :</strong> compteur = <code>${compteur}</code> (attendu : <code>${attendu}</code>). Les valeurs transitent par le canal sans partage direct de tranche mutable.`;
+      }
+    }
+
+    document.querySelectorAll('.demo-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('actif'));
+        btn.classList.add('actif');
+        lancerSim(btn.dataset.modeSim);
+      });
+    });
+
+    lancerSim('race');
+  </script>
+
+</body>
+</html>
