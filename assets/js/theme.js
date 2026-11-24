@@ -1,6 +1,6 @@
 // =====================================================================
 // PAGE THÈME : liste des palettes et réglages
-// Pour ajouter une palette : la déclarer dans css/themes.css,
+// Pour ajouter une palette : la déclarer dans assets/css/themes.css,
 // puis l'ajouter dans le bon groupe ci-dessous.
 // =====================================================================
 

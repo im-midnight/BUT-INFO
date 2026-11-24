@@ -13,31 +13,31 @@
   <meta property="og:title" content="BUT Info Nantes : cours, TD et TP de 2e année">
   <meta property="og:description" content="Fiches de révision du BUT Informatique 2 de l'IUT de Nantes, écrites par des étudiants : web, design patterns, programmation système, probas, crypto.">
   <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/">
-  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/img/partage.png">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#2563eb">
-  <link rel="icon" href="favicon.ico" sizes="48x48">
-  <link rel="icon" href="img/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="css/themes.css">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/site.js"></script>
-  <script src="js/script.js" defer></script>
+  <link rel="icon" href="assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="assets/site.webmanifest">
+  <link rel="stylesheet" href="assets/css/themes.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/script.js" defer></script>
   <script type="application/ld+json">
   {"@context": "https://schema.org", "@type": "WebSite", "name": "BUT INFO2", "alternateName": "BUT Info Nantes", "url": "https://butinfo-iutnantes.vercel.app/", "inLanguage": "fr"}
   </script>
 </head>
 <body class="accueil">
   <!--
-    ARCHITECTURE DU PROJET
-    ├── index.html            ce sommaire (ne change pas)
-    ├── theme.html            choix du thème
-    ├── css/themes.css        toutes les couleurs (12 thèmes, sombre, high contrast)
-    ├── css/style.css         mise en forme commune à toutes les pages
-    ├── js/script.js          matières et pages : c'est le SEUL fichier à modifier
-    ├── js/site.js            thème, barre du haut, précédent/suivant, code
-    └── pages/                une page par cours
+    ARCHITECTURE DU PROJET (détails dans README.md)
+    ├── index.html                   ce sommaire
+    ├── assets/css/themes.css        toutes les couleurs (12 thèmes, sombre, high contrast)
+    ├── assets/css/style.css         mise en forme commune à toutes les pages
+    ├── assets/js/script.js          matières et pages : c'est le SEUL fichier à modifier
+    ├── assets/js/site.js            thème, barre du haut, précédent/suivant, code
+    ├── pages/site/                  Thème, politique de confidentialité, mentions légales
+    └── pages/                       une page par cours
   -->
   <header class="entete">
     <div class="conteneur">
@@ -70,8 +70,8 @@
       <fieldset class="filtre" id="filtre-type"><legend>Type</legend></fieldset>
     </div>
 
-    <!-- Liste volontairement vide : js/script.js y crée un <li> par matière.
-         Pour ajouter une matière, ne rien écrire ici, voir le tableau `matieres`. -->
+    <!-- Copie de la liste pour Google : assets/js/script.js la remplace au chargement
+         à partir du tableau `matieres`. Nouvelle matière : recopier une ligne <li>. -->
     <ul class="grille" id="liste-matieres">
       <li><a class="carte" id="matiere-dev-web" href="pages/web/indexWeb.html"><span class="carte__code">R301</span><h2 class="carte__titre">Développement web</h2><p class="carte__texte">Syntaxe Java, servlets, JSP.</p><span class="carte__compte">5 pages</span></a></li>
       <li><a class="carte" id="matiere-dev-efficace" href="pages/algos_corrects_efficaces/cours.html"><span class="carte__code">R302</span><h2 class="carte__titre">Algos corrects et efficaces (Dev. efficace)</h2><p class="carte__texte">Complexité, triplets de Hoare, invariants de boucle.</p><span class="carte__compte">1 page</span></a></li>
@@ -89,8 +89,8 @@
   <footer class="pied">
     <div class="pied__contenu">
       <ul>
-        <li><a href="politique.html">Politique de confidentialité</a></li>
-        <li><a href="mentions-legales.html">Crédits et mentions légales</a></li>
+        <li><a href="pages/site/politique.html">Politique de confidentialité</a></li>
+        <li><a href="pages/site/mentions-legales.html">Crédits et mentions légales</a></li>
       </ul>
       <p>© 2026 Les étudiants en BUT Info 2 - Tous droits réservés</p>
     </div>

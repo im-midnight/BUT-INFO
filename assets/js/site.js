@@ -4,11 +4,12 @@
 //   2. ajoute la barre du haut, le fil d'Ariane et le bouton Thème
 //   3. ajoute « précédent / suivant » et le pied de page
 //   4. code : coloration syntaxique et bouton Copier
-// Les données (matières, pages) viennent de js/script.js.
+// Les données (matières, pages) viennent de assets/js/script.js.
 // =====================================================================
 
 const ButInfo = (() => {
-  const racine = new URL("..", document.currentScript.src).href;
+  // site.js est dans assets/js/ : la racine du site est deux dossiers au-dessus
+  const racine = new URL("../..", document.currentScript.src).href;
   const CLE = "butinfo-reglages";
   const DEFAUT = { theme: "bleu", mode: "clair", hc: false, syntaxe: true };
 
@@ -74,7 +75,7 @@ const ButInfo = (() => {
   function boutonTheme() {
     const slot = document.createElement("div");
     slot.className = "slot-theme";
-    slot.innerHTML = `<a class="btn-theme" href="${racine}theme.html" aria-label="Thème">${ICONE_PINCEAU}</a>`;
+    slot.innerHTML = `<a class="btn-theme" href="${racine}pages/site/theme.html" aria-label="Thème">${ICONE_PINCEAU}</a>`;
     return slot;
   }
 
@@ -113,7 +114,7 @@ const ButInfo = (() => {
       return liste;
     }
 
-    if (chemin === "theme.html") {
+    if (chemin === "pages/site/theme.html") {
       liste.push({ titre: "Thème" });
       return liste;
     }
@@ -202,8 +203,8 @@ const ButInfo = (() => {
     pied.className = "pied";
     pied.innerHTML = `<div class="pied__contenu">
       <ul>
-        <li><a href="${racine}politique.html">Politique de confidentialité</a></li>
-        <li><a href="${racine}mentions-legales.html">Crédits et mentions légales</a></li>
+        <li><a href="${racine}pages/site/politique.html">Politique de confidentialité</a></li>
+        <li><a href="${racine}pages/site/mentions-legales.html">Crédits et mentions légales</a></li>
       </ul>
       <p>© 2026 Les étudiants en BUT Info 2 - Tous droits réservés</p>
     </div>`;

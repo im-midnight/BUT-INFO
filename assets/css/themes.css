@@ -1,7 +1,7 @@
 /* =====================================================================
    THÈMES
    Toutes les couleurs du site sont ici, et seulement ici.
-   Le thème actif est posé sur <html> par js/site.js :
+   Le thème actif est posé sur <html> par assets/js/site.js :
      data-theme="bleu"      la palette choisie (12 au total)
      data-mode="sombre"     version sombre de la palette
      data-hc="on"           high contrast (remplace tout le reste)

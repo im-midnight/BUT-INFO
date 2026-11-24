@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/theme.html", "destination": "/pages/site/theme.html", "permanent": true },
+    { "source": "/politique.html", "destination": "/pages/site/politique.html", "permanent": true },
+    { "source": "/mentions-legales.html", "destination": "/pages/site/mentions-legales.html", "permanent": true },
+    { "source": "/favicon.ico", "destination": "/assets/img/favicon.ico", "permanent": true },
+    { "source": "/site.webmanifest", "destination": "/assets/site.webmanifest", "permanent": true },
+    { "source": "/css/:chemin*", "destination": "/assets/css/:chemin*", "permanent": true },
+    { "source": "/js/:chemin*", "destination": "/assets/js/:chemin*", "permanent": true },
+    { "source": "/img/:chemin*", "destination": "/assets/img/:chemin*", "permanent": true }
+  ]
+}

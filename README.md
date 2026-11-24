@@ -8,21 +8,29 @@ Le site est en HTML, CSS et JavaScript natifs, sans framework ni bibliothèque. 
 
 ```
 BUT-INFO/
-├── index.html           l'accueil : recherche, filtres, grille des matières
-├── theme.html           la page Thème (bouton pinceau en haut des pages)
-├── 404.html             page affichée par Vercel quand une adresse n'existe pas
+├── index.html           l'accueil : recherche, filtres, liste des matières
+├── 404.html             page affichée quand une adresse n'existe pas
+├── robots.txt           règles pour les robots de Google
 ├── sitemap.xml          liste des pages pour Google (sans les matières vides)
-├── favicon.ico, site.webmanifest, img/   icône du site et image de partage
-├── css/
-│   ├── themes.css       toutes les couleurs : 12 thèmes, mode sombre, high contrast
-│   ├── style.css        la mise en forme commune à toutes les pages
-│   └── politique.css    pages politique et mentions légales
-├── js/
-│   ├── script.js        les données (matières + pages) et l'accueil
-│   ├── site.js          thème, barre du haut, précédent/suivant, code
-│   └── theme.js         la page Thème
-└── pages/               une page HTML par cours, TD ou TP
+├── google…html          fichier de vérification de Search Console (ne pas toucher)
+├── vercel.json          redirections des anciennes adresses
+├── assets/
+│   ├── css/
+│   │   ├── themes.css   toutes les couleurs : 12 thèmes, mode sombre, high contrast
+│   │   ├── style.css    la mise en forme commune à toutes les pages
+│   │   └── politique.css  pages politique et mentions légales
+│   ├── js/
+│   │   ├── script.js    les données (matières + pages) et l'accueil
+│   │   ├── site.js      thème, barre du haut, précédent/suivant, code
+│   │   └── theme.js     la page Thème
+│   ├── img/             icônes du site (favicon…) et image de partage
+│   └── site.webmanifest nom et icônes du site pour les téléphones
+└── pages/
+    ├── site/            Thème, politique de confidentialité, mentions légales
+    └── …                une page HTML par cours, TD ou TP, rangée par matière
 ```
+
+Les fichiers restés à la racine doivent y être : Google et les hébergeurs vont chercher `robots.txt`, `sitemap.xml`, `404.html` et le fichier de vérification à cet endroit précis.
 
 ## Lancer le projet
 
@@ -38,7 +46,7 @@ puis aller sur `http://localhost:8000`.
 
 ## Ajouter une matière
 
-Ajouter un objet dans le tableau `matieres` de `js/script.js` :
+Ajouter un objet dans le tableau `matieres` de `assets/js/script.js` :
 
 ```js
 {
@@ -59,13 +67,13 @@ Les semestres du filtre sont dans le tableau `semestres` du même fichier. Un se
 1. Créer la page dans `pages/`, en partant d'une copie d'une page existante. Le `<head>` doit contenir ces quatre lignes, avec le bon nombre de `../` :
 
 ```html
-<link rel="stylesheet" href="../../css/themes.css">
-<link rel="stylesheet" href="../../css/style.css">
-<script src="../../js/site.js"></script>
-<script src="../../js/script.js" defer></script>
+<link rel="stylesheet" href="../../assets/css/themes.css">
+<link rel="stylesheet" href="../../assets/css/style.css">
+<script src="../../assets/js/site.js"></script>
+<script src="../../assets/js/script.js" defer></script>
 ```
 
-2. Ajouter la page dans le tableau `pages` de `js/script.js` :
+2. Ajouter la page dans le tableau `pages` de `assets/js/script.js` :
 
 ```js
 {
@@ -87,7 +95,7 @@ Les semestres du filtre sont dans le tableau `semestres` du même fichier. Un se
 | `sommaire` | facultatif, `true` si la page ne fait que lister d'autres pages |
 | `sections` | facultatif, les titres des `<h2>` dans l'ordre, pour que la recherche tombe directement sur la bonne partie |
 
-On n'écrit pas la barre du haut, le fil d'Ariane, les liens précédent / suivant ni le pied de page dans la page : `js/site.js` les ajoute au chargement.
+On n'écrit pas la barre du haut, le fil d'Ariane, les liens précédent / suivant ni le pied de page dans la page : `assets/js/site.js` les ajoute au chargement.
 
 3. Pour Google, compléter le `<head>` juste après `<title>`, puis ajouter l'adresse de la page dans `sitemap.xml` avec la date du jour :
 
@@ -95,10 +103,10 @@ On n'écrit pas la barre du haut, le fil d'Ariane, les liens précédent / suiva
 <title>Les registres (R305) | BUT Info Nantes</title>
 <meta name="description" content="Une ou deux phrases qui disent ce qu'on trouve dans la page, 160 caractères au plus.">
 <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/architecture/registres.html">
-<link rel="icon" href="../../favicon.ico" sizes="48x48">
-<link rel="icon" href="../../img/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="../../img/apple-touch-icon.png">
-<link rel="manifest" href="../../site.webmanifest">
+<link rel="icon" href="../../assets/img/favicon.ico" sizes="48x48">
+<link rel="icon" href="../../assets/img/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../assets/img/apple-touch-icon.png">
+<link rel="manifest" href="../../assets/site.webmanifest">
 ```
 
 Les pages existantes ont aussi des balises `og:` (aperçu quand on partage le lien) et un fil d'Ariane en JSON-LD : on peut les recopier d'une page voisine en changeant le titre, la description et les adresses. Une page sans contenu (matière vide) prend `<meta name="robots" content="noindex">` et ne va pas dans le sitemap ; on retire ces deux choses le jour où le premier cours arrive.
@@ -123,7 +131,7 @@ Dans le code, il faut écrire `&lt;` et `&gt;` à la place de `<` et `>` (par ex
 
 ## Thèmes
 
-Toutes les couleurs sont dans `css/themes.css`. Le thème choisi est posé sur `<html>` :
+Toutes les couleurs sont dans `assets/css/themes.css`. Le thème choisi est posé sur `<html>` :
 
 | Attribut | Valeurs |
 |---|---|
@@ -134,7 +142,7 @@ Toutes les couleurs sont dans `css/themes.css`. Le thème choisi est posé sur `
 
 Le choix est gardé dans le `localStorage` du navigateur.
 
-Pour ajouter un thème, on copie un bloc `[data-theme="..."]` dans `css/themes.css`, on change les couleurs, puis on l'ajoute dans la liste `THEMES` de `js/theme.js`. Sa version sombre est calculée à partir de `--teinte` et `--barre`.
+Pour ajouter un thème, on copie un bloc `[data-theme="..."]` dans `assets/css/themes.css`, on change les couleurs, puis on l'ajoute dans la liste `THEMES` de `assets/js/theme.js`. Sa version sombre est calculée à partir de `--teinte` et `--barre`.
 
 ## Responsive
 
@@ -142,7 +150,7 @@ Le site doit rester lisible du téléphone (320 px) au grand écran (2560 px), s
 
 ## Règles du projet
 
-- Les matières et les pages viennent des tableaux de `js/script.js`. La liste écrite dans `index.html` n'est qu'une copie pour Google, que le JavaScript remplace au chargement : quand on ajoute une matière, on y recopie une ligne `<li>` existante en changeant le texte et le lien.
-- Aucune couleur en dehors de `css/themes.css` : on utilise les variables (`var(--primaire)`, `var(--texte)`...).
+- Les matières et les pages viennent des tableaux de `assets/js/script.js`. La liste écrite dans `index.html` n'est qu'une copie pour Google, que le JavaScript remplace au chargement : quand on ajoute une matière, on y recopie une ligne `<li>` existante en changeant le texte et le lien.
+- Aucune couleur en dehors de `assets/css/themes.css` : on utilise les variables (`var(--primaire)`, `var(--texte)`...).
 - Aucune dépendance externe en plus de MathJax et Umami.
 - Chaque nouvelle page se vérifie sur téléphone et en mode sombre.
