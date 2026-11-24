@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercice 7 : Code de Hamming, méthode sur papier (TP R309) | BUT Info Nantes</title>
+  <meta name="description" content="Ajouter des bits de parité à un message avec le code de Hamming, puis détecter et corriger une erreur sur un message reçu, en détaillant la méthode à la main.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex7.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Exercice 7 : Code de Hamming, méthode sur papier (TP R309)">
+  <meta property="og:description" content="Ajouter des bits de parité à un message avec le code de Hamming, puis détecter et corriger une erreur sur un message reçu, en détaillant la méthode à la main.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex7.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../../../assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../../../assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../../../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../../../../assets/site.webmanifest">
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <!-- MathJax : affichage des formules écrites entre $...$ et $$...$$ -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <link rel="stylesheet" href="../../../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../../../assets/css/style.css">
+  <script>
+    // Thème posé tout de suite pour éviter un flash de couleur ; le reste de site.js est en defer.
+    // Clé et valeurs par défaut : les mêmes que DEFAUT dans assets/js/site.js.
+    (function () { var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true }; try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {} var h = document.documentElement; h.dataset.theme = r.theme; h.dataset.mode = r.mode; h.dataset.syntaxe = r.syntaxe ? "on" : "off"; if (r.hc) h.dataset.hc = "on"; })();
+  </script>
+  <script src="../../../../assets/js/site.js" defer></script>
+  <script src="../../../../assets/js/script.js" defer></script>
+  <style>
+    /* Spécifique à cette page */
+    table { width: 100%; min-width: 560px; border-collapse: collapse; background: var(--surface); margin-top: 1rem; }
+    th, td { border: 1px solid var(--bordure-forte); padding: 0.5rem 0.6rem; text-align: center; vertical-align: middle; }
+    th { background-color: var(--surface-2); }
+    td.par { background-color: var(--surface-2); font-weight: bold; }
+    td.err { outline: 2px solid var(--primaire-fonce); outline-offset: -2px; font-weight: bold; }
+    .note-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    .warning-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    pre { white-space: pre-wrap; word-break: break-all; }
+    .ok { font-weight: bold; }
+    .demo-champ { width: 100%; box-sizing: border-box; padding: 0.6rem; font: inherit; margin: 0.25rem 0 0.75rem;
+                  background: var(--surface); color: inherit; border: 1px solid var(--bordure-forte); border-radius: 6px; }
+    .demo-sortie { margin-top: 0.5rem; }
+  </style>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R309 - Cryptographie et sécurité", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/indexCrypto.html"}, {"@type": "ListItem", "position": 3, "name": "TP", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp.html"}, {"@type": "ListItem", "position": 4, "name": "Exercice 7 : Code de Hamming, méthode sur papier", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex7.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>Exercice 7 : Code de Hamming, méthode sur papier</h1>
+  <p style="text-align: center; color: var(--texte-doux);">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="parite">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- RAPPEL DU COURS -->
+  <section class="loi-card">
+    <h2>Principe général (rappel du cours)</h2>
+    <ul>
+      <li><strong>Positions :</strong> on numérote les bits à partir de $1$ en partant de la gauche. Les <span class="terme" data-def="parite">bits de parité</span> $p_1, p_2, p_4, p_8, \ldots$ occupent les positions qui sont des puissances de $2$ ; les bits du message occupent toutes les autres positions.</li>
+      <li><strong>Nombre de bits de parité :</strong> pour un message de $m$ bits, on prend le plus petit $k$ tel que $2^k \geq m + k + 1$. Le code a alors $n = m + k$ bits.
+        $$ k = 2 \Rightarrow (n, m) = (3, 1) \qquad k = 3 \Rightarrow (7, 4) \qquad k = 4 \Rightarrow (15, 11) $$
+      </li>
+      <li><strong>Calcul des bits de parité :</strong> on écrit en binaire la position de chaque bit à $1$ du message, puis on additionne chaque colonne ($2^0, 2^1, 2^2, \ldots$) modulo $2$. Le résultat de la colonne $2^i$ donne le bit de parité placé à la position $2^i$ (<span class="terme" data-def="parite">parité paire</span>).</li>
+      <li><strong>Contrôle à la réception :</strong> on refait la même somme sur <em>tous</em> les bits à $1$ du mot reçu, bits de parité compris. Le résultat s'appelle le <span class="terme" data-def="syndrome">syndrome</span> : s'il vaut $0000$, aucune erreur n'est détectée ; sinon, en supposant <strong>au plus une erreur</strong>, sa valeur lue en binaire est la position du bit faux.</li>
+    </ul>
+  </section>
+
+  <!-- 7.1 -->
+  <section class="loi-card">
+    <h2>7.1 Ajouter les bits de parité au message</h2>
+    <p>Message à transmettre : <code>0 1 1 0 1 1 0 0 1 0</code>, donc $m = 10$ bits.</p>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Étape 1 : nombre de bits de parité</h3>
+    <p>Avec $k = 3$ on a $2^3 = 8 < 10 + 3 + 1 = 14$ : insuffisant. Avec $k = 4$ on a $2^4 = 16 \geq 10 + 4 + 1 = 15$ : convient (un code de Hamming $(15, 11)$ raccourci). On ajoute donc <strong>4 bits de parité</strong> en positions $1, 2, 4, 8$ et le code fait $n = 14$ bits.</p>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Étape 2 : placer les bits du message</h3>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Position</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Rôle</td><td class="par">$p_1$</td><td class="par">$p_2$</td><td>$b_3$</td><td class="par">$p_4$</td><td>$b_5$</td><td>$b_6$</td><td>$b_7$</td><td class="par">$p_8$</td><td>$b_9$</td><td>$b_{10}$</td><td>$b_{11}$</td><td>$b_{12}$</td><td>$b_{13}$</td><td>$b_{14}$</td></tr>
+          <tr><td>Valeur</td><td class="par">?</td><td class="par">?</td><td>0</td><td class="par">?</td><td>1</td><td>1</td><td>0</td><td class="par">?</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Étape 3 : bits non nuls, positions en binaire, somme des colonnes</h3>
+    <p>Les bits à $1$ sont $b_5, b_6, b_9, b_{10}, b_{13}$.</p>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Bit à 1</th><th>Position</th><th>$2^0$</th><th>$2^1$</th><th>$2^2$</th><th>$2^3$</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>$b_5$</td><td>$5 = 0101_2$</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+          <tr><td>$b_6$</td><td>$6 = 0110_2$</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+          <tr><td>$b_9$</td><td>$9 = 1001_2$</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>$b_{10}$</td><td>$10 = 1010_2$</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>$b_{13}$</td><td>$13 = 1101_2$</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td colspan="2"><strong>Somme</strong></td><td>3</td><td>2</td><td>3</td><td>3</td></tr>
+          <tr><td colspan="2"><strong>Parité paire : bit $p_i$</strong></td><td class="par">1 ($p_1$)</td><td class="par">0 ($p_2$)</td><td class="par">1 ($p_4$)</td><td class="par">1 ($p_8$)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Étape 4 : le message envoyé</h3>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Position</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Code émis</td><td class="par">1</td><td class="par">0</td><td>0</td><td class="par">1</td><td>1</td><td>1</td><td>0</td><td class="par">1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="ok">Message envoyé : <code>1 0 0 1 1 1 0 1 1 1 0 0 1 0</code></p>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Vérification</h3>
+    <p>On refait la somme sur tous les bits à $1$ du code émis ($p_1, p_4, b_5, b_6, p_8, b_9, b_{10}, b_{13}$) : le syndrome doit être nul.</p>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Bit à 1</th><th>Position</th><th>$2^0$</th><th>$2^1$</th><th>$2^2$</th><th>$2^3$</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>$p_1$</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>$p_4$</td><td>4</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+          <tr><td>$b_5$</td><td>5</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+          <tr><td>$b_6$</td><td>6</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+          <tr><td>$p_8$</td><td>8</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>$b_9$</td><td>9</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>$b_{10}$</td><td>10</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>$b_{13}$</td><td>13</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td colspan="2"><strong>Somme</strong></td><td>4</td><td>2</td><td>4</td><td>4</td></tr>
+          <tr><td colspan="2"><strong>Vérif (modulo 2)</strong></td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 7.2 -->
+  <section class="loi-card">
+    <h2>7.2 Analyser un message reçu</h2>
+    <p>Mot reçu : <code>1 0 1 1 0 0 1 0 0 0</code>, donc $n = 10$ bits. Les puissances de $2$ inférieures ou égales à $10$ sont $1, 2, 4, 8$ : il y a <strong>4 bits de parité</strong> et donc $m = 10 - 4 = 6$ bits d'information (positions $3, 5, 6, 7, 9, 10$).</p>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Position</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Rôle</td><td class="par">$p_1$</td><td class="par">$p_2$</td><td>$b_3$</td><td class="par">$p_4$</td><td>$b_5$</td><td>$b_6$</td><td>$b_7$</td><td class="par">$p_8$</td><td>$b_9$</td><td>$b_{10}$</td></tr>
+          <tr><td>Reçu</td><td class="err">1</td><td class="par">0</td><td>1</td><td class="par">1</td><td>0</td><td>0</td><td>1</td><td class="par">0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Calcul du syndrome</h3>
+    <p>Les bits à $1$ sont $p_1, b_3, p_4, b_7$.</p>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Bit à 1</th><th>Position</th><th>$2^0$</th><th>$2^1$</th><th>$2^2$</th><th>$2^3$</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>$p_1$</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>$b_3$</td><td>3</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td>$p_4$</td><td>4</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+          <tr><td>$b_7$</td><td>7</td><td>1</td><td>1</td><td>1</td><td>0</td></tr>
+          <tr><td colspan="2"><strong>Somme</strong></td><td>3</td><td>2</td><td>2</td><td>0</td></tr>
+          <tr><td colspan="2"><strong>Vérif (modulo 2)</strong></td><td class="err">1</td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Conclusion</h3>
+    <ul>
+      <li>Le syndrome est non nul : <strong>le message reçu contient une erreur</strong>.</li>
+      <li>Seule la colonne $2^0$ est fausse, donc la position erronée vaut $1 \times 2^0 = 1$ : c'est le bit de parité $p_1$.</li>
+      <li>Mot corrigé : <code>0 0 1 1 0 0 1 0 0 0</code> (on vérifie : $b_3, p_4, b_7$ donnent des colonnes de somme $2, 2, 2, 0$, donc un syndrome nul).</li>
+      <li>L'erreur porte sur un bit de parité : les bits d'information $b_3, b_5, b_6, b_7, b_9, b_{10}$ sont intacts. Le message d'origine est <code>1 0 0 1 0 0</code>.</li>
+    </ul>
+    <div class="warning-box">
+      <strong>Limite :</strong> cette conclusion suppose qu'il y a <strong>au plus une erreur</strong>. Avec deux erreurs (ou plus), le syndrome est non nul mais pointe vers une mauvaise position (ou une position hors du mot) : l'erreur est détectée mais la correction est fausse.
+    </div>
+  </section>
+
+  <!-- DÉMO INTERACTIVE -->
+  <section class="loi-card">
+    <h2>Démo : coder et contrôler</h2>
+    <p>Les mêmes calculs, appliqués à n'importe quelle suite de bits (les espaces sont ignorés).</p>
+    <label for="h-msg"><strong>Message à transmettre</strong></label>
+    <input type="text" id="h-msg" class="demo-champ" value="0 1 1 0 1 1 0 0 1 0">
+    <div id="h-sortie1" class="demo-sortie"></div>
+    <label for="h-recu"><strong>Message reçu à contrôler</strong></label>
+    <input type="text" id="h-recu" class="demo-champ" value="1 0 1 1 0 0 1 0 0 0">
+    <div id="h-sortie2" class="demo-sortie"></div>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse des notions clés</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Notion / Outil</th><th>Rôle / Définition principale</th><th>Expression / Formule clé</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Bits de parité</strong></td>
+            <td>Placés aux positions $1, 2, 4, 8, \ldots$ ; ils rendent la somme de chaque colonne paire</td>
+            <td>$p_{2^i} = \sum b_j \bmod 2$ pour les $j$ dont le chiffre $2^i$ vaut $1$</td>
+          </tr>
+          <tr>
+            <td><strong>Taille du code</strong></td>
+            <td>$k$ bits de parité pour $m$ bits de message</td>
+            <td>$2^k \geq m + k + 1$, $n = m + k$ ($\leq 2^k - 1$)</td>
+          </tr>
+          <tr>
+            <td><strong>Syndrome</strong></td>
+            <td>Somme modulo 2 des positions (en binaire) des bits à $1$ du mot reçu</td>
+            <td>$0000$ : pas d'erreur ; sinon position de l'erreur $= \sum y_i\,2^i$</td>
+          </tr>
+          <tr>
+            <td><strong>Limite</strong></td>
+            <td>Corrige une erreur, ne peut pas corriger correctement deux erreurs</td>
+            <td>distance minimale $d_H = 3$</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-box">
+      <strong>À retenir :</strong> à l'émission on calcule les bits de parité pour que le syndrome soit nul ; à la réception on recalcule le syndrome, et sa valeur en binaire donne directement la position du bit à corriger.
+    </div>
+  </section>
+
+  <!-- INFOBULLE DES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-parite" class="def-bloc">
+      <h3>Bit de parité</h3>
+      <p>Bit ajouté au message pour que la somme d'un groupe de bits soit paire (parité paire) : $0$ si le nombre de $1$ du groupe est pair, $1$ s'il est impair. Dans le code de Hamming, chaque bit de parité contrôle un groupe de positions différent.</p>
+    </div>
+
+    <div id="def-syndrome" class="def-bloc">
+      <h3>Syndrome</h3>
+      <p>Résultat du contrôle de parité effectué à la réception sur tous les bits du mot. Nul si aucune erreur n'est détectée ; sinon, pour une erreur unique, sa valeur en binaire est la position du bit erroné.</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+  <!-- DÉMO : mêmes calculs que sur papier (positions numérotées à partir de 1) -->
+  <script>
+    function lireBits(texte) {
+      return texte.replace(/[^01]/g, '').split('').filter(c => c !== '').map(Number);
+    }
+
+    // c[j] = bit à la position j (c[0] inutilisé)
+    function parite(c, n, i) {
+      let s = 0;
+      for (let j = 1; j <= n; j++) {
+        if (j & (1 << i)) s ^= c[j];
+      }
+      return s;
+    }
+
+    function coder(d) {
+      const m = d.length;
+      let k = 0;
+      while ((1 << k) < m + k + 1) k++;
+      const n = m + k;
+      const c = new Array(n + 1).fill(0);
+      let t = 0;
+      for (let j = 1; j <= n; j++) {
+        if ((j & (j - 1)) !== 0) c[j] = d[t++];   // pas une puissance de 2 : bit du message
+      }
+      for (let i = 0; i < k; i++) c[1 << i] = parite(c, n, i);  // les p ne comptent pas encore (valent 0)
+      return { k: k, n: n, code: c.slice(1) };
+    }
+
+    function controler(r) {
+      const n = r.length;
+      let k = 0;
+      while ((1 << k) <= n) k++;
+      const c = [0].concat(r);
+      let syndrome = 0;
+      for (let i = 0; i < k; i++) syndrome |= parite(c, n, i) << i;
+      return { n: n, k: k, syndrome: syndrome, c: c };
+    }
+
+    function majCodage() {
+      const sortie = document.getElementById('h-sortie1');
+      const d = lireBits(document.getElementById('h-msg').value);
+      if (d.length === 0) { sortie.textContent = 'Entre au moins un bit.'; return; }
+      const res = coder(d);
+      const pos = [];
+      for (let i = 0; i < res.k; i++) pos.push('p' + (1 << i));
+      sortie.innerHTML = '<p>$m = ' + d.length + '$ bits, $k = ' + res.k + '$ bits de parité (' + pos.join(', ') + '), $n = ' + res.n + '$.</p>' +
+        '<p class="ok">Message envoyé : <code>' + res.code.join(' ') + '</code></p>';
+      if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([sortie]);
+    }
+
+    function majControle() {
+      const sortie = document.getElementById('h-sortie2');
+      const r = lireBits(document.getElementById('h-recu').value);
+      if (r.length < 3) { sortie.textContent = 'Entre au moins 3 bits.'; return; }
+      const res = controler(r);
+      let html = '<p>Syndrome : <code>' + Array.from({ length: res.k }, (_, i) => (res.syndrome >> i) & 1).join(' ') + '</code> (colonnes $2^0, 2^1, \\ldots$), soit la valeur ' + res.syndrome + '.</p>';
+      if (res.syndrome === 0) {
+        html += '<p class="ok">✅ Aucune erreur détectée.</p>';
+      } else if (res.syndrome > res.n) {
+        html += '<p class="ok">❌ Le syndrome pointe la position ' + res.syndrome + ', en dehors du mot de ' + res.n + ' bits : il y a au moins deux erreurs, correction impossible.</p>';
+      } else {
+        const c = res.c.slice();
+        c[res.syndrome] ^= 1;
+        const corrige = c.slice(1);
+        const info = corrige.filter((_, idx) => ((idx + 1) & idx) !== 0);   // positions non puissances de 2
+        const nature = (res.syndrome & (res.syndrome - 1)) === 0 ? 'un bit de parité' : 'un bit du message';
+        html += '<p class="ok">Erreur détectée en position ' + res.syndrome + ' (' + nature + '), en supposant une seule erreur.</p>' +
+          '<p>Mot corrigé : <code>' + corrige.join(' ') + '</code></p>' +
+          '<p>Message d\'information : <code>' + info.join(' ') + '</code></p>';
+      }
+      sortie.innerHTML = html;
+      if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([sortie]);
+    }
+
+    document.getElementById('h-msg').addEventListener('input', majCodage);
+    document.getElementById('h-recu').addEventListener('input', majControle);
+    majCodage();
+    majControle();
+  </script>
+
+</body>
+</html>
