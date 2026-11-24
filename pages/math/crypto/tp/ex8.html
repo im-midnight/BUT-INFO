@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercice 8.1 : Implémentation du code de Hamming, matrice génératrice (TP R309) | BUT Info Nantes</title>
+  <meta name="description" content="Conversion en binaire, nombre de bits de parité et construction de la matrice génératrice de Hamming en Python.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex8.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Exercice 8.1 : Implémentation du code de Hamming, matrice génératrice (TP R309)">
+  <meta property="og:description" content="Conversion en binaire, nombre de bits de parité et construction de la matrice génératrice de Hamming en Python.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex8.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../../../assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../../../assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../../../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../../../../assets/site.webmanifest">
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <!-- MathJax : affichage des formules écrites entre $...$ et $$...$$ -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <link rel="stylesheet" href="../../../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../../../assets/css/style.css">
+  <script>
+    // Thème posé tout de suite pour éviter un flash de couleur ; le reste de site.js est en defer.
+    // Clé et valeurs par défaut : les mêmes que DEFAUT dans assets/js/site.js.
+    (function () { var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true }; try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {} var h = document.documentElement; h.dataset.theme = r.theme; h.dataset.mode = r.mode; h.dataset.syntaxe = r.syntaxe ? "on" : "off"; if (r.hc) h.dataset.hc = "on"; })();
+  </script>
+  <script src="../../../../assets/js/site.js" defer></script>
+  <script src="../../../../assets/js/script.js" defer></script>
+  <style>
+    /* Spécifique à cette page */
+    table { width: 100%; min-width: 560px; border-collapse: collapse; background: var(--surface); margin-top: 1rem; }
+    th, td { border: 1px solid var(--bordure-forte); padding: 0.5rem 0.6rem; text-align: center; vertical-align: middle; }
+    th { background-color: var(--surface-2); }
+    td.par { background-color: var(--surface-2); font-weight: bold; }
+    .note-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    .warning-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    pre { white-space: pre-wrap; word-break: break-all; }
+    .ok { font-weight: bold; }
+    .demo-champ { width: 100%; box-sizing: border-box; padding: 0.6rem; font: inherit; margin: 0.25rem 0 0.75rem;
+                  background: var(--surface); color: inherit; border: 1px solid var(--bordure-forte); border-radius: 6px; }
+  </style>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R309 - Cryptographie et sécurité", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/indexCrypto.html"}, {"@type": "ListItem", "position": 3, "name": "TP", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp.html"}, {"@type": "ListItem", "position": 4, "name": "Exercice 8.1 : Implémentation du code de Hamming", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex8.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>Exercice 8.1 : Implémentation du code de Hamming</h1>
+  <p style="text-align: center; color: var(--texte-doux);">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="matrice-generatrice">termes soulignés en bleu</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- PRINCIPE -->
+  <section class="loi-card">
+    <h2>Principe : le codage comme produit matriciel</h2>
+    <p>Le codage de Hamming est une application <strong>linéaire</strong> $\varphi : \mathbb{F}_2^m \to \mathbb{F}_2^n$ qui envoie un message $i$ de $m$ bits vers un code $c$ de $n = m + k$ bits ($k$ bits de parité). Elle est représentée par la <span class="terme" data-def="matrice-generatrice">matrice génératrice</span> $M$ de dimension $(n, m)$ :
+      $$ c = M \cdot i \pmod 2 $$
+    </p>
+    <p>La colonne $j$ de $M$ est l'image du $j$-ième vecteur de base $e_j$. Pour Hamming$(7,4)$ :
+      $$ M = \begin{pmatrix} 1&1&0&1\\ 1&0&1&1\\ 1&0&0&0\\ 0&1&1&1\\ 0&1&0&0\\ 0&0&1&0\\ 0&0&0&1 \end{pmatrix} $$
+    </p>
+    <ul>
+      <li>Les lignes de positions $3, 5, 6, 7$ (bits de message) valent une ligne de la matrice identité : le bit est recopié tel quel.</li>
+      <li>Les lignes de positions $1, 2, 4$ (<span class="terme" data-def="parite">bits de parité</span>) disent quels bits du message participent à la somme de parité.</li>
+    </ul>
+  </section>
+
+  <!-- 8.1.a -->
+  <section class="loi-card">
+    <h2>8.1.a Conversion en binaire</h2>
+    <p><code>convert_binaire(n)</code> divise $n$ par $2$ jusqu'à $0$ et range les restes dans l'ordre où ils sortent : le premier reste est le bit de poids faible. La liste est donc en <span class="terme" data-def="poids-faible">poids faible d'abord</span> : l'indice $j$ de la liste correspond à $2^j$. C'est exactement l'ordre des colonnes $2^0, 2^1, 2^2, \ldots$ du cours, ce qui rend la suite très directe.</p>
+<pre><code>#Question A
+def convert_binaire(n):
+    if n == 0:
+        return [0]
+    res = []
+    dividende = n
+
+    while dividende != 0:
+        reste = dividende % 2
+        dividende = dividende // 2
+        res.append(reste)
+
+    return res
+print(convert_binaire(14))
+
+def complet_convert_binaire(n, f):
+    res = convert_binaire(n)
+    bits_restant = [0] * (f - len(res))
+    return res + bits_restant
+
+print(complet_convert_binaire(14, 6))</code></pre>
+    <p class="ok">Sorties : <code>[0, 1, 1, 1]</code> puis <code>[0, 1, 1, 1, 0, 0]</code>.</p>
+    <p>La variante complétée ajoute des $0$ en fin de liste (poids forts) pour atteindre $f$ éléments.</p>
+  </section>
+
+  <!-- 8.1.b -->
+  <section class="loi-card">
+    <h2>8.1.b Nombre de bits de parité</h2>
+    <p>Pour un message de $m$ bits, on cherche le plus petit $k$ tel que le syndrome ($k$ bits, donc $2^k$ valeurs) puisse désigner chacune des $n = m + k$ positions ou l'absence d'erreur :
+      $$ 2^k \geq m + k + 1 \iff 2^k - 1 \geq m + k $$
+    </p>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>$k$</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead>
+        <tbody>
+          <tr><td>Messages $m$ possibles</td><td>1</td><td>2 à 4</td><td>5 à 11</td><td>12 à 26</td><td>27 à 57</td></tr>
+          <tr><td>Taille du code $n = m + k$</td><td>3</td><td>5 à 7</td><td>9 à 15</td><td>17 à 31</td><td>33 à 63</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Version itérative (équivalente à la récurrence conseillée par l'énoncé : on augmente $k$ tant que la condition n'est pas satisfaite ; pour $m = 1$ on obtient bien $k = 2$) :</p>
+<pre><code># Question B
+def det_nb_bit_parite(n):
+    i = 1
+    while True:
+        valeur = pow(2, i) - 1
+        if valeur &gt;= n + i: 
+            return i
+        i += 1
+
+print(det_nb_bit_parite(14))</code></pre>
+    <p class="ok">Sortie : <code>det_nb_bit_parite(14)</code> renvoie <code>5</code> (l'ancienne condition donnait <code>4</code>).</p>
+  </section>
+
+  <!-- 8.1.c -->
+  <section class="loi-card">
+    <h2>8.1.c Matrice génératrice de Hamming</h2>
+    <p><code>mat_gen_hamming(message)</code> construit la matrice $(n, m)$ en quatre étapes :</p>
+    <ol>
+      <li><strong>Dimensions :</strong> $m = $ <code>len(message)</code>, $k = $ <code>det_nb_bit_parite(m)</code>, $n = m + k$ ; matrice de $0$ de $n$ lignes et $m$ colonnes.</li>
+      <li><strong>Positions de parité</strong> : les puissances de $2$ strictement inférieures à $n$ (<code>positions_parite</code>) ; les autres positions de $1$ à $n$ sont celles des bits de données (<code>positions_donnees</code>).</li>
+      <li><strong>Lignes de données :</strong> le $j$-ième bit de données, en position $p_j$, donne la ligne $p_j - 1$ valant $1$ en colonne $j$ et $0$ ailleurs (bit recopié).</li>
+      <li><strong>Lignes de parité :</strong> pour le bit de parité $2^{\text{index}}$, la colonne $j$ vaut $1$ si l'écriture binaire de la position du $j$-ième bit de données a un $1$ à l'indice <code>index</code>. C'est ici que la liste en poids faible d'abord est pratique.</li>
+    </ol>
+<pre><code># Question C
+def mat_gen_hamming(message):
+    m = len(message)             
+    k = det_nb_bit_parite(m)    
+    n = m + k   
+
+    #matrice de taille (n,m )
+    matrice_generatrice = [[0 for _ in range(m)] for _ in range(n)]
+
+    #positions des bits de parite (les puissances de 2 : 1, 2, 4, 8,...)
+    positions_parite = []
+    for i in range(n):
+        puissance_deux = 2**i
+        if puissance_deux &lt; n:
+            positions_parite.append(puissance_deux)
+
+    #positions des bits de donnees
+    positions_donnees = []
+    for b in range(1, n + 1):
+        if b not in positions_parite:
+            positions_donnees.append(b)
+
+    #conversion en binaire des bits de donnees
+    binaires_chiffres = [complet_convert_binaire(pos_donnee, k + 1)for pos_donnee in positions_donnees]
+
+    #remplissage des lignes des bits de donnees 
+    for index, val in enumerate(positions_donnees):
+        ligne_donnee = [0] * m
+        ligne_donnee[index] = 1  
+        matrice_generatrice[val - 1] = ligne_donnee
+
+    #remplissage des lignes correspondant aux bits de parite
+    for index, _ in enumerate(positions_parite):
+        ligne_parite = [0] * m
+        #verif si son ecriture binaire possede un 1 a la position de cette parite
+        for i, bits_binaire in enumerate(binaires_chiffres):
+            if bits_binaire[index] == 1:
+                ligne_parite[i] = 1
+        matrice_generatrice[positions_parite[index] - 1] = ligne_parite
+
+    return matrice_generatrice
+
+
+print(mat_gen_hamming("test"))</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Déroulé sur <code>"test"</code> : $m = 4$, $k = 3$, $n = 7$</h3>
+    <p>Positions de parité : $1, 2, 4$. Positions de données : $3, 5, 6, 7$. Écriture binaire de ces positions (colonnes $2^0, 2^1, 2^2$) :</p>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Bit de données</th><th>Position</th><th>$2^0$</th><th>$2^1$</th><th>$2^2$</th></tr></thead>
+        <tbody>
+          <tr><td>1er</td><td>3</td><td>1</td><td>1</td><td>0</td></tr>
+          <tr><td>2e</td><td>5</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>3e</td><td>6</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>4e</td><td>7</td><td>1</td><td>1</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Chaque ligne de parité se lit dans la colonne correspondante de ce tableau, de haut en bas :</p>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Ligne</th><th>Rôle</th><th>col. 1</th><th>col. 2</th><th>col. 3</th><th>col. 4</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="par">$p_1$</td><td class="par">1</td><td class="par">1</td><td class="par">0</td><td class="par">1</td></tr>
+          <tr><td>2</td><td class="par">$p_2$</td><td class="par">1</td><td class="par">0</td><td class="par">1</td><td class="par">1</td></tr>
+          <tr><td>3</td><td>$b_3$</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>4</td><td class="par">$p_4$</td><td class="par">0</td><td class="par">1</td><td class="par">1</td><td class="par">1</td></tr>
+          <tr><td>5</td><td>$b_5$</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td>6</td><td>$b_6$</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+          <tr><td>7</td><td>$b_7$</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="ok">Sortie : <code>[[1, 1, 0, 1], [1, 0, 1, 1], [1, 0, 0, 0], [0, 1, 1, 1], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]</code>, soit exactement la matrice $M$ de l'énoncé.</p>
+
+    <div class="note-box">
+      <strong>Contrôle croisé avec l'exercice 7.1 :</strong> pour le message <code>0 1 1 0 1 1 0 0 1 0</code> ($m = 10$, $k = 4$, $n = 14$), le produit $M \cdot i \bmod 2$ avec la matrice générée donne <code>1 0 0 1 1 1 0 1 1 1 0 0 1 0</code>, le même code que celui obtenu à la main.
+    </div>
+  </section>
+
+  <!-- DÉMO -->
+  <section class="loi-card">
+    <h2>Démo : générer la matrice pour un message</h2>
+    <p>Entre un message en bits (de 1 à 20 bits, espaces ignorés) : la page applique les mêmes étapes que <code>mat_gen_hamming</code>, puis calcule $M \cdot i \bmod 2$.</p>
+    <input type="text" id="h-msg" class="demo-champ" value="0 1 1 0 1 1 0 0 1 0" aria-label="Message en bits">
+    <div id="h-sortie"></div>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse</h2>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Fonction</th><th>Rôle</th><th>Idée clé</th></tr></thead>
+        <tbody>
+          <tr><td><code>convert_binaire(n)</code></td><td>Décomposition en base 2</td><td>Divisions successives ; indice $j$ = bit $2^j$</td></tr>
+          <tr><td><code>complet_convert_binaire(n, f)</code></td><td>Idem, complétée à $f$ éléments</td><td>Ajout de $0$ en fin de liste (poids forts)</td></tr>
+          <tr><td><code>det_nb_bit_parite(n)</code></td><td>Nombre $k$ de bits de parité</td><td>Plus petit $k$ avec $2^k \geq m + k + 1$</td></tr>
+          <tr><td><code>mat_gen_hamming(mess)</code></td><td>Matrice génératrice $(n, m)$</td><td>Données : identité ; parité : bits de la position en binaire</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div id="tooltip">
+    <div id="def-matrice-generatrice" class="def-bloc">
+      <h3>Matrice génératrice</h3>
+      <p>Matrice $M$ de dimension $(n, m)$ telle que $c = M \cdot i$ donne le code de $n$ bits d'un message $i$ de $m$ bits. Sa colonne $j$ est le code du $j$-ième vecteur de base.</p>
+    </div>
+    <div id="def-parite" class="def-bloc">
+      <h3>Bit de parité</h3>
+      <p>Bit ajouté en position $1, 2, 4, 8, \ldots$ pour que la somme d'un groupe de bits soit paire. Chaque bit de parité contrôle les positions dont l'écriture binaire contient la puissance de $2$ correspondante.</p>
+    </div>
+    <div id="def-poids-faible" class="def-bloc">
+      <h3>Poids faible d'abord</h3>
+      <p>Ordre où le premier élément de la liste est le bit de poids $2^0$ (le moins significatif). Ici <code>convert_binaire(14)</code> renvoie <code>[0, 1, 1, 1]</code>, alors qu'on écrit $14 = 1110_2$.</p>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => {
+        if (tactile.matches) return;
+        afficher(cle);
+      });
+
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        const decalage = 15;
+        let x = e.pageX + decalage;
+        let y = e.pageY + decalage;
+
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) {
+          x = e.pageX - tooltip.offsetWidth - decalage;
+        }
+        if (x < 10) x = 10;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      terme.addEventListener('mouseleave', () => {
+        if (tactile.matches) return;
+        masquer();
+      });
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) {
+          masquer();
+          return;
+        }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      if (tactile.matches) masquer();
+    });
+  </script>
+
+  <!-- DÉMO : même démarche que ex8.py -->
+  <script>
+    function convertBinaire(n) {
+      if (n === 0) return [0];
+      const res = [];
+      while (n !== 0) { res.push(n % 2); n = Math.floor(n / 2); }
+      return res;
+    }
+    function completConvertBinaire(n, f) {
+      const res = convertBinaire(n);
+      while (res.length < f) res.push(0);
+      return res;
+    }
+    function detNbBitParite(n) {
+      let i = 1;
+      while (true) {
+        if (Math.pow(2, i) - 1 >= n + i) return i;
+        i++;
+      }
+    }
+    function matGenHamming(m) {
+      const k = detNbBitParite(m), n = m + k;
+      const G = Array.from({ length: n }, () => new Array(m).fill(0));
+      const positionsParite = [];
+      for (let i = 0; i < n; i++) { if (Math.pow(2, i) < n) positionsParite.push(Math.pow(2, i)); }
+      const positionsDonnees = [];
+      for (let b = 1; b <= n; b++) { if (!positionsParite.includes(b)) positionsDonnees.push(b); }
+      const binaires = positionsDonnees.map(p => completConvertBinaire(p, k + 1));
+      positionsDonnees.forEach((val, index) => {
+        const ligne = new Array(m).fill(0);
+        ligne[index] = 1;
+        G[val - 1] = ligne;
+      });
+      positionsParite.forEach((p, index) => {
+        const ligne = new Array(m).fill(0);
+        binaires.forEach((bits, i) => { if (bits[index] === 1) ligne[i] = 1; });
+        G[p - 1] = ligne;
+      });
+      return { k: k, n: n, G: G, positionsParite: positionsParite };
+    }
+
+    function majDemo() {
+      const sortie = document.getElementById('h-sortie');
+      const msg = document.getElementById('h-msg').value.replace(/[^01]/g, '').split('').map(Number);
+      const m = msg.length;
+      if (m < 1 || m > 20) { sortie.textContent = 'Entre entre 1 et 20 bits.'; return; }
+      const r = matGenHamming(m);
+      const code = r.G.map(ligne => ligne.reduce((s, v, j) => s + v * msg[j], 0) % 2);
+      let h = '<p>$m = ' + m + '$, $k = ' + r.k + '$, $n = ' + r.n + '$ ; bits de parité en positions ' + r.positionsParite.join(', ') + '.</p>';
+      h += '<div class="table-container"><table><thead><tr><th>Ligne</th><th>Rôle</th>';
+      for (let j = 1; j <= m; j++) h += '<th>col. ' + j + '</th>';
+      h += '<th>Code</th></tr></thead><tbody>';
+      r.G.forEach((ligne, idx) => {
+        const pos = idx + 1;
+        const estParite = r.positionsParite.includes(pos);
+        const cls = estParite ? ' class="par"' : '';
+        h += '<tr><td>' + pos + '</td><td' + cls + '>' + (estParite ? 'p' : 'b') + pos + '</td>';
+        ligne.forEach(v => { h += '<td' + cls + '>' + v + '</td>'; });
+        h += '<td' + cls + '>' + code[idx] + '</td></tr>';
+      });
+      h += '</tbody></table></div>';
+      h += '<p class="ok">Code émis : <code>' + code.join(' ') + '</code></p>';
+      sortie.innerHTML = h;
+      if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([sortie]);
+    }
+    document.getElementById('h-msg').addEventListener('input', majDemo);
+    majDemo();
+  </script>
+
+</body>
+</html>
