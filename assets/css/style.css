@@ -1357,18 +1357,21 @@ body:not(.accueil) .pied__contenu {
    10. PAGE THÈME
    █████████████████████████████████████████████████████████████████████ */
 
-.page-theme main {
+.page-theme main,
+.page-avis main {
   flex: 1;
   width: min(100% - 2 * var(--marge), var(--largeur-cours));
   margin: 0 auto;
   padding-bottom: 3rem;
 }
 
-.page-theme h1 {
+.page-theme h1,
+.page-avis h1 {
   margin: 2.25rem 0 0.4rem;
 }
 
-.page-theme .intro {
+.page-theme .intro,
+.page-avis .intro {
   margin: 0 0 2rem;
   color: var(--texte-doux);
 }
@@ -1403,6 +1406,153 @@ body:not(.accueil) .pied__contenu {
   opacity: 0.4;
   filter: grayscale(1);
 }
+
+/* █████████████████████████████████████████████████████████████████████
+   11. PAGE « DONNER UN AVIS » (pages/site/avis.html, assets/js/avis.js)
+   █████████████████████████████████████████████████████████████████████ */
+
+.avis {
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--bordure-forte);
+}
+
+.avis__champ {
+  margin: 0 0 1.6rem;
+  padding: 0;
+  border: 0;
+}
+
+.avis__champ > label,
+.avis__champ > legend {
+  display: block;
+  margin: 0 0 0.25rem;
+  padding: 0;
+  font-weight: 700;
+  color: var(--titre);
+}
+
+.avis__requis {
+  margin-left: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+
+.avis__aide {
+  margin: 0 0 0.5rem;
+  color: var(--texte-doux);
+  font-size: 0.92rem;
+}
+
+.avis__types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.avis input[type="text"],
+.avis input[type="email"],
+.avis textarea {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--bordure-forte);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  color: var(--texte);
+  font: inherit;
+  font-size: 1rem;
+  transition: border-color var(--vite) ease;
+}
+
+.avis textarea {
+  min-height: 9rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.avis input[type="text"]:hover,
+.avis input[type="email"]:hover,
+.avis textarea:hover {
+  border-color: var(--primaire);
+}
+
+.avis input[type="text"]:focus-visible,
+.avis input[type="email"]:focus-visible,
+.avis textarea:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 1px;
+  border-color: var(--primaire);
+}
+
+.avis [aria-invalid="true"] {
+  border-color: var(--attention);
+}
+
+.avis__compteur {
+  margin: 0.3rem 0 0;
+  color: var(--texte-doux);
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+.avis__erreur {
+  margin: 0.4rem 0 0;
+  color: var(--attention);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.avis__case {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0 0 1.6rem;
+  color: var(--texte-doux);
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.avis__case input {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--primaire);
+}
+
+.avis .lien-bouton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.avis__statut {
+  margin: 1rem 0 0;
+  padding: 0.8rem 1rem;
+  border-left: 4px solid var(--primaire);
+  border-radius: 0 var(--rayon) var(--rayon) 0;
+  background: var(--info-fond);
+  color: var(--texte);
+  font-weight: 600;
+}
+
+.avis__statut--erreur {
+  border-left-color: var(--attention);
+  background: var(--attention-fond);
+}
+
+.avis__note {
+  margin: 2rem 0 0;
+  color: var(--texte-doux);
+  font-size: 0.88rem;
+}
+
+/* Piège à robots : invisible pour les vraies personnes */
+.avis__piege {
+  display: none !important;
+}
+
 
 .nuancier {
   display: grid;

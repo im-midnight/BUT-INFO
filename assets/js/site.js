@@ -200,13 +200,14 @@ const ButInfo = (() => {
     return a;
   }
 
-  function piedDePage() {
+  function piedDePage(chemin) {
     const pied = document.createElement("footer");
     pied.className = "pied";
     pied.innerHTML = `<div class="pied__contenu">
       <ul>
         <li><a href="${racine}pages/site/politique.html">Politique de confidentialité</a></li>
         <li><a href="${racine}pages/site/mentions-legales.html">Crédits et mentions légales</a></li>
+        <li><a href="${racine}pages/site/avis.html?page=${encodeURIComponent(chemin)}">Donner un avis</a></li>
       </ul>
       <p>© 2026 Les étudiants en BUT Info 2 - Tous droits réservés</p>
     </div>`;
@@ -446,7 +447,7 @@ const ButInfo = (() => {
       body.prepend(barreDuHaut(chemin));
       const nav = navigationCours(chemin);
       if (nav) body.append(nav);
-      if (!body.querySelector(".pied, body > footer")) body.append(piedDePage());
+      if (!body.querySelector(".pied, body > footer")) body.append(piedDePage(chemin));
       ancres();
       liensSommaire();
     }

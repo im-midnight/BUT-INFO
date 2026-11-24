@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Donner un avis | BUT Info Nantes</title>
+  <meta name="description" content="Signaler une erreur dans un cours, un problème d'affichage ou proposer une idée pour améliorer le site.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/site/avis.html">
+  <meta name="robots" content="noindex">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Donner un avis">
+  <meta property="og:description" content="Signaler une erreur dans un cours, un problème d'affichage ou proposer une idée pour améliorer le site.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/site/avis.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../../assets/site.webmanifest">
+  <link rel="stylesheet" href="../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script>
+    // Thème posé tout de suite pour éviter un flash de couleur ; le reste de site.js est en defer.
+    // Clé et valeurs par défaut : les mêmes que DEFAUT dans assets/js/site.js.
+    (function () { var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true }; try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {} var h = document.documentElement; h.dataset.theme = r.theme; h.dataset.mode = r.mode; h.dataset.syntaxe = r.syntaxe ? "on" : "off"; if (r.hc) h.dataset.hc = "on"; })();
+  </script>
+  <script src="../../assets/js/site.js" defer></script>
+  <script src="../../assets/js/script.js" defer></script>
+  <script src="../../assets/js/avis.js" defer></script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "Donner un avis", "item": "https://butinfo-iutnantes.vercel.app/pages/site/avis.html"}]}
+  </script>
+</head>
+<body class="page-avis">
+  <main>
+    <h1>Donner un avis</h1>
+    <p class="intro">Une erreur dans un cours, un truc qui s'affiche mal, une idée de page ? Dis-le nous, on lit tout.</p>
+
+    <!-- Les avis partent par Web3Forms (https://web3forms.com) et arrivent par mail.
+         Clé : à créer sur web3forms.com avec l'adresse qui doit recevoir les avis,
+         puis à coller dans value="" ci-dessous. La clé n'est pas secrète. -->
+    <form class="avis" id="form-avis" action="https://api.web3forms.com/submit" method="POST">
+      <input type="hidden" name="access_key" value="METTRE-LA-CLE-WEB3FORMS-ICI">
+      <input type="hidden" name="subject" value="Nouvel avis sur BUT INFO2">
+      <input type="hidden" name="from_name" value="Site BUT INFO2">
+      <!-- Piège à robots : une vraie personne ne voit pas cette case -->
+      <input type="checkbox" name="botcheck" class="avis__piege" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <fieldset class="avis__champ" aria-describedby="erreur-type">
+        <legend>C'est à propos de quoi ? <span class="avis__requis">obligatoire</span></legend>
+        <div class="avis__types">
+          <label class="puce"><input type="radio" name="type" value="Erreur dans un cours" required><span>Erreur dans un cours</span></label>
+          <label class="puce"><input type="radio" name="type" value="Style / affichage"><span>Style, affichage</span></label>
+          <label class="puce"><input type="radio" name="type" value="Bug du site"><span>Bug du site</span></label>
+          <label class="puce"><input type="radio" name="type" value="Idée d'amélioration"><span>Idée d'amélioration</span></label>
+          <label class="puce"><input type="radio" name="type" value="Autre"><span>Autre</span></label>
+        </div>
+        <p class="avis__erreur" id="erreur-type" hidden>Choisis un type d'avis.</p>
+      </fieldset>
+
+      <div class="avis__champ">
+        <label for="avis-page">Page concernée</label>
+        <p class="avis__aide" id="aide-page">Laisse vide si ça concerne tout le site.</p>
+        <input type="text" id="avis-page" name="page" list="liste-pages" maxlength="200" aria-describedby="aide-page" autocomplete="off">
+        <datalist id="liste-pages"></datalist>
+      </div>
+
+      <div class="avis__champ">
+        <label for="avis-message">Ton message <span class="avis__requis">obligatoire</span></label>
+        <p class="avis__aide" id="aide-message">Pour une erreur, dis où elle est (section, exemple…) et ce qui serait juste.</p>
+        <textarea id="avis-message" name="message" rows="7" minlength="10" maxlength="3000" required aria-describedby="aide-message erreur-message compteur-message"></textarea>
+        <p class="avis__compteur" id="compteur-message" aria-live="polite">0 / 3000</p>
+        <p class="avis__erreur" id="erreur-message" hidden>Écris au moins 10 caractères.</p>
+      </div>
+
+      <div class="avis__champ">
+        <label for="avis-email">Ton e-mail</label>
+        <p class="avis__aide" id="aide-email">Facultatif, seulement si tu veux une réponse.</p>
+        <input type="email" id="avis-email" name="email" maxlength="200" autocomplete="email" aria-describedby="aide-email erreur-email">
+        <p class="avis__erreur" id="erreur-email" hidden>Cette adresse ne semble pas valide.</p>
+      </div>
+
+      <label class="avis__case">
+        <input type="checkbox" id="avis-technique" checked>
+        <span>Joindre des infos techniques pour nous aider à reproduire un bug : navigateur, taille d'écran et thème choisi.</span>
+      </label>
+      <input type="hidden" name="infos_techniques" id="avis-infos">
+
+      <button type="submit" class="lien-bouton" id="avis-envoyer">Envoyer</button>
+      <p class="avis__statut" id="avis-statut" role="status" aria-live="polite" hidden></p>
+
+      <p class="avis__note">Ce que tu envoies est expliqué dans la <a href="politique.html#avis">politique de confidentialité</a>.</p>
+    </form>
+  </main>
+
+</body>
+</html>

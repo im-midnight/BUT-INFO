@@ -22,11 +22,12 @@ BUT-INFO/
 │   ├── js/
 │   │   ├── script.js    les données (matières + pages) et l'accueil
 │   │   ├── site.js      thème, barre du haut, précédent/suivant, code
-│   │   └── theme.js     la page Thème
+│   │   ├── theme.js     la page Thème
+│   │   └── avis.js      le formulaire « Donner un avis »
 │   ├── img/             icônes du site (favicon…) et image de partage
 │   └── site.webmanifest nom et icônes du site pour les téléphones
 └── pages/
-    ├── site/            Thème, politique de confidentialité, mentions légales
+    ├── site/            Thème, avis, politique de confidentialité, mentions légales
     └── …                une page HTML par cours, TD ou TP, rangée par matière
 ```
 
@@ -148,6 +149,15 @@ Toutes les couleurs sont dans `assets/css/themes.css`. Le thème choisi est pos�
 Le choix est gardé dans le `localStorage` du navigateur.
 
 Pour ajouter un thème, on copie un bloc `[data-theme="..."]` dans `assets/css/themes.css`, on change les couleurs, puis on l'ajoute dans la liste `THEMES` de `assets/js/theme.js`. Sa version sombre est calculée à partir de `--teinte` et `--barre`.
+
+## Avis des utilisateurs
+
+La page `pages/site/avis.html` (lien « Donner un avis » dans le pied de page) envoie les avis par mail grâce à [Web3Forms](https://web3forms.com), sans serveur.
+
+- La clé se crée sur web3forms.com avec l'adresse qui doit recevoir les avis, puis se colle dans le champ caché `access_key` de `avis.html`. Elle n'est pas secrète : elle peut rester dans le repo.
+- Tant que la clé n'est pas mise, le formulaire affiche « pas encore relié » et n'envoie rien.
+- Le lien du pied de page passe la page d'où l'on vient (`avis.html?page=…`), qui est pré-remplie dans le formulaire.
+- Si on ajoute un champ au formulaire, penser à le décrire dans la section 5 de `politique.html`.
 
 ## Responsive
 
