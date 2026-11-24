@@ -1114,7 +1114,6 @@ mark {
 
 [data-mode="sombre"] .btn-lien:hover,
 [data-hc="on"] .btn-lien:hover {
-  background: var(--titre);
   color: var(--fond);
 }
 
