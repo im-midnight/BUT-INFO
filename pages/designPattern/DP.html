@@ -23,7 +23,12 @@
 
   <link rel="stylesheet" href="../../assets/css/themes.css">
   <link rel="stylesheet" href="../../assets/css/style.css">
-  <script src="../../assets/js/site.js"></script>
+  <script>
+    // Thème posé tout de suite pour éviter un flash de couleur ; le reste de site.js est en defer.
+    // Clé et valeurs par défaut : les mêmes que DEFAUT dans assets/js/site.js.
+    (function () { var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true }; try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {} var h = document.documentElement; h.dataset.theme = r.theme; h.dataset.mode = r.mode; h.dataset.syntaxe = r.syntaxe ? "on" : "off"; if (r.hc) h.dataset.hc = "on"; })();
+  </script>
+  <script src="../../assets/js/site.js" defer></script>
   <script src="../../assets/js/script.js" defer></script>
   <style>
     /* Spécifique à cette page */
@@ -90,8 +95,8 @@ class Chat(nom: String) : Animal(nom) {
 val animal = Animal.fabrique("chien", "Rogue")
 println(animal.crier()) // Affiche : Rogue dit : Ouaf !</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/fabrique.png">
-    <img src="uml/fabrique.png" alt="Diagramme UML du pattern Fabrique" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/fabrique.webp">
+    <img src="uml/fabrique.webp" width="664" height="312" loading="lazy" decoding="async" alt="Diagramme UML du pattern Fabrique" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -112,8 +117,8 @@ println(animal.crier()) // Affiche : Rogue dit : Ouaf !</code></pre>
 val a = SingletonPattern.INSTANCE
 val b = SingletonPattern.INSTANCE   // a et b désignent le même objet</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/singleton.png">
-    <img src="uml/singleton.png" alt="Diagramme UML du pattern Singleton" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/singleton.webp">
+    <img src="uml/singleton.webp" width="647" height="199" loading="lazy" decoding="async" alt="Diagramme UML du pattern Singleton" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -137,8 +142,8 @@ class ProduitJsonDAO(private val fichier: File) : ProduitDAO {
         donneTous().find { it.nom == nom }
 }</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/dao.png">
-    <img src="uml/dao.png" alt="Diagramme UML du pattern DAO" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/dao.webp">
+    <img src="uml/dao.webp" width="549" height="399" loading="lazy" decoding="async" alt="Diagramme UML du pattern DAO" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -170,8 +175,8 @@ class ProduitJsonDAO(private val fichier: File) : ProduitDAO {
 class TvaReduite : TvaCalcul() { override val taux = 0.055 }
 class TvaNormale : TvaCalcul() { override val taux = 0.20 }</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/patron-methode.png">
-    <img src="uml/patron-methode.png" alt="Diagramme UML du pattern Patron de méthode" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/patron-methode.webp">
+    <img src="uml/patron-methode.webp" width="669" height="302" loading="lazy" decoding="async" alt="Diagramme UML du pattern Patron de méthode" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -197,8 +202,8 @@ val etudiant = Etudiant(listOf(12.0, 8.0, 15.0))
 etudiant.afficherNote(Moyenne())   // 11.67
 etudiant.afficherNote(Maximum())   // 15.0</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/strategie.png">
-    <img src="uml/strategie.png" alt="Diagramme UML du pattern Stratégie" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/strategie.webp">
+    <img src="uml/strategie.webp" width="644" height="439" loading="lazy" decoding="async" alt="Diagramme UML du pattern Stratégie" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -220,8 +225,8 @@ while (ite.hasNext()) {
     println(prof)
 }</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/iterateur.png">
-    <img src="uml/iterateur.png" alt="Diagramme UML du pattern Itérateur" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/iterateur.webp">
+    <img src="uml/iterateur.webp" width="582" height="652" loading="lazy" decoding="async" alt="Diagramme UML du pattern Itérateur" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -246,8 +251,8 @@ bouton.ajouterEcouteur { println("Affiche : $it") }
 bouton.ajouterEcouteur { println("Journal : $it") }
 bouton.clic()</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/observateur.png">
-    <img src="uml/observateur.png" alt="Diagramme UML du pattern Observateur" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/observateur.webp">
+    <img src="uml/observateur.webp" width="672" height="462" loading="lazy" decoding="async" alt="Diagramme UML du pattern Observateur" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -277,8 +282,8 @@ val groupe = Conteneur().apply {
 }
 groupe.executer()   // exécute tous les composants, sans distinction</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/composite.png">
-    <img src="uml/composite.png" alt="Diagramme UML du pattern Composite" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/composite.webp">
+    <img src="uml/composite.webp" width="567" height="389" loading="lazy" decoding="async" alt="Diagramme UML du pattern Composite" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -304,8 +309,8 @@ class Smartphone(gsm: Gsm) : Appelable by gsm {
 
 Smartphone(Gsm()).appeler("0600000000")</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/delegation.png">
-    <img src="uml/delegation.png" alt="Diagramme UML du pattern Délégation" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/delegation.webp">
+    <img src="uml/delegation.webp" width="409" height="513" loading="lazy" decoding="async" alt="Diagramme UML du pattern Délégation" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -332,8 +337,8 @@ class Adaptateur(private val lib: LibAA2) : IA {
 val client: IA = Adaptateur(LibAA2())
 client.methA()</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/adaptateur.png">
-    <img src="uml/adaptateur.png" alt="Diagramme UML du pattern Adaptateur" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/adaptateur.webp">
+    <img src="uml/adaptateur.webp" width="199" height="638" loading="lazy" decoding="async" alt="Diagramme UML du pattern Adaptateur" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -360,8 +365,8 @@ class EntrepotDePersonnes(init: List&lt;Personne&gt;) {
     fun plusJeunes(age: Int): List&lt;Personne&gt; = _personnes.filter { it.age &lt;= age }
 }</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/repository.png">
-    <img src="uml/repository.png" alt="Diagramme UML du pattern Repository" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/repository.webp">
+    <img src="uml/repository.webp" width="673" height="509" loading="lazy" decoding="async" alt="Diagramme UML du pattern Repository" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -387,8 +392,8 @@ class Controleur(private val modele: Modele, private val vue: Vue) {
 
 Controleur(Modele(), Vue()).incrementer()</code></pre>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/mvc.png">
-    <img src="uml/mvc.png" alt="Diagramme UML du pattern MVC" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/mvc.webp">
+    <img src="uml/mvc.webp" width="382" height="384" loading="lazy" decoding="async" alt="Diagramme UML du pattern MVC" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -426,8 +431,8 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
     <li><strong>Délégation :</strong> <code>Entreprise</code> délègue à <code>Departement</code> les interfaces <code>Salariable</code> et <code>Ajoutable</code>, avec le mot-clé <code>by</code>.</li>
   </ul>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/tp-salaires.png">
-    <img src="uml/tp-salaires.png" alt="Diagramme UML : Composite + Délégation : les salaires (TP5, exercice 1)" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/tp-salaires.webp">
+    <img src="uml/tp-salaires.webp" width="1158" height="623" loading="lazy" decoding="async" alt="Diagramme UML : Composite + Délégation : les salaires (TP5, exercice 1)" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -440,8 +445,8 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
     <li><strong>Combinaison :</strong> un emplacement du dock contient soit un <code>Vaisseau</code>, soit l'un des deux singletons.</li>
   </ul>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/tp-spatioport.png">
-    <img src="uml/tp-spatioport.png" alt="Diagramme UML : Singleton + Entrepôt : le spatioport (TP5, exercice 2)" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/tp-spatioport.webp">
+    <img src="uml/tp-spatioport.webp" width="1388" height="1253" loading="lazy" decoding="async" alt="Diagramme UML : Singleton + Entrepôt : le spatioport (TP5, exercice 2)" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -454,8 +459,8 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
     <li><strong>Combinaison :</strong> <code>NetPrime</code> s'appuie sur les interfaces DAO, donc on peut changer la source des données sans modifier l'entrepôt.</li>
   </ul>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/tp-netprime.png">
-    <img src="uml/tp-netprime.png" alt="Diagramme UML : DAO + Entrepôt : NetPrime (TP6)" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/tp-netprime.webp">
+    <img src="uml/tp-netprime.webp" width="960" height="1094" loading="lazy" decoding="async" alt="Diagramme UML : DAO + Entrepôt : NetPrime (TP6)" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -468,9 +473,9 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
     <li><strong>Entrepôt :</strong> <code>FruitRepository</code> (interface <code>FruitAccess</code>) charge les fruits via un <code>FruitDAO</code> ; <code>fruits</code> donne une copie de <code>_fruits</code> et <code>recharge()</code> relit le DAO.</li>
   </ul>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/tp-fruits.png">
-    <img src="uml/tp-fruits-dao.png" alt="Diagramme UML : DAO + classe mère commune + Entrepôt : les fruits (TP8)" onerror="this.parentElement.classList.add('manquante')">
-    <img src="uml/tp-fruits-repository.png" alt="Diagramme UML : DAO + classe mère commune + Entrepôt : les fruits (TP8)" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/tp-fruits.webp">
+    <img src="uml/tp-fruits-dao.webp" width="1998" height="857" loading="lazy" decoding="async" alt="Diagramme UML : DAO + classe mère commune + Entrepôt : les fruits (TP8)" onerror="this.parentElement.classList.add('manquante')">
+    <img src="uml/tp-fruits-repository.webp" width="1105" height="534" loading="lazy" decoding="async" alt="Diagramme UML : DAO + classe mère commune + Entrepôt : les fruits (TP8)" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -484,8 +489,8 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
     <li>Le système de tarification mémorise le dernier contexte et ne reconstruit le tarif que si le contexte change (<code>equals</code>).</li>
   </ul>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/tp-tarifs.png">
-    <img src="uml/tp-tarifs.png" alt="Diagramme UML : Fabrique + Composite + Stratégie : tarification des vols (TP7, exercice 1)" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/tp-tarifs.webp">
+    <img src="uml/tp-tarifs.webp" width="1361" height="611" loading="lazy" decoding="async" alt="Diagramme UML : Fabrique + Composite + Stratégie : tarification des vols (TP7, exercice 1)" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -497,8 +502,8 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
     <li><code>Application</code> contient les cocktails de la carte.</li>
   </ul>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/tp-cocktails.png">
-    <img src="uml/tp-cocktails.png" alt="Diagramme UML : Composite : recettes de cocktails (TP7, exercice 2)" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/tp-cocktails.webp">
+    <img src="uml/tp-cocktails.webp" width="793" height="275" loading="lazy" decoding="async" alt="Diagramme UML : Composite : recettes de cocktails (TP7, exercice 2)" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -512,8 +517,8 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
     <li><strong>Composition :</strong> <code>MySet</code> (interface <code>ISet</code>) stocke ses éléments dans la table de hachage pour détecter les doublons.</li>
   </ul>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/tp-hashtable.png">
-    <img src="uml/tp-hashtable.png" alt="Diagramme UML : Classe abstraite + Stratégie + Itérateur : tables de hachage (TP9)" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/tp-hashtable.webp">
+    <img src="uml/tp-hashtable.webp" width="950" height="782" loading="lazy" decoding="async" alt="Diagramme UML : Classe abstraite + Stratégie + Itérateur : tables de hachage (TP9)" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 
@@ -525,9 +530,9 @@ Controleur(Modele(), Vue()).incrementer()</code></pre>
     <li><strong>Itérateur :</strong> <code>CelluleIterator</code> réalise <code>Iterator&lt;E&gt;</code> et garde la cellule courante (<code>Cellule&lt;E&gt;?</code>).</li>
   </ul>
   <div class="exemple-titre">Diagramme UML</div>
-  <figure class="uml" data-fichier="uml/tp-file.png">
-    <img src="uml/tp-filearraylist.png" alt="Diagramme UML : Itérateur + deux implémentations de File (TP1)" onerror="this.parentElement.classList.add('manquante')">
-    <img src="uml/tp-filechainee.png" alt="Diagramme UML : Itérateur + deux implémentations de File (TP1)" onerror="this.parentElement.classList.add('manquante')">
+  <figure class="uml" data-fichier="uml/tp-file.webp">
+    <img src="uml/tp-filearraylist.webp" width="899" height="682" loading="lazy" decoding="async" alt="Diagramme UML : Itérateur + deux implémentations de File (TP1)" onerror="this.parentElement.classList.add('manquante')">
+    <img src="uml/tp-filechainee.webp" width="1073" height="708" loading="lazy" decoding="async" alt="Diagramme UML : Itérateur + deux implémentations de File (TP1)" onerror="this.parentElement.classList.add('manquante')">
   </figure>
 </section>
 

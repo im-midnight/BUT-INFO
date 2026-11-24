@@ -1,6 +1,8 @@
 // =====================================================================
-// SITE.JS : chargé dans le <head> de toutes les pages
-//   1. applique le thème enregistré (avant l'affichage, pas de flash)
+// SITE.JS : chargé en defer dans le <head> de toutes les pages
+//   1. applique le thème enregistré (un petit script en ligne dans le
+//      <head> le pose déjà avant l'affichage, pour éviter un flash ;
+//      si on change CLE ou DEFAUT ici, le changer aussi dans ce script)
 //   2. ajoute la barre du haut, le fil d'Ariane et le bouton Thème
 //   3. ajoute « précédent / suivant » et le pied de page
 //   4. code : coloration syntaxique et bouton Copier
