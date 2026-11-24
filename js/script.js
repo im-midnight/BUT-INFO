@@ -277,6 +277,18 @@ const pages = [
       "Algorithme de Shanks : pas de bébé, pas de géant", "Exemple détaillé : bsgs(3, 11, 43)", "Synthèse",
     ],
   },
+  {
+    titre: "Exercice 6 : RSA et signature numérique",
+    lien: "pages/math/crypto/tp/ex6.html",
+    matiere: "crypto",
+    type: "TP",
+    parent: "pages/math/crypto/tp.html",
+    sections: [
+      "Principe général", "Génération de la clé : key_creation()", "Les fonctions mathématiques de rsa_math.py",
+      "Chiffrer et déchiffrer un entier", "Message long : découpage en paquets de 4 chiffres",
+      "Message signé", "Démo : signer et vérifier", "Synthèse",
+    ],
+  },
 ];
 
 
