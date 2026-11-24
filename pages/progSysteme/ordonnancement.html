@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ordonnancement des processus (R305) | BUT Info Nantes</title>
+  <meta name="description" content="FCFS, SJF, SRT, Round Robin et priorités statiques, chacun avec son chronogramme, ses temps d'attente, ses avantages et ses défauts.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/progSysteme/ordonnancement.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Ordonnancement des processus (R305)">
+  <meta property="og:description" content="FCFS, SJF, SRT, Round Robin et priorités statiques, chacun avec son chronogramme, ses temps d'attente, ses avantages et ses défauts.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/progSysteme/ordonnancement.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../img/apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+
+  <link rel="stylesheet" href="../../css/themes.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/site.js"></script>
+  <script src="../../js/script.js" defer></script>
+  <style>
+    /* Chronogrammes d'ordonnancement */
+    .gantt { margin: 1.25rem 0 1rem; font-family: var(--police); }
+    .gantt__ligne { display: grid; grid-template-columns: 2.5rem 1fr; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+    .gantt__nom { font-weight: 700; color: var(--titre); font-size: 0.92rem; }
+    .gantt__piste { position: relative; height: 1.9rem; border-radius: 4px; background: var(--surface-2); }
+    .gantt__bloc { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: var(--primaire);
+      border: 1px solid var(--fond); }
+    .gantt__axe { position: relative; height: 1.4rem; margin: 0.2rem 0 0 3rem; border-top: 1px solid var(--bordure-forte);
+      font-size: 0.78rem; color: var(--texte-doux); }
+    .gantt__axe span { position: absolute; top: 0.15rem; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+    .gantt__axe span.debut { transform: none; }
+    .gantt__axe span.fin { transform: translateX(-100%); }
+    .gantt__axe span.debut::before { left: 0; }
+    .gantt__axe span.fin::before { left: auto; right: 0; }
+    .gantt__axe span::before { content: ""; position: absolute; left: 50%; top: -0.45rem; height: 0.3rem; border-left: 1px solid var(--bordure-forte); }
+    .gantt figcaption { margin-top: 0.6rem; font-size: 0.92rem; line-height: 1.55; color: var(--texte-doux); }
+    .gantt figcaption strong { color: var(--titre); }
+  </style>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R305 - Programmation système", "item": "https://butinfo-iutnantes.vercel.app/pages/progSysteme/indexProgSysteme.html"}, {"@type": "ListItem", "position": 3, "name": "Ordonnancement", "item": "https://butinfo-iutnantes.vercel.app/pages/progSysteme/ordonnancement.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>Ordonnancement</h1>
+  <p class="consigne">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="ordonnanceur" tabindex="0">termes soulignés en pointillé</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. PRINCIPE -->
+  <section class="loi-card">
+    <h2>1. Le principe</h2>
+    <p>Ordonnancer, c'est choisir à chaque instant quel processus (ou quelle tâche) s'exécute, et pendant combien de temps il garde le processeur. C'est le travail de l'<span class="terme" data-def="ordonnanceur" tabindex="0">ordonnanceur</span>, qui suit un algorithme d'ordonnancement.</p>
+    <ul>
+      <li><strong>File des processus prêts :</strong> ceux qui pourraient tourner tout de suite. L'ordonnanceur y choisit le processus <em>élu</em>, qui reçoit le processeur.</li>
+      <li><strong>Files des processus bloqués :</strong> ceux qui attendent quelque chose (une lecture disque, une saisie…). Ils repassent dans la file des prêts quand l'attente est finie.</li>
+    </ul>
+
+    <h3>Ce qu'on cherche à obtenir</h3>
+    <p>La solution naïve serait d'exécuter les processus dans l'ordre où ils arrivent. Un bon ordonnancement essaie plutôt de :</p>
+    <ul>
+      <li>faire le moins possible de <span class="terme" data-def="changement-contexte" tabindex="0">changements de contexte</span> ;</li>
+      <li>terminer le plus de processus possible par unité de temps ;</li>
+      <li>faire attendre chaque processus le moins longtemps possible ;</li>
+      <li>occuper les processeurs le plus possible ;</li>
+      <li>favoriser les processus prioritaires.</li>
+    </ul>
+    <p>Ces objectifs se contredisent souvent : moins de changements de contexte veut dire laisser un processus long occuper le processeur, donc faire attendre les autres.</p>
+  </section>
+
+  <!-- 2. FAMILLES D'ALGORITHMES -->
+  <section class="loi-card">
+    <h2>2. Les familles d'algorithmes</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Critère</th><th>Ce qui change</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Monoprocesseur / multiprocesseur</td><td>On ne répartit pas les processus de la même façon sur un ou plusieurs processeurs.</td></tr>
+          <tr><td>En ligne / hors ligne</td><td>Hors ligne, on calcule l'ordre une fois pour toutes. En ligne, on décide au fur et à mesure que les processus arrivent.</td></tr>
+          <tr><td><span class="terme" data-def="preemptif" tabindex="0">Préemptif</span> / non préemptif</td><td>Préemptif : l'ordonnanceur peut interrompre le processus en cours. Non préemptif : il le laisse finir.</td></tr>
+          <tr><td>Oisif / non oisif</td><td>Un ordonnanceur oisif peut laisser un processeur inactif alors que des processus attendent.</td></tr>
+          <tr><td>Centralisé / réparti</td><td>Une seule décision pour toute la machine, ou des décisions prises à plusieurs endroits.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Les méthodes classiques qu'on voit ensuite :</p>
+    <ul>
+      <li><strong>Non préemptives :</strong> par ordre d'arrivée (FCFS), par durée de calcul (SJF).</li>
+      <li><strong>Préemptives :</strong> par durée restante (SRT), tourniquet (Round Robin), par priorité.</li>
+    </ul>
+    <div class="astuce">
+      <p>Dans les exemples, une ligne par processus, et chaque case colorée est un moment où il a le processeur. Le <span class="terme" data-def="temps-attente" tabindex="0">temps d'attente</span> d'un processus vaut : instant de fin − instant d'arrivée − durée.</p>
+    </div>
+  </section>
+
+  <!-- 3. FCFS -->
+  <section class="loi-card">
+    <h2>3. Premier arrivé, premier servi (FCFS)</h2>
+    <p><strong>Principe :</strong> les tâches passent dans leur ordre d'arrivée (<em>First Come First Served</em>). Une fois lancée, une tâche va jusqu'au bout.</p>
+    <p><strong>Exemple :</strong> P1 arrive à t = 0 (durée 53), P2 à t = 10 (durée 17), P3 à t = 20 (durée 68), P4 à t = 30 (durée 24).</p>
+    <figure class="gantt" role="img" aria-label="Chronogramme : P1 de 0 à 53, P2 de 53 à 70, P3 de 70 à 138, P4 de 138 à 162">
+      <div class="gantt__ligne"><span class="gantt__nom">P1</span><div class="gantt__piste"><span class="gantt__bloc" style="left:0.000%;width:32.716%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P2</span><div class="gantt__piste"><span class="gantt__bloc" style="left:32.716%;width:10.494%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P3</span><div class="gantt__piste"><span class="gantt__bloc" style="left:43.210%;width:41.975%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P4</span><div class="gantt__piste"><span class="gantt__bloc" style="left:85.185%;width:14.815%"></span></div></div>
+      <div class="gantt__axe" aria-hidden="true"><span class="debut" style="left:0.000%">0</span><span style="left:32.716%">53</span><span style="left:43.210%">70</span><span style="left:85.185%">138</span><span class="fin" style="left:100.000%">162</span></div>
+      <figcaption><strong>Ordre :</strong> P1 de 0 à 53, P2 de 53 à 70, P3 de 70 à 138, P4 de 138 à 162.<br><strong>Temps d'attente :</strong> P1 : 0, P2 : 43, P3 : 50, P4 : 108. Moyenne : 50,25.</figcaption>
+    </figure>
+    <ul>
+      <li><strong>Avantage :</strong> très simple à programmer, une simple file suffit.</li>
+      <li><strong>Inconvénients :</strong> l'importance des tâches n'est pas prise en compte, et les tâches attendent en général longtemps le processeur. Ici P4, qui ne dure que 24, attend 108.</li>
+    </ul>
+  </section>
+
+  <!-- 4. SJF -->
+  <section class="loi-card">
+    <h2>4. Le plus court d'abord (SJF)</h2>
+    <p><strong>Principe :</strong> la tâche la plus courte passe en premier (<em>Shortest Job First</em>). Comme FCFS, il n'est pas préemptif.</p>
+    <p><strong>Exemple :</strong> les quatre tâches arrivent à t = 0. P1 dure 53, P2 17, P3 68 et P4 24.</p>
+    <figure class="gantt" role="img" aria-label="Chronogramme : P2 de 0 à 17, P4 de 17 à 41, P1 de 41 à 94, P3 de 94 à 162">
+      <div class="gantt__ligne"><span class="gantt__nom">P1</span><div class="gantt__piste"><span class="gantt__bloc" style="left:25.309%;width:32.716%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P2</span><div class="gantt__piste"><span class="gantt__bloc" style="left:0.000%;width:10.494%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P3</span><div class="gantt__piste"><span class="gantt__bloc" style="left:58.025%;width:41.975%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P4</span><div class="gantt__piste"><span class="gantt__bloc" style="left:10.494%;width:14.815%"></span></div></div>
+      <div class="gantt__axe" aria-hidden="true"><span class="debut" style="left:0.000%">0</span><span style="left:10.494%">17</span><span style="left:25.309%">41</span><span style="left:58.025%">94</span><span class="fin" style="left:100.000%">162</span></div>
+      <figcaption><strong>Ordre :</strong> P2 de 0 à 17, P4 de 17 à 41, P1 de 41 à 94, P3 de 94 à 162.<br><strong>Temps d'attente :</strong> P1 : 41, P2 : 0, P3 : 94, P4 : 17. Moyenne : 38.</figcaption>
+    </figure>
+    <ul>
+      <li><strong>Avantage :</strong> les processus attendent moins qu'avec FCFS.</li>
+      <li><strong>Inconvénients :</strong> l'importance des tâches n'est toujours pas prise en compte, et ce n'est optimal que si tous les processus sont disponibles en même temps.</li>
+    </ul>
+  </section>
+
+  <!-- 5. SRT -->
+  <section class="loi-card">
+    <h2>5. Le plus court temps restant (SRT)</h2>
+    <p><strong>Principe :</strong> à chaque arrivée, on donne le processeur à la tâche à qui il reste le moins de temps de calcul (<em>Shortest Remaining Time</em>). C'est la version préemptive de SJF : une tâche courte qui arrive peut interrompre une tâche longue.</p>
+    <p><strong>Exemple :</strong> P3 (durée 68) et P4 (durée 24) arrivent à t = 0, P2 (durée 17) à t = 20, P1 (durée 53) à t = 50.</p>
+    <figure class="gantt" role="img" aria-label="Chronogramme : P4 de 0 à 24, P2 de 24 à 41, P3 de 41 à 50, P1 de 50 à 103, P3 de 103 à 162">
+      <div class="gantt__ligne"><span class="gantt__nom">P1</span><div class="gantt__piste"><span class="gantt__bloc" style="left:30.864%;width:32.716%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P2</span><div class="gantt__piste"><span class="gantt__bloc" style="left:14.815%;width:10.494%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P3</span><div class="gantt__piste"><span class="gantt__bloc" style="left:25.309%;width:5.556%"></span><span class="gantt__bloc" style="left:63.580%;width:36.420%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P4</span><div class="gantt__piste"><span class="gantt__bloc" style="left:0.000%;width:14.815%"></span></div></div>
+      <div class="gantt__axe" aria-hidden="true"><span class="debut" style="left:0.000%">0</span><span style="left:14.815%">24</span><span style="left:25.309%">41</span><span style="left:30.864%">50</span><span style="left:63.580%">103</span><span class="fin" style="left:100.000%">162</span></div>
+      <figcaption><strong>Ordre :</strong> P4 de 0 à 24, P2 de 24 à 41, P3 de 41 à 50, P1 de 50 à 103, P3 de 103 à 162.<br><strong>Temps d'attente :</strong> P1 : 0, P2 : 4, P3 : 94, P4 : 0. Moyenne : 24,5.</figcaption>
+    </figure>
+    <p>À t = 20, P2 arrive mais il ne reste que 4 à P4 : P4 finit. À t = 50, il reste 59 à P3 et P1 n'a besoin que de 53 : P1 prend la main, et P3 ne repart qu'à t = 103.</p>
+    <ul>
+      <li><strong>Avantage :</strong> le temps d'attente moyen des processus courts est le plus petit possible.</li>
+      <li><strong>Inconvénients :</strong> l'importance des tâches n'est pas prise en compte, et les processus longs sont pénalisés. S'il arrive sans arrêt des tâches courtes, une tâche longue peut ne jamais passer : c'est la <span class="terme" data-def="famine" tabindex="0">famine</span>.</li>
+    </ul>
+  </section>
+
+  <!-- 6. ROUND ROBIN -->
+  <section class="loi-card">
+    <h2>6. Le tourniquet (Round Robin)</h2>
+    <p><strong>Principe :</strong> chaque tâche reçoit le processeur à son tour, pour une tranche de temps fixe appelée <span class="terme" data-def="quantum" tabindex="0">quantum</span>. Si elle n'a pas fini, elle retourne au bout de la file.</p>
+    <p><strong>Exemple :</strong> les quatre tâches arrivent à t = 0 (P1 : 53, P2 : 17, P3 : 68, P4 : 24), et le quantum vaut 20.</p>
+    <figure class="gantt" role="img" aria-label="Chronogramme : P1 de 0 à 20, P2 de 20 à 37, P3 de 37 à 57, P4 de 57 à 77, P1 de 77 à 97, P3 de 97 à 117, P4 de 117 à 121, P1 de 121 à 134, P3 de 134 à 162">
+      <div class="gantt__ligne"><span class="gantt__nom">P1</span><div class="gantt__piste"><span class="gantt__bloc" style="left:0.000%;width:12.346%"></span><span class="gantt__bloc" style="left:47.531%;width:12.346%"></span><span class="gantt__bloc" style="left:74.691%;width:8.025%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P2</span><div class="gantt__piste"><span class="gantt__bloc" style="left:12.346%;width:10.494%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P3</span><div class="gantt__piste"><span class="gantt__bloc" style="left:22.840%;width:12.346%"></span><span class="gantt__bloc" style="left:59.877%;width:12.346%"></span><span class="gantt__bloc" style="left:82.716%;width:17.284%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P4</span><div class="gantt__piste"><span class="gantt__bloc" style="left:35.185%;width:12.346%"></span><span class="gantt__bloc" style="left:72.222%;width:2.469%"></span></div></div>
+      <div class="gantt__axe" aria-hidden="true"><span class="debut" style="left:0.000%">0</span><span style="left:12.346%">20</span><span style="left:22.840%">37</span><span style="left:35.185%">57</span><span style="left:47.531%">77</span><span style="left:59.877%">97</span><span style="left:72.222%">117</span><span style="left:82.716%">134</span><span class="fin" style="left:100.000%">162</span></div>
+      <figcaption><strong>Ordre :</strong> P1 de 0 à 20, P2 de 20 à 37, P3 de 37 à 57, P4 de 57 à 77, P1 de 77 à 97, P3 de 97 à 117, P4 de 117 à 121, P1 de 121 à 134, P3 de 134 à 162.<br><strong>Temps d'attente :</strong> P1 : 81, P2 : 20, P3 : 94, P4 : 97. Moyenne : 73.</figcaption>
+    </figure>
+    <ul>
+      <li><strong>Avantages :</strong> le processeur est partagé équitablement. Avec n tâches et un quantum q, chaque tâche récupère le processeur au bout de (n − 1) × q unités de temps au plus.</li>
+      <li><strong>Inconvénients :</strong> l'importance des tâches n'est pas prise en compte, et le quantum est difficile à choisir. Trop grand, on retombe sur FCFS. Trop petit, on passe son temps en changements de contexte.</li>
+    </ul>
+  </section>
+
+  <!-- 7. PRIORITÉS -->
+  <section class="loi-card">
+    <h2>7. Les priorités statiques</h2>
+    <p><strong>Principe :</strong> chaque tâche a une priorité fixée pour toute la durée de l'application, et le processeur va à la plus prioritaire. Dans l'exemple, plus le nombre est grand, plus la tâche est prioritaire.</p>
+    <p><strong>Exemple :</strong> tout arrive à t = 0. P1 (durée 53, priorité 0), P2 (17, priorité 1), P3 (68, priorité 3), P4 (24, priorité 2).</p>
+    <figure class="gantt" role="img" aria-label="Chronogramme : P3 de 0 à 68, P4 de 68 à 92, P2 de 92 à 109, P1 de 109 à 162">
+      <div class="gantt__ligne"><span class="gantt__nom">P1</span><div class="gantt__piste"><span class="gantt__bloc" style="left:67.284%;width:32.716%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P2</span><div class="gantt__piste"><span class="gantt__bloc" style="left:56.790%;width:10.494%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P3</span><div class="gantt__piste"><span class="gantt__bloc" style="left:0.000%;width:41.975%"></span></div></div>
+      <div class="gantt__ligne"><span class="gantt__nom">P4</span><div class="gantt__piste"><span class="gantt__bloc" style="left:41.975%;width:14.815%"></span></div></div>
+      <div class="gantt__axe" aria-hidden="true"><span class="debut" style="left:0.000%">0</span><span style="left:41.975%">68</span><span style="left:56.790%">92</span><span style="left:67.284%">109</span><span class="fin" style="left:100.000%">162</span></div>
+      <figcaption><strong>Ordre :</strong> P3 de 0 à 68, P4 de 68 à 92, P2 de 92 à 109, P1 de 109 à 162.<br><strong>Temps d'attente :</strong> P1 : 109, P2 : 92, P3 : 0, P4 : 68. Moyenne : 67,25.</figcaption>
+    </figure>
+    <ul>
+      <li><strong>Avantage :</strong> on tient enfin compte de l'importance des tâches.</li>
+      <li><strong>Inconvénient :</strong> les tâches peu prioritaires risquent la <span class="terme" data-def="famine" tabindex="0">famine</span>.</li>
+    </ul>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Algorithme</th><th>Préemptif</th><th>Choisit</th><th>Point fort</th><th>Point faible</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>FCFS</td><td>Non</td><td>Le premier arrivé</td><td>Très simple (une file)</td><td>Attentes longues</td></tr>
+          <tr><td>SJF</td><td>Non</td><td>Le plus court</td><td>Moins d'attente qu'avec FCFS</td><td>Optimal seulement si tout arrive en même temps</td></tr>
+          <tr><td>SRT</td><td>Oui</td><td>Le plus court temps restant</td><td>Les tâches courtes attendent très peu</td><td>Famine des tâches longues</td></tr>
+          <tr><td>Round Robin</td><td>Oui</td><td>Chacun son tour (quantum)</td><td>Équitable</td><td>Quantum difficile à régler</td></tr>
+          <tr><td>Priorités statiques</td><td>Oui</td><td>Le plus prioritaire</td><td>Respecte l'importance des tâches</td><td>Famine des tâches peu prioritaires</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="a-retenir">
+      <p>Aucun des quatre premiers algorithmes ne tient compte de l'importance des tâches. Ceux qui servent d'abord les tâches courtes (SRT) ou importantes (priorités) font attendre les autres, parfois pour toujours : c'est la famine.</p>
+    </div>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-ordonnanceur" class="def-bloc">
+      <h3>Ordonnanceur (scheduler)</h3>
+      <p>La partie du système qui décide quel processus prêt reçoit le processeur, et pour combien de temps.</p>
+    </div>
+
+    <div id="def-changement-contexte" class="def-bloc">
+      <h3>Changement de contexte</h3>
+      <p>Arrêter un processus pour en lancer un autre : on sauvegarde l'état du premier et on recharge celui du second. Ça prend du temps, pendant lequel aucun processus n'avance.</p>
+    </div>
+
+    <div id="def-preemptif" class="def-bloc">
+      <h3>Préemptif</h3>
+      <p>Un ordonnanceur préemptif peut retirer le processeur à un processus avant qu'il ait fini, pour le donner à un autre.</p>
+    </div>
+
+    <div id="def-temps-attente" class="def-bloc">
+      <h3>Temps d'attente</h3>
+      <p>Le temps qu'un processus passe prêt à tourner sans avoir le processeur.</p>
+      <ul>
+        <li>Temps d'attente = fin − arrivée − durée.</li>
+      </ul>
+    </div>
+
+    <div id="def-famine" class="def-bloc">
+      <h3>Famine (starvation)</h3>
+      <p>Un processus attend le processeur et ne l'obtient jamais, parce que d'autres passent toujours avant lui.</p>
+    </div>
+
+    <div id="def-quantum" class="def-bloc">
+      <h3>Quantum</h3>
+      <p>La durée de la tranche de temps donnée à chaque tâche dans le tourniquet. Au bout du quantum, la tâche est interrompue et passe au bout de la file.</p>
+    </div>
+  </div>
+
+  <script>
+    // Infobulles : survol à la souris, toucher sur téléphone, focus au clavier
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    function placer(x, y) {
+      const decalage = 15;
+      let gauche = x + decalage;
+      if (gauche + tooltip.offsetWidth > window.scrollX + window.innerWidth - 20) {
+        gauche = x - tooltip.offsetWidth - decalage;
+      }
+      if (gauche < window.scrollX + 10) gauche = window.scrollX + 10;
+      tooltip.style.left = gauche + 'px';
+      tooltip.style.top = (y + decalage) + 'px';
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+
+      terme.addEventListener('mouseenter', () => { if (!tactile.matches) afficher(cle); });
+      terme.addEventListener('mousemove', (e) => { if (!tactile.matches) placer(e.pageX, e.pageY); });
+      terme.addEventListener('mouseleave', () => { if (!tactile.matches) masquer(); });
+
+      terme.addEventListener('focus', () => {
+        afficher(cle);
+        if (!tactile.matches) {
+          const r = terme.getBoundingClientRect();
+          placer(r.left + window.scrollX, r.bottom + window.scrollY);
+        }
+      });
+      terme.addEventListener('blur', masquer);
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) { masquer(); return; }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => { if (tactile.matches) masquer(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') masquer(); });
+  </script>
+
+</body>
+</html>

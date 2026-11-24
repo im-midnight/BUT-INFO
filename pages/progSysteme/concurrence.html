@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accès concurrents et blocages en Go (R305) | BUT Info Nantes</title>
+  <meta name="description" content="Race condition, section critique, exclusion mutuelle, opérations atomiques, famine, sémaphores, sync.Mutex et interblocages, avec des exemples en Go.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/progSysteme/concurrence.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Accès concurrents et blocages en Go (R305)">
+  <meta property="og:description" content="Race condition, section critique, exclusion mutuelle, opérations atomiques, famine, sémaphores, sync.Mutex et interblocages, avec des exemples en Go.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/progSysteme/concurrence.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../img/apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+
+  <link rel="stylesheet" href="../../css/themes.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/site.js"></script>
+  <script src="../../js/script.js" defer></script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R305 - Programmation système", "item": "https://butinfo-iutnantes.vercel.app/pages/progSysteme/indexProgSysteme.html"}, {"@type": "ListItem", "position": 3, "name": "Accès concurrents et blocages", "item": "https://butinfo-iutnantes.vercel.app/pages/progSysteme/concurrence.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>Accès concurrents et blocages</h1>
+  <p class="consigne">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="race" tabindex="0">termes soulignés en pointillé</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. LE PROBLÈME -->
+  <section class="loi-card">
+    <h2>1. Le problème : deux goroutines, deux variables</h2>
+    <p>Deux goroutines échangent un million de fois les valeurs de <code>a</code> et <code>b</code>. Un nombre pair d'échanges devrait toujours redonner <code>1 2</code>.</p>
+<pre><code class="language-go">var a, b = 1, 2
+
+func echanger(wg *sync.WaitGroup) {
+	for i := 0; i &lt; 1000000; i++ {
+		a, b = b, a
+	}
+	wg.Done()
+}
+
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go echanger(&amp;wg)
+	go echanger(&amp;wg)
+	wg.Wait() // attend que les deux goroutines aient fini
+	fmt.Println(a, b)
+}</code></pre>
+    <p>Sur huit exécutions, on a obtenu <code>1 2</code> seulement trois fois. Les autres fois, c'était <code>1 1</code> ou <code>2 2</code> : une des deux valeurs a disparu. Sur une autre série, <code>2 1</code> est aussi sorti. Le résultat change à chaque lancement.</p>
+    <p>Ce qui s'est passé :</p>
+    <ul>
+      <li>les deux goroutines modifient les mêmes variables en même temps ;</li>
+      <li>en concurrence, on ne peut faire aucune hypothèse sur l'ordre des instructions ;</li>
+      <li>l'échange <code>a, b = b, a</code> tient sur une ligne, mais il n'est pas <span class="terme" data-def="atomique" tabindex="0">atomique</span> : il se fait en plusieurs étapes.</li>
+    </ul>
+  </section>
+
+  <!-- 2. POURQUOI : LES ENTRELACEMENTS -->
+  <section class="loi-card">
+    <h2>2. Pourquoi : les entrelacements</h2>
+    <p>Une fois compilé, un échange ressemble à trois instructions, avec une variable temporaire propre à chaque goroutine :</p>
+<pre><code class="language-text">1. t = a
+2. a = b
+3. b = t</code></pre>
+    <p>Avec deux goroutines A et B qui font chacune un échange en partant de <code>a = 1</code> et <code>b = 2</code>, il y a 20 façons d'entrelacer leurs 6 instructions. Elles ne donnent pas toutes le même résultat :</p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Résultat (a, b)</th><th>Nombre d'entrelacements</th><th>Un exemple d'ordre</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>(1, 2) : les deux échanges ont eu lieu</td><td>4</td><td>A A A B B B (l'un après l'autre)</td></tr>
+          <tr><td>(2, 1) : un seul échange compte</td><td>10</td><td>A B A B A B</td></tr>
+          <tr><td>(1, 1) : la valeur 2 est perdue</td><td>4</td><td>A B A A B B</td></tr>
+          <tr><td>(2, 2) : la valeur 1 est perdue</td><td>2</td><td>A A B B A B</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Prenons A B A A B B : A lit <code>a</code> (t<sub>A</sub> = 1), B lit <code>a</code> (t<sub>B</sub> = 1), A écrit <code>a = 2</code> puis <code>b = 1</code>, B écrit <code>a = b = 1</code> puis <code>b = t<sub>B</sub> = 1</code>. Résultat : <code>1 1</code>.</p>
+    <p>On parle d'<span class="terme" data-def="race" tabindex="0">accès concurrents</span> (<em>race condition</em>) quand plusieurs accès à une même variable, dont au moins une écriture, se font de façon concurrente.</p>
+    <div class="piege">
+      <p>Ajouter des <code>time.Sleep</code> ne règle rien : le bug devient plus rare, donc plus difficile à trouver, mais il est toujours là.</p>
+    </div>
+    <div class="astuce">
+      <p>Go sait détecter ces accès : <code>go run -race fichier.go</code>. Sur l'exemple, il affiche <code>WARNING: DATA RACE</code>, même les fois où le résultat a l'air juste.</p>
+    </div>
+  </section>
+
+  <!-- 3. EXCLUSION MUTUELLE -->
+  <section class="loi-card">
+    <h2>3. Section critique et exclusion mutuelle</h2>
+    <ul>
+      <li><strong><span class="terme" data-def="section-critique" tabindex="0">Section critique</span> :</strong> l'endroit du code où on accède à une ressource partagée. Ici, la ligne <code>a, b = b, a</code>.</li>
+      <li><strong><span class="terme" data-def="exclusion-mutuelle" tabindex="0">Exclusion mutuelle</span> :</strong> garantir qu'un seul fil d'exécution à la fois est dans la section critique. Il n'y a alors plus d'accès concurrents à la ressource.</li>
+    </ul>
+
+    <h3>Première idée : un drapeau</h3>
+    <p>On attend que la place soit libre, on la marque comme prise, on fait l'échange, puis on la libère.</p>
+<pre><code class="language-go">var occupe bool
+
+for occupe {
+	// on attend que la place se libère
+}
+occupe = true
+a, b = b, a
+occupe = false</code></pre>
+    <div class="piege">
+      <p>Ça ne marche pas : on retrouve <code>1 1</code>, <code>2 2</code>… Les deux goroutines peuvent voir <code>occupe == false</code> au même moment, sortir toutes les deux de la boucle, et entrer ensemble dans la section critique. Tester le drapeau puis le modifier, ce sont deux opérations séparées, entre lesquelles l'autre goroutine peut passer.</p>
+    </div>
+
+    <h3>La solution : une opération atomique</h3>
+    <p>Si on sait tester une variable et changer sa valeur en une seule opération <span class="terme" data-def="atomique" tabindex="0">atomique</span>, le problème est réglé. En Go, le paquet <code>sync/atomic</code> fournit <code>CompareAndSwap</code> : « si la valeur vaut 0, mets-la à 1 », sans que personne puisse passer entre les deux.</p>
+<pre><code class="language-go">var occupe int32 // 0 : libre, 1 : pris
+
+func prendre() {
+	for !atomic.CompareAndSwapInt32(&amp;occupe, 0, 1) {
+		// la section est prise : on réessaie
+	}
+}
+
+func rendre() {
+	atomic.StoreInt32(&amp;occupe, 0)
+}</code></pre>
+    <p>Avec <code>prendre()</code> avant l'échange et <code>rendre()</code> après, on obtient <code>1 2</code> à chaque fois.</p>
+  </section>
+
+  <!-- 4. FAMINE -->
+  <section class="loi-card">
+    <h2>4. La famine</h2>
+    <p>Si chaque goroutine veut entrer plusieurs fois dans la section critique, rien ne garantit que chacune aura son tour. Une goroutine peut demander l'accès et ne jamais l'obtenir, simplement parce qu'une autre le redemande toujours au même moment. C'est la <span class="terme" data-def="famine" tabindex="0">famine</span> (<em>starvation</em>).</p>
+    <p>Une façon de s'en sortir est d'imposer un ordre de passage, par exemple chacun son tour selon son numéro. Mais cette solution est lente, et elle suppose que les goroutines démarrent dans l'ordre de leurs numéros : si celle dont c'est le tour n'est pas encore lancée, toutes les autres l'attendent.</p>
+  </section>
+
+  <!-- 5. SÉMAPHORES -->
+  <section class="loi-card">
+    <h2>5. Les sémaphores</h2>
+    <p>Un <span class="terme" data-def="semaphore" tabindex="0">sémaphore</span> règle les deux problèmes, accès concurrents et famine. Il contient :</p>
+    <ul>
+      <li>un compteur <code>K</code>, initialisé à 1 ;</li>
+      <li>une file d'attente de fils d'exécution, servie dans l'ordre d'arrivée (FIFO).</li>
+    </ul>
+    <p>On l'utilise avec deux opérations :</p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Opération</th><th>Ce qu'elle fait</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>P</strong> (réserver)</td><td><code>K = K − 1</code>. Si <code>K &lt; 0</code>, le fil qui appelle est mis dans la file d'attente. Si <code>K ≥ 0</code>, il continue.</td></tr>
+          <tr><td><strong>V</strong> (libérer)</td><td><code>K = K + 1</code>. Si <code>K ≤ 0</code>, le fil en tête de la file d'attente repart.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Comme la file est servie dans l'ordre, chaque fil finit par passer : plus de famine.</p>
+    <p>Un sémaphore peut aussi compter des ressources : <code>K</code> peut démarrer à plus que 1 (par exemple 3 places disponibles), et P ou V peuvent faire varier <code>K</code> de plus de 1.</p>
+
+    <h3>En Go : <code>sync.Mutex</code></h3>
+    <p>Le paquet <code>sync</code> fournit le type <code>Mutex</code>, qui correspond à peu près à un sémaphore avec <code>K = 1</code> (sa file d'attente est gérée de façon plus complexe). <code>Lock()</code> joue le rôle de P, <code>Unlock()</code> celui de V.</p>
+<pre><code class="language-go">var verrou sync.Mutex
+
+func echanger(wg *sync.WaitGroup) {
+	for i := 0; i &lt; 1000000; i++ {
+		verrou.Lock()
+		a, b = b, a
+		verrou.Unlock()
+	}
+	wg.Done()
+}</code></pre>
+    <p>Résultat : <code>1 2</code> à chaque exécution, et <code>go run -race</code> ne signale plus rien.</p>
+  </section>
+
+  <!-- 6. LES ERREURS CLASSIQUES -->
+  <section class="loi-card">
+    <h2>6. Les erreurs classiques avec les verrous</h2>
+    <p>Ces synchronisations sont une source d'erreurs fréquente, et ça empire avec le nombre de ressources partagées. Les erreurs à surveiller :</p>
+    <ul>
+      <li>se servir d'une ressource après l'avoir libérée ;</li>
+      <li>libérer une ressource sans l'avoir réservée ;</li>
+      <li>se servir d'une ressource sans l'avoir réservée ;</li>
+      <li>garder une ressource trop longtemps : les autres attendent pour rien ;</li>
+      <li>oublier de libérer une ressource : les autres attendent pour toujours.</li>
+    </ul>
+    <div class="astuce">
+      <p>Pour ne pas oublier de libérer, on écrit souvent <code>defer verrou.Unlock()</code> juste après <code>verrou.Lock()</code> : le verrou est rendu automatiquement à la fin de la fonction.</p>
+    </div>
+  </section>
+
+  <!-- 7. INTERBLOCAGE -->
+  <section class="loi-card">
+    <h2>7. L'interblocage (deadlock)</h2>
+    <p>Il y a <span class="terme" data-def="deadlock" tabindex="0">interblocage</span> quand tous les fils d'exécution sont bloqués en même temps : le programme ne peut plus avancer et n'a aucune chance de se débloquer.</p>
+    <p>Le risque apparaît surtout quand plusieurs mécanismes de synchronisation sont utilisés ensemble :</p>
+    <ul>
+      <li>plusieurs ressources partagées, chacune protégée par son propre verrou ;</li>
+      <li>une ressource partagée et une lecture dans un canal ;</li>
+      <li>une ressource partagée et l'attente d'un évènement.</li>
+    </ul>
+    <p>Exemple avec deux verrous pris dans un ordre différent :</p>
+<pre><code class="language-go">var v1, v2 sync.Mutex
+
+func f(premier, second *sync.Mutex, nom string, wg *sync.WaitGroup) {
+	premier.Lock()
+	time.Sleep(10 * time.Millisecond)
+	second.Lock()
+	fmt.Println(nom, "a les deux verrous")
+	second.Unlock()
+	premier.Unlock()
+	wg.Done()
+}
+
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go f(&amp;v1, &amp;v2, "A", &amp;wg) // A prend v1, puis veut v2
+	go f(&amp;v2, &amp;v1, "B", &amp;wg) // B prend v2, puis veut v1
+	wg.Wait()
+}</code></pre>
+    <p>A attend que B rende <code>v2</code>, et B attend que A rende <code>v1</code>. Personne ne rend rien. Go s'en aperçoit et arrête le programme :</p>
+<pre><code class="language-text">fatal error: all goroutines are asleep - deadlock!</code></pre>
+    <div class="a-retenir">
+      <p>Si tous les fils prennent les verrous dans le même ordre (toujours <code>v1</code> avant <code>v2</code>), cet interblocage ne peut pas arriver.</p>
+    </div>
+  </section>
+
+  <!-- 8. MAP -->
+  <section class="loi-card">
+    <h2>8. Et les <code>map</code> de Go ?</h2>
+    <p>Une <code>map</code> Go n'est pas protégée contre les accès concurrents. Deux goroutines qui écrivent dedans en même temps, sans verrou :</p>
+<pre><code class="language-go">m := make(map[int]int)
+for g := 0; g &lt; 2; g++ {
+	go func() {
+		for i := 0; i &lt; 100000; i++ {
+			m[i] = i
+		}
+	}()
+}</code></pre>
+    <p>Cette fois, Go repère l'écriture simultanée et arrête le programme :</p>
+<pre><code class="language-text">fatal error: concurrent map writes</code></pre>
+    <p>Comme pour les variables, il faut protéger les accès à la <code>map</code> avec un <code>sync.Mutex</code>.</p>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Problème</th><th>Ce qui se passe</th><th>Solution</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Accès concurrents (race condition)</td><td>Plusieurs fils accèdent à la même variable, dont au moins un en écriture : le résultat dépend de l'ordre.</td><td>Exclusion mutuelle sur la section critique</td></tr>
+          <tr><td>Drapeau non atomique</td><td>Deux fils lisent « libre » en même temps et entrent ensemble.</td><td>Opération atomique (<code>CompareAndSwap</code>)</td></tr>
+          <tr><td>Famine</td><td>Un fil demande l'accès et ne l'obtient jamais.</td><td>File d'attente servie dans l'ordre : sémaphore</td></tr>
+          <tr><td>Interblocage</td><td>Tous les fils s'attendent mutuellement.</td><td>Prendre les verrous toujours dans le même ordre</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="a-retenir">
+      <p>En Go : <code>sync.Mutex</code> avec <code>Lock()</code> / <code>Unlock()</code> autour de la section critique, et <code>go run -race</code> pour vérifier.</p>
+    </div>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-race" class="def-bloc">
+      <h3>Accès concurrents (race condition)</h3>
+      <p>Plusieurs fils d'exécution accèdent à la même variable en même temps, et au moins un l'écrit. Le résultat dépend alors de l'ordre, qu'on ne contrôle pas.</p>
+    </div>
+
+    <div id="def-atomique" class="def-bloc">
+      <h3>Opération atomique</h3>
+      <p>Une opération qui se fait d'un seul bloc : aucun autre fil ne peut passer au milieu.</p>
+      <ul>
+        <li><code>a, b = b, a</code> n'est pas atomique : c'est plusieurs lectures et écritures.</li>
+      </ul>
+    </div>
+
+    <div id="def-section-critique" class="def-bloc">
+      <h3>Section critique</h3>
+      <p>Le morceau de code qui touche à une ressource partagée. Un seul fil à la fois doit pouvoir s'y trouver.</p>
+    </div>
+
+    <div id="def-exclusion-mutuelle" class="def-bloc">
+      <h3>Exclusion mutuelle</h3>
+      <p>Garantir qu'un seul fil d'exécution à la fois est dans la section critique. Les autres attendent leur tour.</p>
+    </div>
+
+    <div id="def-famine" class="def-bloc">
+      <h3>Famine (starvation)</h3>
+      <p>Un fil demande l'accès à une ressource et ne l'obtient jamais, parce que d'autres passent toujours avant lui.</p>
+    </div>
+
+    <div id="def-semaphore" class="def-bloc">
+      <h3>Sémaphore</h3>
+      <p>Un compteur et une file d'attente. P réserve (et met en attente s'il n'y a plus de place), V libère (et réveille le premier de la file).</p>
+    </div>
+
+    <div id="def-deadlock" class="def-bloc">
+      <h3>Interblocage (deadlock)</h3>
+      <p>Tous les fils d'exécution sont bloqués en même temps, chacun attend un autre : le programme ne peut plus avancer.</p>
+    </div>
+  </div>
+
+  <script>
+    // Infobulles : survol à la souris, toucher sur téléphone, focus au clavier
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    function placer(x, y) {
+      const decalage = 15;
+      let gauche = x + decalage;
+      if (gauche + tooltip.offsetWidth > window.scrollX + window.innerWidth - 20) {
+        gauche = x - tooltip.offsetWidth - decalage;
+      }
+      if (gauche < window.scrollX + 10) gauche = window.scrollX + 10;
+      tooltip.style.left = gauche + 'px';
+      tooltip.style.top = (y + decalage) + 'px';
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+
+      terme.addEventListener('mouseenter', () => { if (!tactile.matches) afficher(cle); });
+      terme.addEventListener('mousemove', (e) => { if (!tactile.matches) placer(e.pageX, e.pageY); });
+      terme.addEventListener('mouseleave', () => { if (!tactile.matches) masquer(); });
+
+      terme.addEventListener('focus', () => {
+        afficher(cle);
+        if (!tactile.matches) {
+          const r = terme.getBoundingClientRect();
+          placer(r.left + window.scrollX, r.bottom + window.scrollY);
+        }
+      });
+      terme.addEventListener('blur', masquer);
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) { masquer(); return; }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => { if (tactile.matches) masquer(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') masquer(); });
+  </script>
+
+</body>
+</html>

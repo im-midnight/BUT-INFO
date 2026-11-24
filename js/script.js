@@ -36,7 +36,7 @@ const matieres = [
   {
     id: "prog-systeme",
     titre: "R305 - Programmation système",
-    description: "Rien n'a encore été ajouté.",
+    description: "Processus et goroutines, ordonnancement, accès concurrents et verrous.",
     lien: "pages/progSysteme/indexProgSysteme.html",
     semestre: "S3",
   },
@@ -172,6 +172,41 @@ const pages = [
       "DAO + Entrepôt : les fruits (TP8)", "Fabrique + Composite + Stratégie : tarification des vols (TP7)",
       "Composite : recettes de cocktails (TP7)", "Stratégie + Itérateur : tables de hachage (TP9)",
       "Itérateur : deux implémentations de File (TP1)", "Synthèse",
+    ],
+  },
+
+  // R305
+  {
+    titre: "Processus, threads et goroutines",
+    lien: "pages/progSysteme/processus.html",
+    matiere: "prog-systeme",
+    type: "Cours",
+    sections: [
+      "Séquentiel ou concurrent", "Concurrence ou parallélisme ?", "Le processus",
+      "L'organisation des processus", "Les threads", "Les goroutines",
+      "Comment Go répartit les goroutines", "Synthèse",
+    ],
+  },
+  {
+    titre: "Ordonnancement",
+    lien: "pages/progSysteme/ordonnancement.html",
+    matiere: "prog-systeme",
+    type: "Cours",
+    sections: [
+      "Le principe", "Les familles d'algorithmes", "Premier arrivé, premier servi (FCFS)",
+      "Le plus court d'abord (SJF)", "Le plus court temps restant (SRT)", "Le tourniquet (Round Robin)",
+      "Les priorités statiques", "Synthèse",
+    ],
+  },
+  {
+    titre: "Accès concurrents et blocages",
+    lien: "pages/progSysteme/concurrence.html",
+    matiere: "prog-systeme",
+    type: "Cours",
+    sections: [
+      "Deux goroutines, deux variables", "Les entrelacements", "Section critique et exclusion mutuelle",
+      "La famine", "Les sémaphores", "Les erreurs classiques avec les verrous",
+      "L'interblocage (deadlock)", "Et les map de Go ?", "Synthèse",
     ],
   },
 

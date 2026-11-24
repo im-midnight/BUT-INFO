@@ -255,7 +255,18 @@ const ButInfo = (() => {
       "import in is lambda None nonlocal not or pass raise return True try while with yield self").split(" ")
   );
 
+  const MOTS_GO = new Set(
+    ("break case chan const continue default defer else fallthrough for func go goto if import interface map " +
+      "package range return select struct switch type var true false nil iota").split(" ")
+  );
+
   const REGLES = {
+    go: [
+      ["sx-commentaire", /\/\/[^\n]*|\/\*[\s\S]*?\*\//y],
+      ["sx-chaine", /"(?:\\.|[^"\\\n])*"|`[^`]*`|'(?:\\.|[^'\\\n])+'/y],
+      ["sx-nombre", /\b\d[\d_]*(?:\.\d+)?\b/y],
+      ["mot", /[A-Za-z_]\w*/y],
+    ],
     java: [
       ["sx-commentaire", /\/\/[^\n]*|\/\*[\s\S]*?\*\//y],
       ["sx-chaine", /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])'/y],
@@ -282,12 +293,14 @@ const ButInfo = (() => {
     const force = pre.dataset.lang || (pre.querySelector("code[class*='language-']") || {}).className;
     if (force) {
       if (/py/.test(force)) return "python";
+      if (/\bgo(lang)?\b|language-go/.test(force)) return "go";
       if (/html|jsp|xml/.test(force)) return "balises";
       if (/aucun|none|text/.test(force)) return null;
       return "java";
     }
     if (/[├└│]/.test(texte)) return null;
     if (/^\s*</.test(texte) || /<%/.test(texte)) return "balises";
+    if (/^\s*package \w+\s*$/m.test(texte) || /^\s*func \w*\(/m.test(texte) || /\bgo \w+\(/.test(texte)) return "go";
     if (/^\s*(def|class) \w+.*:\s*$/m.test(texte) || /^\s*(import|from) \w+/m.test(texte) && !/;\s*$/m.test(texte)) return "python";
     if (/^\s*#/m.test(texte) && !/[{};]/.test(texte)) return "python";
     if (/^\s*(for|while|if) .*:\s*$/m.test(texte) && !/[{}]/.test(texte)) return "python";
@@ -297,7 +310,7 @@ const ButInfo = (() => {
   // Découpe le texte en morceaux colorés : [[début, fin, classe], …]
   function decouper(texte, lang) {
     const regles = REGLES[lang];
-    const mots = lang === "python" ? MOTS_PYTHON : MOTS_JAVA;
+    const mots = lang === "python" ? MOTS_PYTHON : lang === "go" ? MOTS_GO : MOTS_JAVA;
     const morceaux = [];
     let i = 0;
     while (i < texte.length) {
@@ -312,7 +325,7 @@ const ButInfo = (() => {
           const avant = texte.slice(Math.max(0, i - 6), i);
           if (mots.has(m[0])) c = "sx-mot";
           else if (/^[A-Z]/.test(m[0])) c = "sx-type";
-          else if (suite || /(def|fun)\s+$/.test(avant)) c = "sx-fonction";
+          else if (suite || /(def|fun|func)\s+$/.test(avant)) c = "sx-fonction";
           else c = null;
         }
         if (c) morceaux.push([i, i + m[0].length, c]);

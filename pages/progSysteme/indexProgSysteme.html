@@ -5,14 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Programmation système (R305) | BUT Info Nantes</title>
-  <meta name="description" content="Pas encore de cours de programmation système (R305) sur le site.">
+  <meta name="description" content="Les fiches de R305 : processus, threads et goroutines, algorithmes d'ordonnancement, accès concurrents, verrous et interblocages en Go.">
   <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/progSysteme/indexProgSysteme.html">
-  <meta name="robots" content="noindex">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BUT INFO2">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:title" content="Programmation système (R305)">
-  <meta property="og:description" content="Pas encore de cours de programmation système (R305) sur le site.">
+  <meta property="og:description" content="Les fiches de R305 : processus, threads et goroutines, algorithmes d'ordonnancement, accès concurrents, verrous et interblocages en Go.">
   <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/progSysteme/indexProgSysteme.html">
   <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/img/partage.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -33,14 +32,44 @@
 <body>
 
   <h1>R305 - Programmation système</h1>
+  <p class="subtitle">Sélectionne la ressource de ton choix ci-dessous.</p>
 
-  <!-- Quand un cours est prêt : remplacer ce bloc par une <div class="menu-container">
-       avec une <section class="menu-card"> par ressource (voir pages/web/indexWeb.html). -->
-  <div class="page-vide">
-    <h2>Rien n'a encore été ajouté</h2>
-    <p>Pas encore de cours pour cette matière. On les ajoute dès qu'ils sont prêts.</p>
-    <a href="../../index.html" class="btn-lien">Retour à l'accueil</a>
+  <div class="menu-container">
+    <section class="menu-card">
+      <div>
+        <h2>Processus, threads et goroutines</h2>
+      </div>
+      <a href="processus.html" class="btn-lien">Accéder</a>
+    </section>
+
+    <section class="menu-card">
+      <div>
+        <h2>Ordonnancement</h2>
+      </div>
+      <a href="ordonnancement.html" class="btn-lien">Accéder</a>
+    </section>
+
+    <section class="menu-card">
+      <div>
+        <h2>Accès concurrents et blocages</h2>
+      </div>
+      <a href="concurrence.html" class="btn-lien">Accéder</a>
+    </section>
   </div>
+
+  <section class="loi-card">
+    <h2>Le module</h2>
+    <p>On n'y programme pas de système d'exploitation : on travaille sur la concurrence, une notion centrale dans les systèmes, en programmant en Go puis en Kotlin. Les notions vues se transposent directement à la programmation des systèmes d'exploitation.</p>
+    <ul>
+      <li><strong>Cours :</strong> 3 séances sur les notions de base de la concurrence.</li>
+      <li><strong>TD :</strong> 5 séances en salle machine, pour pratiquer.</li>
+      <li><strong>Projet :</strong> 5 semaines de programmation concurrente, avec 1 à 2 séances par semaine.</li>
+    </ul>
+    <div class="a-retenir">
+      <p>Évaluation en semaine 51 : un test machine sur tout le contenu (cours, TD et projet), plus l'évaluation du projet.</p>
+    </div>
+    <p>Les notions sont souvent nouvelles et pas évidentes au début : le mieux est de pratiquer en TD et de ne pas faire le projet au dernier moment.</p>
+  </section>
 
 </body>
 </html>

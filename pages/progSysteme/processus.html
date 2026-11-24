@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Processus, threads et goroutines (R305) | BUT Info Nantes</title>
+  <meta name="description" content="Concurrence et parallélisme, processus et changement de contexte, PID et commandes ps, top, kill, threads, puis les goroutines de Go avec des exemples.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/progSysteme/processus.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Processus, threads et goroutines (R305)">
+  <meta property="og:description" content="Concurrence et parallélisme, processus et changement de contexte, PID et commandes ps, top, kill, threads, puis les goroutines de Go avec des exemples.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/progSysteme/processus.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../img/apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+
+  <link rel="stylesheet" href="../../css/themes.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/site.js"></script>
+  <script src="../../js/script.js" defer></script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R305 - Programmation système", "item": "https://butinfo-iutnantes.vercel.app/pages/progSysteme/indexProgSysteme.html"}, {"@type": "ListItem", "position": 3, "name": "Processus, threads et goroutines", "item": "https://butinfo-iutnantes.vercel.app/pages/progSysteme/processus.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>Processus, threads et goroutines</h1>
+  <p class="consigne">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="concurrence" tabindex="0">termes soulignés en pointillé</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. CONCURRENCE -->
+  <section class="loi-card">
+    <h2>1. Séquentiel ou concurrent</h2>
+    <p>On regarde un ensemble d'évènements, par exemple les instructions <code>a</code>, <code>b</code>, <code>c</code> et <code>d</code>.</p>
+    <ul>
+      <li><strong>Séquentiel :</strong> les évènements arrivent toujours dans le même ordre. À chaque exécution, on a <code>a b c d</code>.</li>
+      <li><strong><span class="terme" data-def="concurrence" tabindex="0">Concurrent</span> :</strong> certains évènements peuvent arriver dans des ordres différents. Une fois on aura <code>a b c d</code>, la fois suivante <code>a c b d</code>.</li>
+    </ul>
+    <p>En programmation système, la concurrence est partout, parce que tout n'avance pas à la même vitesse :</p>
+    <ul>
+      <li>lire une donnée sur un disque dur prend quelques millisecondes, alors qu'un processeur fait quelques milliards d'opérations par seconde ;</li>
+      <li>l'utilisateur, lui, met un temps très long et imprévisible à répondre.</li>
+    </ul>
+    <p>Si on exécutait les tâches les unes après les autres, le processeur passerait son temps à attendre.</p>
+  </section>
+
+  <!-- 2. CONCURRENCE OU PARALLÉLISME -->
+  <section class="loi-card">
+    <h2>2. Concurrence ou parallélisme ?</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Notion</th><th>Ce que ça veut dire</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="terme" data-def="concurrence" tabindex="0">Concurrence</span></td><td>On ne sait pas dans quel ordre les évènements vont se dérouler.</td></tr>
+          <tr><td><span class="terme" data-def="parallelisme" tabindex="0">Parallélisme</span></td><td>Des évènements peuvent se dérouler au même moment, par exemple sur deux cœurs du processeur.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="a-retenir">
+      <p>Parallélisme ⇒ concurrence : deux évènements qui tournent en même temps sont forcément concurrents.</p>
+      <p>Concurrence ⇏ parallélisme : on peut exécuter des évènements concurrents sur un processeur à un seul cœur. Mais des évènements concurrents se parallélisent naturellement dès qu'il y a plusieurs cœurs.</p>
+    </div>
+  </section>
+
+  <!-- 3. PROCESSUS -->
+  <section class="loi-card">
+    <h2>3. Le processus</h2>
+    <p>Un <span class="terme" data-def="processus" tabindex="0">processus</span>, c'est l'ensemble des activités qui résultent de l'exécution d'un programme. On peut le voir comme une coquille autour du programme en cours d'exécution. Il lui donne deux illusions :</p>
+    <ul>
+      <li><strong>Un flot de contrôle logique :</strong> le programme croit avoir le processeur (l'UC) pour lui seul, en permanence.</li>
+      <li><strong>Un <span class="terme" data-def="espace-adressage" tabindex="0">espace d'adressage virtuel</span> :</strong> il croit avoir toute la mémoire pour lui seul.</li>
+    </ul>
+
+    <h3>Plusieurs processus en même temps</h3>
+    <p>Quand plusieurs processus sont actifs, le noyau entrelace leurs exécutions. L'utilisateur a l'impression qu'ils tournent tous en parallèle, alors que le processeur est donné à chacun par petites tranches de temps, l'un après l'autre. Deux processus actifs en même temps sont donc en concurrence pour les ressources de la machine.</p>
+
+    <h3>Le changement de contexte</h3>
+    <p>Pour passer d'un processus à l'autre, le système d'exploitation fait un <span class="terme" data-def="changement-contexte" tabindex="0">changement de contexte</span> (<em>context switch</em>) :</p>
+    <ol>
+      <li>il sauvegarde l'état du processus qu'on interrompt (on dit qu'il est <em>préempté</em>), du processeur vers la mémoire ;</li>
+      <li>il charge l'état du processus choisi (on dit qu'il est <em>élu</em>), de la mémoire vers le processeur.</li>
+    </ol>
+    <p>Ce qu'on sauvegarde s'appelle le contexte du processus : le pointeur d'instruction, les pointeurs de pile et de cadre, les registres, et quelques autres informations utiles au système. Tout ça est rangé dans une zone de la mémoire du noyau qui fait partie du <span class="terme" data-def="pcb" tabindex="0">PCB</span>.</p>
+  </section>
+
+  <!-- 4. ORGANISATION DES PROCESSUS -->
+  <section class="loi-card">
+    <h2>4. L'organisation des processus</h2>
+    <p>Chaque processus a :</p>
+    <ul>
+      <li>un <span class="terme" data-def="pid" tabindex="0">PID</span>, son numéro d'identification ;</li>
+      <li>un parent, le processus qui l'a créé ;</li>
+      <li>un état : en cours d'exécution, stoppé ou terminé.</li>
+    </ul>
+    <p>Les processus forment donc un arbre. Au démarrage, le noyau crée un premier processus, le processus d'initialisation :</p>
+    <ul>
+      <li>il porte le PID 1 ;</li>
+      <li>il ne s'arrête jamais ;</li>
+      <li>il est la racine de l'arbre des processus ;</li>
+      <li>il adopte les processus <span class="terme" data-def="orphelin" tabindex="0">orphelins</span>.</li>
+    </ul>
+
+    <h3>Les commandes à connaître</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Commande</th><th>À quoi elle sert</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>ps</code></td><td>Lister les processus.</td></tr>
+          <tr><td><code>top</code></td><td>Voir en direct les processus qui tournent, leur état et les ressources qu'ils consomment.</td></tr>
+          <tr><td><code>kill</code></td><td>Envoyer un signal à un processus, par exemple pour lui demander de s'arrêter.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. THREADS -->
+  <section class="loi-card">
+    <h2>5. Les threads</h2>
+    <h3>Pourquoi les processus ne suffisent pas</h3>
+    <ul>
+      <li><strong>Communication :</strong> deux processus ne partagent pas leur mémoire, donc les faire communiquer est lourd à mettre en place.</li>
+      <li><strong>Coût :</strong> le contexte d'un processus contient beaucoup d'informations. Créer un processus, le détruire ou passer de l'un à l'autre coûte donc cher.</li>
+      <li><strong>Gestion :</strong> le système d'exploitation doit maintenir l'arbre des parents et des enfants, ce qui rend la gestion assez rigide.</li>
+    </ul>
+
+    <h3>Le thread, un processus léger</h3>
+    <p>Un <span class="terme" data-def="thread" tabindex="0">thread</span> est un fil d'exécution séquentiel à l'intérieur d'un processus. Plusieurs threads d'un même processus sont concurrents entre eux.</p>
+    <ul>
+      <li>Ils sont ordonnancés par le noyau du système d'exploitation.</li>
+      <li>Ils partagent la mémoire du processus, mais chacun garde sa pile et ses registres.</li>
+      <li>Passer d'un thread à l'autre coûte peu.</li>
+      <li>Il n'y a pas de notion de parent ou d'enfant entre threads.</li>
+    </ul>
+  </section>
+
+  <!-- 6. GOROUTINES -->
+  <section class="loi-card">
+    <h2>6. Les goroutines</h2>
+    <p>Une <span class="terme" data-def="goroutine" tabindex="0">goroutine</span> est le fil d'exécution du langage Go. C'est un fil séquentiel, encore plus léger qu'un thread : on peut en lancer de l'ordre du million dans un seul processus, et plusieurs goroutines peuvent tourner sur un même thread.</p>
+    <ul>
+      <li>Elles partagent la mémoire du programme.</li>
+      <li>L'API est minimale : la seule chose qu'on peut faire, c'est en démarrer une, avec le mot-clé <code>go</code>.</li>
+      <li>Elles sont ordonnancées par le <span class="terme" data-def="runtime" tabindex="0">runtime Go</span>, pas directement par le noyau.</li>
+      <li>Par défaut, un programme Go en a déjà au moins deux : <code>main</code> et le ramasse-miettes.</li>
+    </ul>
+
+    <h3>Démarrer une goroutine : <code>ping-pong.go</code></h3>
+    <p>On met <code>go</code> devant l'appel de fonction. Ici <code>ping()</code> tourne dans une nouvelle goroutine pendant que <code>main</code> exécute <code>pong()</code>. Les deux attendent un temps aléatoire, donc les « ping » et les « pong » se mélangent sans ordre fixe.</p>
+<pre><code class="language-go">func ping() {
+	for {
+		fmt.Println("ping")
+		time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
+	}
+}
+
+func pong() {
+	for {
+		fmt.Println("pong")
+		time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
+	}
+}
+
+func main() {
+	go ping()
+	pong()
+}</code></pre>
+
+    <h3><code>main</code> passe avant tout le monde : <code>main.go</code></h3>
+<pre><code class="language-go">func echo() {
+	fmt.Println("hello")
+}
+
+func main() {
+	go echo()
+}</code></pre>
+    <div class="piege">
+      <p>Ce programme n'affiche rien. Quand <code>main</code> se termine, le programme s'arrête, et toutes les autres goroutines avec, même si elles n'ont pas fini. Ici, <code>main</code> lance <code>echo</code> puis s'arrête tout de suite, avant que <code>echo</code> ait eu le temps d'afficher « hello ».</p>
+    </div>
+
+    <h3>L'ordre n'est pas contrôlable : <code>schedule.go</code></h3>
+<pre><code class="language-go">func echo(s string) {
+	fmt.Println(s)
+}
+
+func main() {
+	for {
+		go echo("A")
+		go echo("B")
+		time.Sleep(250 * time.Millisecond)
+		fmt.Println("------------")
+		time.Sleep(250 * time.Millisecond)
+	}
+}</code></pre>
+    <p>On lance <code>A</code> avant <code>B</code>, et pourtant l'affichage change d'un tour à l'autre. Sur une exécution :</p>
+<pre><code class="language-text">B
+A
+------------
+B
+A
+------------
+A
+B
+------------</code></pre>
+
+    <h3>La mémoire est partagée : <code>global.go</code> et <code>local.go</code></h3>
+    <p>Une goroutine incrémente <code>x</code> une fois par seconde, et <code>main</code> l'affiche quatre fois par seconde. <code>main</code> voit bien les modifications : la variable est la même pour les deux.</p>
+<pre><code class="language-go">var x int
+
+func inc() {
+	for {
+		x++
+		time.Sleep(time.Second)
+	}
+}
+
+func main() {
+	go inc()
+	for {
+		fmt.Println(x)
+		time.Sleep(250 * time.Millisecond)
+	}
+}</code></pre>
+    <p>Avec <code>local.go</code>, c'est pareil avec une variable locale à <code>main</code> : on passe son adresse à la goroutine (<code>go inc(&amp;x)</code>), qui la modifie avec <code>(*ptrx)++</code>.</p>
+
+    <h3>On peut en lancer beaucoup : <code>many.go</code></h3>
+<pre><code class="language-go">const maxroutine = 1000000
+
+func echoID(ID int) {
+	for {
+		fmt.Println(ID)
+		time.Sleep(time.Millisecond)
+	}
+}
+
+func main() {
+	for i := 1; i &lt; maxroutine; i++ {
+		go echoID(i)
+	}
+	echoID(maxroutine)
+}</code></pre>
+    <p>Le programme lance un million de goroutines qui affichent chacune leur numéro. C'est possible parce qu'une goroutine coûte beaucoup moins cher qu'un thread.</p>
+  </section>
+
+  <!-- 7. ORDONNANCEMENT DES GOROUTINES -->
+  <section class="loi-card">
+    <h2>7. Comment Go répartit les goroutines</h2>
+    <p>Go utilise un modèle M:P:N, avec en général N &gt; M &gt; P :</p>
+    <ul>
+      <li><strong>N</strong> goroutines,</li>
+      <li><strong>M</strong> threads,</li>
+      <li><strong>P</strong> processeurs.</li>
+    </ul>
+    <p>Pour s'exécuter, une goroutine est placée sur un thread, lui-même placé sur un processeur. Pour choisir quelle goroutine exécuter :</p>
+    <ul>
+      <li>chaque processeur a sa file d'attente ;</li>
+      <li>certains moments permettent de changer de goroutine, notamment les appels de fonctions ;</li>
+      <li>le runtime peut aussi interrompre une goroutine (préemption) pour que chacune ait son tour.</li>
+    </ul>
+
+    <h3>Pourquoi plus de threads que de processeurs ?</h3>
+    <p>Imaginons qu'il y ait exactement autant de threads que de processeurs (M = P) :</p>
+    <ol>
+      <li>pendant un appel système, un thread et sa goroutine peuvent rester bloqués dans le noyau ;</li>
+      <li>le runtime Go ne voit pas ce qui se passe dans le noyau, donc il ne sait pas si c'est bloqué ou juste long ;</li>
+      <li>si tous les threads sont bloqués comme ça, le programme est arrêté au moins un moment, et le processeur ne sert à rien ;</li>
+      <li>pire : si ces goroutines attendent une autre goroutine qui n'a plus de thread libre pour s'exécuter, le programme est bloqué pour de bon. C'est un <span class="terme" data-def="deadlock" tabindex="0">interblocage</span>.</li>
+    </ol>
+    <div class="a-retenir">
+      <p>Pour éviter ça, le runtime Go a le droit de créer de nouveaux threads pendant les appels système. D'où M &gt; P.</p>
+    </div>
+  </section>
+
+  <!-- SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>Synthèse</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th></th><th>Processus</th><th>Thread</th><th>Goroutine</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mémoire</td><td>À lui seul</td><td>Partagée avec les threads du processus (pile et registres privés)</td><td>Partagée avec les goroutines du programme</td></tr>
+          <tr><td>Qui l'ordonnance</td><td>Le noyau</td><td>Le noyau</td><td>Le runtime Go</td></tr>
+          <tr><td>Coût d'un changement</td><td>Élevé (gros contexte)</td><td>Faible</td><td>Très faible</td></tr>
+          <tr><td>Parent / enfants</td><td>Oui (arbre, PID 1 à la racine)</td><td>Non</td><td>Non</td></tr>
+          <tr><td>Combien on peut en avoir</td><td>Peu</td><td>Plus</td><td>De l'ordre du million par processus</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS -->
+  <div id="tooltip">
+    <div id="def-concurrence" class="def-bloc">
+      <h3>Concurrence</h3>
+      <p>Des évènements sont concurrents quand on ne peut pas savoir à l'avance dans quel ordre ils vont se produire.</p>
+    </div>
+
+    <div id="def-parallelisme" class="def-bloc">
+      <h3>Parallélisme</h3>
+      <p>Des évènements sont parallèles quand ils se déroulent vraiment au même moment, par exemple sur deux cœurs différents.</p>
+    </div>
+
+    <div id="def-processus" class="def-bloc">
+      <h3>Processus</h3>
+      <p>Un programme en cours d'exécution, avec sa mémoire à lui et son propre flot d'instructions.</p>
+      <ul>
+        <li>Lancer deux fois le même programme crée deux processus différents.</li>
+      </ul>
+    </div>
+
+    <div id="def-espace-adressage" class="def-bloc">
+      <h3>Espace d'adressage virtuel</h3>
+      <p>La mémoire telle que la voit un processus. Elle semble lui appartenir entièrement, alors que la mémoire physique est partagée avec les autres processus.</p>
+    </div>
+
+    <div id="def-changement-contexte" class="def-bloc">
+      <h3>Changement de contexte</h3>
+      <p>Le moment où le système arrête un processus pour en lancer un autre : il sauvegarde l'état du premier et recharge celui du second.</p>
+      <ul>
+        <li>C'est ce qui donne l'impression que tout tourne en même temps.</li>
+      </ul>
+    </div>
+
+    <div id="def-pcb" class="def-bloc">
+      <h3>PCB (Process Control Block)</h3>
+      <p>La fiche que le noyau garde sur chaque processus : son contexte (registres, pointeurs), son PID, son état, etc.</p>
+    </div>
+
+    <div id="def-pid" class="def-bloc">
+      <h3>PID (Process IDentifier)</h3>
+      <p>Le numéro qui identifie un processus. C'est lui qu'on donne à <code>kill</code> pour viser un processus précis.</p>
+    </div>
+
+    <div id="def-orphelin" class="def-bloc">
+      <h3>Processus orphelin</h3>
+      <p>Un processus dont le parent s'est terminé avant lui. Le processus de PID 1 devient alors son nouveau parent.</p>
+    </div>
+
+    <div id="def-thread" class="def-bloc">
+      <h3>Thread (processus léger)</h3>
+      <p>Un fil d'exécution à l'intérieur d'un processus. Les threads d'un même processus partagent sa mémoire, mais chacun a sa pile et ses registres.</p>
+    </div>
+
+    <div id="def-goroutine" class="def-bloc">
+      <h3>Goroutine</h3>
+      <p>Le fil d'exécution de Go. On en démarre une en écrivant <code>go</code> devant un appel de fonction.</p>
+      <ul>
+        <li>Plusieurs goroutines peuvent partager un même thread.</li>
+      </ul>
+    </div>
+
+    <div id="def-runtime" class="def-bloc">
+      <h3>Runtime Go</h3>
+      <p>Le code fourni par Go et inclus dans chaque programme compilé. Il gère entre autres l'ordonnancement des goroutines et le ramasse-miettes.</p>
+    </div>
+
+    <div id="def-deadlock" class="def-bloc">
+      <h3>Interblocage (deadlock)</h3>
+      <p>Tous les fils d'exécution sont bloqués en même temps, chacun attend un autre : le programme ne peut plus avancer.</p>
+    </div>
+  </div>
+
+  <script>
+    // Infobulles : survol à la souris, toucher sur téléphone, focus au clavier
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    function placer(x, y) {
+      const decalage = 15;
+      let gauche = x + decalage;
+      if (gauche + tooltip.offsetWidth > window.scrollX + window.innerWidth - 20) {
+        gauche = x - tooltip.offsetWidth - decalage;
+      }
+      if (gauche < window.scrollX + 10) gauche = window.scrollX + 10;
+      tooltip.style.left = gauche + 'px';
+      tooltip.style.top = (y + decalage) + 'px';
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+
+      terme.addEventListener('mouseenter', () => { if (!tactile.matches) afficher(cle); });
+      terme.addEventListener('mousemove', (e) => { if (!tactile.matches) placer(e.pageX, e.pageY); });
+      terme.addEventListener('mouseleave', () => { if (!tactile.matches) masquer(); });
+
+      terme.addEventListener('focus', () => {
+        afficher(cle);
+        if (!tactile.matches) {
+          const r = terme.getBoundingClientRect();
+          placer(r.left + window.scrollX, r.bottom + window.scrollY);
+        }
+      });
+      terme.addEventListener('blur', masquer);
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) { masquer(); return; }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => { if (tactile.matches) masquer(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') masquer(); });
+  </script>
+
+</body>
+</html>
