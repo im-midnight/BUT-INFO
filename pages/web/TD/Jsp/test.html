@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TD JSP : balises et objets implicites (R301) | BUT Info Nantes</title>
+  <meta name="description" content="Les balises d'une page JSP et les neuf objets implicites utilisables dans les scriptlets, de request et session jusqu'à pageContext.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/web/TD/Jsp/td-jsp.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="TD JSP : balises et objets implicites (R301)">
+  <meta property="og:description" content="Les balises d'une page JSP et les neuf objets implicites utilisables dans les scriptlets, de request et session jusqu'à pageContext.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/web/TD/Jsp/td-jsp.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../../../assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../../../assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../../../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../../../../assets/site.webmanifest">
+
+  <link rel="stylesheet" href="../../../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../../../assets/css/style.css">
+  <script src="../../../../assets/js/site.js"></script>
+  <script src="../../../../assets/js/script.js" defer></script>
+  <style>
+    /* Spécifique à cette page */
+    .chemin { background:var(--survol); padding:.1em .35em; border-radius:3px; font-size:.9rem; }
+    table { width:100%; border-collapse:collapse; background:var(--surface); }
+    th, td { border:1px solid var(--bordure-forte); padding:.75rem 1rem; text-align:left; vertical-align:top; }
+    th { background-color:var(--surface-2); }
+    td code { font-size:.85rem; overflow-wrap:anywhere; }
+    tr.categorie td { background-color:var(--survol); color:var(--primaire-fonce); font-weight:700; padding:.5rem 1rem; }
+  </style>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R301 - Développement web", "item": "https://butinfo-iutnantes.vercel.app/pages/web/indexWeb.html"}, {"@type": "ListItem", "position": 3, "name": "TD", "item": "https://butinfo-iutnantes.vercel.app/pages/web/TD/td.html"}, {"@type": "ListItem", "position": 4, "name": "Les JSP", "item": "https://butinfo-iutnantes.vercel.app/pages/web/TD/Jsp/td-jsp.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>Chapitre 3 : les JSP</h1>
+  <p class="consigne">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme">termes soulignés en pointillé</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. TABLEAU DES BALISES -->
+  <section class="loi-card">
+    <h2>1. Toutes les balises d'une page JSP</h2>
+    <ul>
+      <li><strong>Principe :</strong> une <span class="terme" data-def="jsp">JSP</span> est une page HTML dans laquelle on glisse des balises spéciales. À la première requête, le <span class="terme" data-def="conteneur">conteneur</span> la transforme en <strong>servlet</strong> (puis la compile), et c'est cette servlet qui répond ensuite.</li>
+      <li><strong>Les familles :</strong> éléments de script (<code>&lt;% %&gt;</code>), directives (<code>&lt;%@ %&gt;</code>), actions standard (<code>&lt;jsp:... /&gt;</code>), <span class="terme" data-def="el">EL</span> (<code>${ }</code>) et <span class="terme" data-def="jstl">JSTL</span> (<code>&lt;c:... &gt;</code>).</li>
+    </ul>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Balise</th><th>Nom</th><th>À quoi ça sert</th><th>Exemple</th></tr>
+        </thead>
+        <tbody>
+
+          <tr class="categorie"><td colspan="4">Éléments de script</td></tr>
+          <tr>
+            <td><code>&lt;% ... %&gt;</code></td>
+            <td><strong>Scriptlet</strong></td>
+            <td>Code Java exécuté à <mark>chaque requête</mark> (placé dans <code>_jspService()</code> de la servlet générée). Les variables déclarées ici sont locales à la requête.</td>
+            <td><code>&lt;% int n = 5; %&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>&lt;%! ... %&gt;</code></td>
+            <td><strong>Déclaration</strong></td>
+            <td>Déclare une variable d'instance ou une méthode, au niveau de la <strong>classe</strong>. Une variable déclarée ainsi est <mark>partagée entre tous les utilisateurs</mark>.</td>
+            <td><code>&lt;%! private int compteur = 0; %&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>&lt;%= ... %&gt;</code></td>
+            <td><strong>Expression</strong></td>
+            <td>Évalue une expression Java et affiche le résultat dans la page. Équivaut à <code>out.print(...)</code>, sans point-virgule.</td>
+            <td><code>&lt;%= compteur %&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>&lt;%-- ... --%&gt;</code></td>
+            <td><strong>Commentaire JSP</strong></td>
+            <td>Supprimé côté serveur, donc invisible dans le HTML reçu (contrairement à <code>&lt;!-- --&gt;</code>).</td>
+            <td><code>&lt;%-- à corriger --%&gt;</code></td>
+          </tr>
+
+          <tr class="categorie"><td colspan="4">Directives (lues à la compilation de la page)</td></tr>
+          <tr>
+            <td><code>&lt;%@ page ... %&gt;</code></td>
+            <td><strong>Directive page</strong></td>
+            <td>Configure la page : <code>import</code>, <code>contentType</code>, <code>pageEncoding</code>, <code>errorPage</code>, <code>isErrorPage</code>, <code>session</code>, <code>isELIgnored</code>...</td>
+            <td><code>&lt;%@ page import="java.util.List" contentType="text/html;charset=UTF-8" %&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>&lt;%@ include file="..." %&gt;</code></td>
+            <td><strong>Inclusion statique</strong></td>
+            <td>Insère le contenu d'un fichier <mark>à la compilation</mark>, avant la génération de la servlet.</td>
+            <td><code>&lt;%@ include file="header.jsp" %&gt;</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-bottom:0"><strong>Note :</strong> l'URI de la JSTL core est <code>jakarta.tags.core</code> avec Tomcat 10 et plus, et <code>http://java.sun.com/jsp/jstl/core</code> avec les anciennes versions (Java EE).</p>
+  </section>
+
+  <!-- 2. OBJETS IMPLICITES -->
+  <section class="loi-card">
+    <h2>2. Les objets implicites utilisables dans les scriptlets</h2>
+    <ul>
+      <li><strong>Principe :</strong> ces objets existent déjà dans la servlet générée, on les utilise directement sans les déclarer (ce sont les mêmes que ceux manipulés dans les servlets du chapitre 2).</li>
+    </ul>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Objet</th><th>Type</th><th>À quoi ça sert</th><th>Exemple</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>request</code></td><td><code>HttpServletRequest</code></td><td>La requête : paramètres, headers, attributs de requête.</td><td><code>request.getParameter("nom")</code></td></tr>
+          <tr><td><code>response</code></td><td><code>HttpServletResponse</code></td><td>La réponse : redirection, cookies, headers.</td><td><code>response.sendRedirect("login.jsp")</code></td></tr>
+          <tr><td><code>session</code></td><td><code>HttpSession</code></td><td>La session de l'utilisateur.</td><td><code>session.setAttribute("user", u)</code></td></tr>
+          <tr><td><code>application</code></td><td><code>ServletContext</code></td><td>Données partagées par toute l'application.</td><td><code>application.getAttribute("compteur")</code></td></tr>
+          <tr><td><code>out</code></td><td><code>JspWriter</code></td><td>Écrit dans la réponse (comme le <code>PrintWriter</code> d'une servlet).</td><td><code>out.println("Salut")</code></td></tr>
+          <tr><td><code>config</code></td><td><code>ServletConfig</code></td><td>Paramètres d'initialisation de la page.</td><td><code>config.getInitParameter("type")</code></td></tr>
+          <tr><td><code>pageContext</code></td><td><code>PageContext</code></td><td>Accès à tous les scopes et aux autres objets implicites.</td><td><code>pageContext.getAttribute("x")</code></td></tr>
+          <tr><td><code>page</code></td><td><code>Object</code></td><td>La servlet générée elle-même (équivalent de <code>this</code>), rarement utilisé.</td><td><code>&lt;%= page.getClass().getName() %&gt;</code></td></tr>
+          <tr><td><code>exception</code></td><td><code>Throwable</code></td><td>L'erreur reçue, disponible <mark>uniquement</mark> si <code>isErrorPage="true"</code>.</td><td><code>&lt;%= exception.getMessage() %&gt;</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. RÉPONSES AUX QUESTIONS DE LA PARTIE 3 (JSP) -->
+  <section class="loi-card">
+    <h2>3. Les bases — Exercices et corrigés (Partie 3.1)</h2>
+
+    <!-- Arborescence du projet -->
+    <h3>Arborescence des fichiers utilisés (<code>src/main</code>)</h3>
+    <pre><code>src/main/
+├── java/
+│   ├── iut/nantes/session/mvcAuthenticate/
+│   │   └── AuthenticateMvc.java          (3.1.5 - Contrôleur d'authentification MVC)
+│   └── products/
+│       ├── controller/
+│       │   └── ProductController.java      (3.1.3 &amp; 3.1.4 - Contrôleur Produits MVC)
+│       └── dao/
+│           ├── Product.java                (3.1.2, 3.1.3 &amp; 3.1.4 - Modèle Produit)
+│           └── optional/
+│               ├── Dao.java                (3.1.3 &amp; 3.1.4 - Interface DAO)
+│               └── ProductMemoryDao.java   (3.1.3 &amp; 3.1.4 - DAO en mémoire)
+└── webapp/
+    ├── css/
+    │   └── afficherProduit.css             (Feuille de style des tableaux produits)
+    └── JSP/
+        ├── HelloWorld/
+        │   └── helloWorld.jsp              (3.1.1 - Premier exemple JSP)
+        ├── Products/
+        │   ├── afficherProduitsJSP.jsp     (3.1.2 - Liste produits sans MVC)
+        │   └── productsMVC.jsp             (3.1.3 &amp; 3.1.4 - Vue produits MVC + quantités)
+        └── Session/
+            ├── sessionLogin.jsp            (3.1.5 - Formulaire de connexion avec cookie)
+            └── sessionPrivate.jsp          (3.1.5 - Page privée affichant la session)</code></pre>
+
+    <!-- 3.1.1 -->
+    <h3>3.1.1. HelloWorld</h3>
+    <p><strong>Fichier :</strong> <span class="chemin">webapp/JSP/HelloWorld/helloWorld.jsp</span></p>
+    <ul>
+      <li><code>&lt;%@ ... %&gt;</code> : <strong>directive JSP</strong> qui donne des instructions au conteneur web lors de la traduction/compilation de la page JSP en servlet.</li>
+      <li><code>&lt;%@ page ... %&gt;</code> : <strong>directive de page</strong> permettant de configurer les propriétés globales de la JSP (type MIME de la réponse avec <code>contentType</code>, encodage avec <code>pageEncoding</code>, importation de classes Java avec <code>import</code>, etc.).</li>
+      <li><code>&lt;%! ... %&gt;</code> : <strong>déclaration JSP</strong> permettant de déclarer des attributs (variables d'instance) ou des méthodes directement au niveau de la classe de la servlet générée (en dehors de <code>_jspService()</code>).</li>
+      <li><code>&lt;% ... %&gt;</code> : <strong>scriptlet JSP</strong> contenant des instructions Java exécutées à chaque requête HTTP au sein de la méthode <code>_jspService()</code>.</li>
+      <li><code>&lt;%= ... %&gt;</code> : <strong>expression JSP</strong> qui évalue une expression Java et insère directement sa valeur convertie en chaîne de caractères dans le flux de sortie HTML (équivalent à <code>out.print(...)</code>, sans point-virgule final).</li>
+      <li><code>out</code> : <strong>objet implicite</strong> de type <code>jakarta.servlet.jsp.JspWriter</code> permettant d'écrire du contenu textuel dans le flux de réponse envoyé au navigateur (équivalent au <code>PrintWriter</code> dans une servlet classique).</li>
+    </ul>
+
+    <pre><code>&lt;%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Hello World JSP&lt;/title&gt;
+&lt;/head&gt;
+&lt;%! String text = "Hello Worldddddddddddddddd!"; %&gt;
+&lt;body&gt;
+&lt;h1&gt;
+&lt;%--
+    &lt;%
+      out.println(text);
+    %&gt;
+--%&gt;
+    &lt;%
+    for(int i = 0;i &lt; 10 ; i++){
+         out.println(text);
+    }
+    %&gt;
+
+&lt;/h1&gt;
+&lt;!-- Alternative plus courte via une expression JSP --&gt;
+&lt;p&gt;&lt;%= text %&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <!-- 3.1.2 -->
+    <h3>3.1.2. Afficher un tableau de produit</h3>
+    <p><strong>Fichiers utilisés :</strong></p>
+    <ul>
+      <li>Modèle : <span class="chemin">java/products/dao/Product.java</span></li>
+      <li>Vue : <span class="chemin">webapp/JSP/Products/afficherProduitsJSP.jsp</span></li>
+    </ul>
+    <p>La page importe la classe <code>products.dao.Product</code> ainsi que <code>List</code> et <code>ArrayList</code>, instancie la liste directement dans un scriptlet et parcourt les produits avec une boucle <code>for</code> pour générer les lignes du tableau HTML.</p>
+
+    <pre><code>&lt;%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %&gt;
+&lt;%@ page import="products.dao.Product"%&gt;
+&lt;%@ page import="java.util.List" %&gt;
+&lt;%@ page import="java.util.ArrayList" %&gt;
+
+&lt;%
+  List&lt;Product&gt; products = new ArrayList&lt;&gt;();
+  products.add(new Product(1, "Ordinateur", 750.0, 10));
+  products.add(new Product(2, "Clavier", 35.0, 25));
+  products.add(new Product(3, "Souris", 20.0, 50));
+  products.add(new Product(4, "Écran", 180.0, 8));
+%&gt;
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Hello World JSP&lt;/title&gt;
+    &lt;link rel="stylesheet" href="../../css/afficherProduit.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Produits&lt;/h1&gt;
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th scope="col"&gt;Id&lt;/th&gt;
+          &lt;th scope="col"&gt;name&lt;/th&gt;
+          &lt;th scope="col"&gt;price&lt;/th&gt;
+          &lt;th scope="col"&gt;quantity&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;% for (Product product : products) { %&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;%= product.getId() %&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;%= product.getName() %&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;%= product.getPrice() %&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;%= product.getQuantity() %&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;% } %&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <!-- 3.1.3 & 3.1.4 -->
+    <h3>3.1.3 &amp; 3.1.4. Afficher un tableau de produits depuis un DAO via une servlet et gérer les quantités (MVC)</h3>
+    <p><strong>Fichiers utilisés :</strong></p>
+    <ul>
+      <li>Modèle &amp; DAO : <span class="chemin">java/products/dao/Product.java</span>, <span class="chemin">java/products/dao/optional/Dao.java</span>, <span class="chemin">java/products/dao/optional/ProductMemoryDao.java</span></li>
+      <li>Contrôleur : <span class="chemin">java/products/controller/ProductController.java</span> (mappé sur <code>/products/products_controller</code>)</li>
+      <li>Vue : <span class="chemin">webapp/JSP/Products/productsMVC.jsp</span></li>
+    </ul>
+    <ul>
+      <li><strong>Initialisation &amp; GET (3.1.3) :</strong> dans <code>init(ServletConfig config)</code>, <code>ProductController</code> peuple le <code>ProductMemoryDao</code>. Lors d'un <code>doGet</code>, il récupère <code>dao.getAll()</code>, le place dans la requête avec <code>request.setAttribute("produits", produits)</code> et effectue un <code>forward</code> vers <code>/JSP/Products/productsMVC.jsp</code>.</li>
+      <li><strong>POST &amp; Redirection (3.1.4) :</strong> chaque ligne du tableau possède deux formulaires <code>POST</code> (actions <code>add</code> et <code>subtract</code> avec un champ <code>hidden</code> pour l'<code>id</code>). Le <code>doPost</code> met à jour la quantité via le DAO puis redirige en <code>GET</code> avec <code>response.sendRedirect(request.getContextPath() + "/products/products_controller")</code>.</li>
+    </ul>
+
+    <p><strong>Contrôleur (<span class="chemin">ProductController.java</span>) :</strong></p>
+    <pre><code>package products.dao.controller;
+
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import products.dao.Product;
+import products.dao.optional.Dao;
+import products.dao.optional.ProductMemoryDao;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+@WebServlet(name = "ProductController",value = "/products/products_controller")
+public class ProductController extends HttpServlet {
+
+    private Dao&lt;Product&gt; dao = new ProductMemoryDao();
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        dao.save(new Product(1, "Ordinateur", 750.0, 10));
+        dao.save(new Product(2, "Clavier", 35.0, 25));
+        dao.save(new Product(3, "Souris", 20.0, 50));
+        dao.save(new Product(4, "Écran", 180.0, 8));
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        List&lt;Product&gt; produits = dao.getAll();
+        request.setAttribute("produits", produits);
+        request.getRequestDispatcher("/JSP/Products/productsMVC.jsp")
+                .forward(request, response);
+    }
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        int id = Integer.parseInt(request.getParameter("id"));
+        String action = request.getParameter("action");
+
+        ProductMemoryDao productDao = (ProductMemoryDao) dao;
+        Optional&lt;Product&gt; product = productDao.get(id);
+
+        if(action.equals("add")){
+            if(product.isPresent()){
+                product.get().setQuantity(product.get().getQuantity()+1);
+                productDao.save(product.get());
+            }
+        } else if (action.equals("subtract")) {
+            if(product.isPresent()){
+                int quantity = product.get().getQuantity() - 1;
+                if (quantity &gt;= 0) {
+                    product.get().setQuantity(quantity);
+                    productDao.save(product.get());
+                }
+            }
+        }
+        response.sendRedirect(
+                request.getContextPath() + "/products/products_controller"
+        );
+    }
+}</code></pre>
+
+    <p><strong>Vue (<span class="chemin">productsMVC.jsp</span>) :</strong></p>
+    <pre><code>&lt;%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %&gt;
+&lt;%@ page import="products.dao.Product"%&gt;
+&lt;%@ page import="java.util.List" %&gt;
+
+&lt;%
+    // Récupère la liste des produits transmise par le contrôleur.
+    // Le contrôleur a préalablement placé cette liste dans la requête
+    // avec request.setAttribute("products", products).
+    List&lt;Product&gt; produits = (List&lt;Product&gt;) request.getAttribute("produits");
+%&gt;
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Hello World JSP&lt;/title&gt;
+    &lt;link rel="stylesheet" href="${pageContext.request.contextPath}/css/afficherProduit.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Produits&lt;/h1&gt;
+    &lt;table&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th scope="col"&gt;Id&lt;/th&gt;
+            &lt;th scope="col"&gt;name&lt;/th&gt;
+            &lt;th scope="col"&gt;price&lt;/th&gt;
+            &lt;th scope="col"&gt;quantity&lt;/th&gt;
+            &lt;th scope="col"&gt;&lt;/th&gt;
+            &lt;th scope="col"&gt;&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;% for (Product product : produits) { %&gt;
+        &lt;tr&gt;
+            &lt;td&gt;&lt;%= product.getId() %&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;%= product.getName() %&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;%= product.getPrice() %&gt;&lt;/td&gt;
+            &lt;td&gt;&lt;%= product.getQuantity() %&gt;&lt;/td&gt;
+            &lt;td&gt;
+                &lt;form method="post"
+                      action="${pageContext.request.contextPath}/products/products_controller"&gt;
+                    &lt;input type="hidden" name="id" value="&lt;%= product.getId() %&gt;"&gt;
+                    &lt;input type="hidden" name="action" value="add"&gt;
+                    &lt;button type="submit"&gt;+&lt;/button&gt;
+                &lt;/form&gt;
+            &lt;/td&gt;
+
+            &lt;td&gt;
+                &lt;form method="post"
+                      action="${pageContext.request.contextPath}/products/products_controller"&gt;
+                    &lt;input type="hidden" name="id" value="&lt;%= product.getId() %&gt;"&gt;
+                    &lt;input type="hidden" name="action" value="subtract"&gt;
+                    &lt;button type="submit"&gt;-&lt;/button&gt;
+                &lt;/form&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;% } %&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <!-- 3.1.5 -->
+    <h3>3.1.5. Login avec cookie et session (approche MVC)</h3>
+    <p><strong>Fichiers utilisés :</strong></p>
+    <ul>
+      <li>Vue formulaire : <span class="chemin">webapp/JSP/Session/sessionLogin.jsp</span></li>
+      <li>Contrôleur : <span class="chemin">java/iut/nantes/session/mvcAuthenticate/AuthenticateMvc.java</span> (mappé sur <code>/mvcAuthenticate/session-authenticate</code>)</li>
+      <li>Vue privée : <span class="chemin">webapp/JSP/Session/sessionPrivate.jsp</span></li>
+    </ul>
+    <ul>
+      <li><strong>Pré-remplissage par cookie (<span class="chemin">sessionLogin.jsp</span>) :</strong> la JSP lit le tableau <code>request.getCookies()</code> pour retrouver le cookie nommé <code>"login"</code> et pré-remplir le champ texte <code>value</code>. Le formulaire envoie les identifiants en <code>POST</code> vers <code>/demo/mvcAuthenticate/session-authenticate</code>.</li>
+      <li><strong>Authentification (<span class="chemin">AuthenticateMvc.java</span>) :</strong> vérifie que le couple vaut <code>"JoJo"</code> / <code>"JoJo44"</code> (sinon redirection vers le <code>Referer</code> ou <code>index.jsp</code>). En cas de succès, crée le cookie <code>login</code> (durée 1h, chemin <code>/</code>), enregistre l'attribut <code>login</code> dans l'objet <code>HttpSession</code> et redirige vers <code>/demo/JSP/Session/sessionPrivate.jsp</code>.</li>
+      <li><strong>Affichage en session (<span class="chemin">sessionPrivate.jsp</span>) :</strong> lit l'attribut <code>session.getAttribute("login")</code> grâce à l'objet implicite <code>session</code> et l'affiche dans la page.</li>
+    </ul>
+
+    <p><strong>Vue formulaire (<span class="chemin">sessionLogin.jsp</span>) :</strong></p>
+    <pre><code>&lt;%@ page import="java.util.Arrays" %&gt;&lt;%--
+  Created by IntelliJ IDEA.
+  User: kev
+  Date: 11/17/2026
+  Time: 4:46 PM
+  To change this template use File | Settings | File Templates.
+--%&gt;
+&lt;%@ page contentType="text/html;charset=UTF-8" language="java" %&gt;
+
+&lt;%
+Cookie[] cookies = request.getCookies();
+
+String loginCookie = null;
+
+if (cookies != null) {
+    loginCookie = Arrays.stream(cookies)
+            .filter(cookie -&gt; "login".equals(cookie.getName()))
+            .map(Cookie::getValue)
+            .findFirst()
+            .orElse(null);
+}
+%&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Title&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;form action="/demo/mvcAuthenticate/session-authenticate" method="POST"&gt;
+        &lt;label for="login"&gt;Login :&lt;/label&gt;
+
+        &lt;input type="text"
+               id="login"
+               name="login"
+               value="&lt;%= loginCookie != null ? loginCookie : "" %&gt;"
+               required&gt;
+
+        &lt;label for="password"&gt;Mot de passe :&lt;/label&gt;
+        &lt;input type="password" id="password" name="password"&gt;
+        &lt;button type="submit"&gt;Se connecter&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <p><strong>Contrôleur (<span class="chemin">AuthenticateMvc.java</span>) :</strong></p>
+    <pre><code>package iut.nantes.session.mvcAuthenticate;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
+import java.io.IOException;
+
+@WebServlet(name="JspSessionAuthenticate",value="/mvcAuthenticate/session-authenticate")
+public class AuthenticateMvc extends HttpServlet {
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        authenticate(request,response);
+
+    }
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        authenticate(request,response);
+    }
+
+    public void authenticate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String login = request.getParameter("login");
+        String password = request.getParameter("password");
+
+        if(!login.equals("JoJo") || !password.equals("JoJo44")){
+            String referer = request.getHeader("Referer");
+            if(referer != null){
+                response.sendRedirect(referer);
+            }else {
+                response.sendRedirect("index.jsp");
+            }
+            return;
+        }
+        Cookie cookieLogin = new Cookie("login",login);
+        cookieLogin.setMaxAge(60*60);
+        cookieLogin.setPath("/");
+
+        response.addCookie(cookieLogin);
+        response.setContentType("text/html;charset=UTF-8");
+
+        HttpSession session = request.getSession();
+        session.setAttribute("login",login);
+
+        response.sendRedirect("/demo/JSP/Session/sessionPrivate.jsp");
+    }
+}</code></pre>
+
+    <p><strong>Vue privée (<span class="chemin">sessionPrivate.jsp</span>) :</strong></p>
+    <pre><code>&lt;%@ page import="java.util.Arrays" %&gt;&lt;%--
+  Created by IntelliJ IDEA.
+  User: kev
+  Date: 11/17/2026
+  Time: 4:46 PM
+  To change this template use File | Settings | File Templates.
+--%&gt;
+&lt;%@ page contentType="text/html;charset=UTF-8" language="java" %&gt;
+&lt;%
+String login = (String) session.getAttribute("login");
+%&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Title&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;p&gt;&lt;%= login %&gt;&lt;/p&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+  </section>
+
+  <div id="tooltip">
+    <div id="def-jsp" class="def-bloc">
+      <h3>JSP (JavaServer Pages)</h3>
+      <p>Une page web dynamique qui mélange du HTML et des balises Java. Elle est traduite automatiquement en servlet par le conteneur.</p>
+      <ul><li>Elle sert surtout à la <strong>vue</strong> (l'affichage).</li></ul>
+    </div>
+    <div id="def-conteneur" class="def-bloc">
+      <h3>Conteneur web</h3>
+      <p>Le moteur qui crée les servlets, appelle leurs méthodes et gère leur cycle de vie. Ici, c'est <strong>Tomcat</strong>.</p>
+    </div>
+    <div id="def-el" class="def-bloc">
+      <h3>EL (Expression Language)</h3>
+      <p>Un petit langage, écrit entre <code>${ }</code>, pour lire des données (attributs, paramètres, propriétés d'objets) directement dans une JSP.</p>
+    </div>
+    <div id="def-jstl" class="def-bloc">
+      <h3>JSTL</h3>
+      <p>La bibliothèque standard de balises pour les JSP : conditions, boucles, formatage... Elle remplace le code Java des scriptlets.</p>
+      <ul><li>Elle s'importe avec la directive <code>taglib</code>.</li></ul>
+    </div>
+    <div id="def-bean" class="def-bloc">
+      <h3>JavaBean</h3>
+      <p>Une classe Java simple avec un constructeur sans paramètre, des attributs privés et des <strong>getters / setters</strong>.</p>
+    </div>
+    <div id="def-scope" class="def-bloc">
+      <h3>Scope (portée)</h3>
+      <p>La durée de vie d'une donnée :</p>
+      <ul>
+        <li><code>page</code> : cette page seulement</li>
+        <li><code>request</code> : le temps d'une requête</li>
+        <li><code>session</code> : tant que l'utilisateur est connecté</li>
+        <li><code>application</code> : toute l'application, pour tous les utilisateurs</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const tooltip = document.getElementById('tooltip');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(b => b.classList.remove('actif'));
+      document.getElementById('def-' + cle).classList.add('actif');
+      tooltip.style.display = 'block';
+    }
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    document.querySelectorAll('.terme').forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+      terme.addEventListener('mouseenter', () => { if (!tactile.matches) afficher(cle); });
+      terme.addEventListener('mousemove', (e) => {
+        if (tactile.matches) return;
+        let x = e.pageX + 15;
+        if (x + tooltip.offsetWidth > window.innerWidth - 20) x = e.pageX - tooltip.offsetWidth - 15;
+        if (x < 10) x = 10;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = (e.pageY + 15) + 'px';
+      });
+      terme.addEventListener('mouseleave', () => { if (!tactile.matches) masquer(); });
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) { masquer(); return; }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+    document.addEventListener('click', () => { if (tactile.matches) masquer(); });
+  </script>
+
+</body>
+</html>
