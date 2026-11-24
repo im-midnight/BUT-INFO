@@ -64,14 +64,19 @@ Les semestres du filtre sont dans le tableau `semestres` du même fichier. Un se
 
 ## Ajouter une page de cours
 
-1. Créer la page dans `pages/`, en partant d'une copie d'une page existante. Le `<head>` doit contenir ces quatre lignes, avec le bon nombre de `../` :
+1. Créer la page dans `pages/`, en partant d'une copie d'une page existante. Le `<head>` doit contenir ces lignes, avec le bon nombre de `../` (le petit script en ligne pose le thème avant l'affichage, `site.js` fait le reste en `defer`) :
 
 ```html
 <link rel="stylesheet" href="../../assets/css/themes.css">
 <link rel="stylesheet" href="../../assets/css/style.css">
-<script src="../../assets/js/site.js"></script>
+<script>
+  (function () { var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true }; try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {} var h = document.documentElement; h.dataset.theme = r.theme; h.dataset.mode = r.mode; h.dataset.syntaxe = r.syntaxe ? "on" : "off"; if (r.hc) h.dataset.hc = "on"; })();
+</script>
+<script src="../../assets/js/site.js" defer></script>
 <script src="../../assets/js/script.js" defer></script>
 ```
+
+Une page avec des formules ajoute MathJax (copier le bloc d'une page de maths, version `tex-chtml.js`). Une page sans formule ne le charge pas. Les images vont en WebP avec `width`, `height` et `loading="lazy"`.
 
 2. Ajouter la page dans le tableau `pages` de `assets/js/script.js` :
 

@@ -9,5 +9,12 @@
     { "source": "/css/:chemin*", "destination": "/assets/css/:chemin*", "permanent": true },
     { "source": "/js/:chemin*", "destination": "/assets/js/:chemin*", "permanent": true },
     { "source": "/img/:chemin*", "destination": "/assets/img/:chemin*", "permanent": true }
+  ],
+  "headers": [
+    { "source": "/assets/css/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }] },
+    { "source": "/assets/js/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }] },
+    { "source": "/assets/img/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] },
+    { "source": "/pages/designPattern/uml/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] },
+    { "source": "/pages/web/img/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] }
   ]
 }
