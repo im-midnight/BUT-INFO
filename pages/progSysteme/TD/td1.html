@@ -6,6 +6,17 @@
   <title>TD1 : Accès concurrents aux ressources en Go (Programmation système) | BUT Info Nantes</title>
   <meta name="description" content="Analyse des race conditions, synchronisation par sync.Mutex, test avec go run -race et finalisation de ex2.go (Mutex et canaux) en Go.">
   <meta name="theme-color" content="#2563eb">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="TD1 : Accès concurrents aux ressources en Go (Programmation système)">
+  <meta property="og:description" content="Analyse des race conditions, synchronisation par sync.Mutex, test avec go run -race et finalisation de ex2.go (Mutex et canaux) en Go.">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../../../../assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../../../assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../../../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../../../../assets/site.webmanifest">
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -20,7 +31,6 @@
   </script>
   <script async id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
-  <!-- Feuilles de style du site BUT INFO2 (avec styles de secours intégrés ci-dessous pour affichage autonome) -->
   <link rel="stylesheet" href="../../../../assets/css/themes.css">
   <link rel="stylesheet" href="../../../../assets/css/style.css">
   <script>
@@ -38,195 +48,20 @@
   <script src="../../../../assets/js/script.js" defer></script>
 
   <style>
-    :root {
-      --primaire: #2563eb;
-      --primaire-fonce: #1d4ed8;
-      --fond: #f8fafc;
-      --surface: #ffffff;
-      --surface-2: #eff6ff;
-      --texte: #0f172a;
-      --texte-doux: #475569;
-      --bordure: #cbd5e1;
-      --bordure-forte: #94a3b8;
-    }
-
-    html[data-mode="sombre"] {
-      --primaire: #60a5fa;
-      --primaire-fonce: #93c5fd;
-      --fond: #0f172a;
-      --surface: #1e293b;
-      --surface-2: #172554;
-      --texte: #f1f5f9;
-      --texte-doux: #94a3b8;
-      --bordure: #334155;
-      --bordure-forte: #475569;
-    }
-
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--fond);
-      color: var(--texte);
-      line-height: 1.6;
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 1.5rem 1rem 4rem;
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--primaire-fonce);
-      margin-bottom: 0.4rem;
-    }
-
-    h2 {
-      color: var(--primaire-fonce);
-      border-bottom: 2px solid var(--surface-2);
-      padding-bottom: 0.35rem;
-      margin-top: 0;
-    }
-
-    .loi-card {
-      background: var(--surface);
-      border: 1px solid var(--bordure);
-      border-radius: 12px;
-      padding: 1.4rem 1.6rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-    }
-
-    .table-container {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      min-width: 560px;
-      border-collapse: collapse;
-      background: var(--surface);
-      margin-top: 1rem;
-    }
-
-    th, td {
-      border: 1px solid var(--bordure-forte);
-      padding: 0.65rem 0.9rem;
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    th {
-      background-color: var(--surface-2);
-    }
-
-    pre {
-      background: var(--fond);
-      border: 1px solid var(--bordure);
-      border-radius: 8px;
-      padding: 0.9rem 1rem;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 0.9rem;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.92em;
-    }
-
-    .note-box {
-      background: var(--surface-2);
-      border-left: 4px solid var(--primaire);
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      margin-top: 0.75rem;
-      font-size: 0.92rem;
-    }
-
-    .warning-box {
-      background: rgba(245, 158, 11, 0.12);
-      border-left: 4px solid #d97706;
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      margin-top: 0.75rem;
-      font-size: 0.92rem;
-    }
-
-    .terme {
-      color: var(--primaire);
-      border-bottom: 1.5px dashed var(--primaire);
-      cursor: help;
-      font-weight: 500;
-    }
-
-    #tooltip {
-      display: none;
-      position: absolute;
-      z-index: 1000;
-      max-width: 340px;
-      background: var(--surface);
-      color: var(--texte);
-      border: 1px solid var(--primaire);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
-      font-size: 0.9rem;
-    }
-
-    #tooltip h3 {
-      margin: 0 0 0.3rem;
-      font-size: 1rem;
-      color: var(--primaire-fonce);
-    }
-
-    #tooltip p {
-      margin: 0;
-    }
-
-    .def-bloc {
-      display: none;
-    }
-
-    .def-bloc.actif {
-      display: block;
-    }
-
-    .demo-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      align-items: center;
-      margin: 0.75rem 0;
-    }
-
-    .demo-btn {
-      padding: 0.5rem 0.9rem;
-      font: inherit;
-      cursor: pointer;
-      background: var(--surface-2);
-      color: inherit;
-      border: 1px solid var(--bordure-forte);
-      border-radius: 6px;
-    }
-
-    .demo-btn.actif {
-      background: var(--primaire);
-      color: #ffffff;
-      border-color: var(--primaire);
-      font-weight: 600;
-    }
-
-    .astuce-tactile { display: none; }
-    @media (hover: none) {
-      .astuce-souris { display: none; }
-      .astuce-tactile { display: inline; }
-    }
+    /* Spécifique à cette page */
+    table { width: 100%; min-width: 560px; border-collapse: collapse; background: var(--surface); margin-top: 1rem; }
+    th, td { border: 1px solid var(--bordure-forte); padding: 0.65rem 0.9rem; text-align: center; vertical-align: middle; }
+    th { background-color: var(--surface-2); }
+    .note-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    .warning-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
+    pre { white-space: pre-wrap; word-break: break-all; }
   </style>
 </head>
 <body>
 
   <h1>TD1 : Accès concurrents aux ressources</h1>
   <p style="text-align: center; color: var(--texte-doux);">
-    Programmation système — BUT Informatique, deuxième année[cite: 18]<br>
+    Programmation système — BUT Informatique, deuxième année<br>
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="race-condition">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
 
@@ -236,13 +71,13 @@
     <p>Lorsqu'au moins deux <span class="terme" data-def="goroutine">goroutines</span> accèdent simultanément à une même variable partagée et qu'au moins l'un des accès est une écriture sans synchronisation, il y a une <span class="terme" data-def="race-condition">race condition</span> (accès concurrent).</p>
 
     <ol>
-      <li>Déterminer s'il existe une ou plusieurs <em>race conditions</em>[cite: 18].</li>
-      <li>Justifier en cas d'absence, ou identifier les variables et lignes en concurrence[cite: 18].</li>
-      <li>Protéger les accès critiques avec un <span class="terme" data-def="mutex"><code>sync.Mutex</code></span>[cite: 18].</li>
-      <li>Vérifier l'absence de conflit avec l'option <code>-race</code> de Go[cite: 18] :
+      <li>Déterminer s'il existe une ou plusieurs <em>race conditions</em>.</li>
+      <li>Justifier en cas d'absence, ou identifier les variables et lignes en concurrence.</li>
+      <li>Protéger les accès critiques avec un <span class="terme" data-def="mutex"><code>sync.Mutex</code></span>.</li>
+      <li>Vérifier l'absence de conflit avec l'option <code>-race</code> de Go :
 <pre><code>go run -race ex1-4.go</code></pre>
       </li>
-      <li>En bonus sur <code>ex2.go</code> : remplacer les tranches partagées (<code>com1</code>, <code>com2</code>) par des <span class="terme" data-def="canal">canaux (<code>chan</code>)</span>[cite: 18].</li>
+      <li>En bonus sur <code>ex2.go</code> : remplacer les tranches partagées (<code>com1</code>, <code>com2</code>) par des <span class="terme" data-def="canal">canaux (<code>chan</code>)</span>.</li>
     </ol>
 
     <div class="table-container">
@@ -256,13 +91,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td><code>ex0.go</code></td><td>Oui (1000 goroutines)[cite: 11]</td><td><code>x</code>, <code>y</code> (protégés par <code>mutex</code>)[cite: 11]</td><td>Non (protégé par <code>mutex.Lock()</code>)[cite: 11]</td></tr>
-          <tr><td><code>ex1-1.go</code></td><td>Non (séquentiel)[cite: 12]</td><td>Aucune (retour de valeur)[cite: 12]</td><td>Non[cite: 12]</td></tr>
-          <tr><td><code>ex1-2.go</code></td><td>Oui (30 goroutines)[cite: 13]</td><td>Aucune (<code>res</code> local à chaque appel)[cite: 13]</td><td>Non[cite: 13]</td></tr>
-          <tr><td><code>ex1-3.go</code></td><td>Non (séquentiel)[cite: 14]</td><td>Variable globale <code>res</code>[cite: 14]</td><td>Non (exécution séquentielle)[cite: 14]</td></tr>
-          <tr><td><code>ex1-4.go</code></td><td>Oui (30 goroutines)[cite: 15]</td><td>Variable globale <code>res</code> + <code>mu</code>[cite: 15]</td><td>Non (<code>mu.Lock()</code> entoure l'accès à <code>res</code>)[cite: 15]</td></tr>
-          <tr><td><code>ex1-5.go</code></td><td>Oui (30 goroutines)[cite: 16]</td><td>Pointeur partagé <code>*res</code> + <code>mu</code>[cite: 16]</td><td>Non (<code>mu.Lock()</code> entoure l'accès à <code>*res</code>)[cite: 16]</td></tr>
-          <tr><td><code>ex2.go</code></td><td>Oui (3 goroutines)[cite: 17]</td><td>Tranches globales <code>com1</code>, <code>com2</code>[cite: 17]</td><td><strong>Oui</strong> dans l'ébauche ; corrigé ci-dessous[cite: 17]</td></tr>
+          <tr><td><code>ex0.go</code></td><td>Oui (1000 goroutines)</td><td><code>x</code>, <code>y</code> (protégés par <code>mutex</code>)</td><td>Non (protégé par <code>mutex.Lock()</code>)</td></tr>
+          <tr><td><code>ex1-1.go</code></td><td>Non (séquentiel)</td><td>Aucune (retour de valeur)</td><td>Non</td></tr>
+          <tr><td><code>ex1-2.go</code></td><td>Oui (30 goroutines)</td><td>Aucune (<code>res</code> local à chaque appel)</td><td>Non</td></tr>
+          <tr><td><code>ex1-3.go</code></td><td>Non (séquentiel)</td><td>Variable globale <code>res</code></td><td>Non (exécution séquentielle)</td></tr>
+          <tr><td><code>ex1-4.go</code></td><td>Oui (30 goroutines)</td><td>Variable globale <code>res</code> + <code>mu</code></td><td>Non (<code>mu.Lock()</code> entoure l'accès à <code>res</code>)</td></tr>
+          <tr><td><code>ex1-5.go</code></td><td>Oui (30 goroutines)</td><td>Pointeur partagé <code>*res</code> + <code>mu</code></td><td>Non (<code>mu.Lock()</code> entoure l'accès à <code>*res</code>)</td></tr>
+          <tr><td><code>ex2.go</code></td><td>Oui (3 goroutines)</td><td>Tranches globales <code>com1</code>, <code>com2</code></td><td><strong>Oui</strong> dans l'ébauche ; corrigé ci-dessous</td></tr>
         </tbody>
       </table>
     </div>
@@ -273,7 +108,7 @@
     <h2>2. Analyse des codes <code>ex0.go</code> et <code>ex1-1.go</code> à <code>ex1-5.go</code></h2>
 
     <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex0.go</code> — Échange de <code>x</code> et <code>y</code> avec <code>sync.Mutex</code></h3>
-    <p>Même si un commentaire indique <code>x, y = y, x // race condition</code>, l'échange est entouré de <code>mutex.Lock()</code> et <code>mutex.Unlock()</code> dans la boucle de <code>switchxy()</code>[cite: 11]. L'accès concurrent à <code>x</code> et <code>y</code> est donc sérialisé[cite: 11].</p>
+    <p>Même si un commentaire indique <code>x, y = y, x // race condition</code>, l'échange est entouré de <code>mutex.Lock()</code> et <code>mutex.Unlock()</code> dans la boucle de <code>switchxy()</code>. L'accès concurrent à <code>x</code> et <code>y</code> est donc sérialisé.</p>
 <pre><code>package main
 
 import (
@@ -306,7 +141,7 @@ func main() {
 }</code></pre>
 
     <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-1.go</code> — Séquentiel et sans mémoire partagée</h3>
-    <p>Pas de mot-clé <code>go</code> et <code>res</code> est une variable locale retournée par valeur : aucune <em>race condition</em> possible[cite: 12].</p>
+    <p>Pas de mot-clé <code>go</code> et <code>res</code> est une variable locale retournée par valeur : aucune <em>race condition</em> possible.</p>
 <pre><code>package main
 
 import "fmt"
@@ -332,7 +167,7 @@ func main() {
 }</code></pre>
 
     <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-2.go</code> — Parallèle mais sans mémoire partagée</h3>
-    <p>Chaque goroutine exécute <code>puissance(i, j)</code> avec sa propre variable locale <code>var res int = 1</code>[cite: 13]. Comme il n'y a pas d'état partagé mutable entre goroutines, il n'y a pas de <em>race condition</em>[cite: 13].</p>
+    <p>Chaque goroutine exécute <code>puissance(i, j)</code> avec sa propre variable locale <code>var res int = 1</code>. Comme il n'y a pas d'état partagé mutable entre goroutines, il n'y a pas de <em>race condition</em>.</p>
 <pre><code>package main
 
 import (
@@ -368,7 +203,7 @@ func main() {
 }</code></pre>
 
     <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-3.go</code> — Variable globale <code>res</code> mais exécution séquentielle</h3>
-    <p>La variable globale <code>res</code> est modifiée à chaque appel, mais il n'y a aucune goroutine (<code>go</code> n'est pas utilisé)[cite: 14]. L'exécution reste strictement séquentielle, donc pas de <em>race condition</em>[cite: 14].</p>
+    <p>La variable globale <code>res</code> est modifiée à chaque appel, mais il n'y a aucune goroutine (<code>go</code> n'est pas utilisé). L'exécution reste strictement séquentielle, donc pas de <em>race condition</em>.</p>
 <pre><code>package main
 
 import "fmt"
@@ -397,7 +232,7 @@ func main() {
 }</code></pre>
 
     <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-4.go</code> — Variable globale <code>res</code> protégée par <code>mu.Lock()</code></h3>
-    <p>Plusieurs goroutines s'exécutent en concurrence et accèdent à la variable globale <code>res</code>, mais <code>mu.Lock()</code> est posé avant <code>res = 1</code> et <code>mu.Unlock()</code> après <code>fmt.Println</code> : la <span class="terme" data-def="section-critique">section critique</span> est protégée[cite: 15].</p>
+    <p>Plusieurs goroutines s'exécutent en concurrence et accèdent à la variable globale <code>res</code>, mais <code>mu.Lock()</code> est posé avant <code>res = 1</code> et <code>mu.Unlock()</code> après <code>fmt.Println</code> : la <span class="terme" data-def="section-critique">section critique</span> est protégée.</p>
 <pre><code>package main
 
 import (
@@ -438,7 +273,7 @@ func main() {
 }</code></pre>
 
     <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;"><code>ex1-5.go</code> — Pointeur partagé <code>*res</code> protégé par <code>mu.Lock()</code></h3>
-    <p>Toutes les goroutines reçoivent l'adresse <code>&amp;res</code> de la variable <code>res</code> de <code>main</code>[cite: 16]. L'accès à <code>*res</code> est protégé par <code>mu.Lock()</code> et <code>mu.Unlock()</code>[cite: 16].</p>
+    <p>Toutes les goroutines reçoivent l'adresse <code>&amp;res</code> de la variable <code>res</code> de <code>main</code>. L'accès à <code>*res</code> est protégé par <code>mu.Lock()</code> et <code>mu.Unlock()</code>.</p>
 <pre><code>package main
 
 import (
@@ -479,7 +314,9 @@ func main() {
 
   <!-- 3. EX2.GO : ÉBAUCHE CONSERVÉE + CORRECTION MUTEX + BONUS CANAUX -->
   <section class="loi-card">
-    <h2>3.Ex2.go</h2>
+    <h2>3. <code>ex2.go</code> : producteur, transmetteur, consommateur</h2>
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.1 Ébauche fournie</h3>
+    <p>Les tranches globales <code>com1</code> et <code>com2</code> sont accédées par plusieurs goroutines sans protection : c'est la <em>race condition</em> que les versions 3.2 (Mutex) et 3.3 (canaux) corrigent.</p>
 <pre><code>package main
 
 import (
@@ -600,7 +437,7 @@ func main() {
 }</code></pre>
 
     <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">3.3 Version bonus avec canaux (question 5)</h3>
-    <p>En utilisant les canaux <code>c</code> et <code>c2</code> créés dans <code>main</code>[cite: 17, 18], il n'y a plus de tranches partagées : <code>prod</code> ferme <code>c</code> à la fin, <code>trans</code> lit <code>c</code> avec <code>range</code> et ferme <code>c2</code> à la fin, et <code>cons</code> lit <code>c2</code> avec <code>range</code> :</p>
+    <p>En utilisant les canaux <code>c</code> et <code>c2</code> créés dans <code>main</code>, il n'y a plus de tranches partagées : <code>prod</code> ferme <code>c</code> à la fin, <code>trans</code> lit <code>c</code> avec <code>range</code> et ferme <code>c2</code> à la fin, et <code>cons</code> lit <code>c2</code> avec <code>range</code> :</p>
 <pre><code>package main
 
 import (
@@ -739,46 +576,6 @@ func main() {
     });
   </script>
 
-  <!-- SCRIPT SIMULATEUR -->
-  <script>
-    function lancerSim(mode) {
-      const goroutines = 100;
-      const tours = 100;
-      const attendu = goroutines * tours;
-      let compteur = 0;
-
-      if (mode === 'race') {
-        let perdues = 0;
-        for (let t = 0; t < tours; t++) {
-          let lecture = compteur;
-          for (let g = 0; g < goroutines; g++) {
-            if (g % 7 === 0) perdues++;
-          }
-          compteur = lecture + goroutines - Math.floor(perdues / tours);
-        }
-        document.getElementById('sim-output').innerHTML =
-          `<strong>Résultat (sans Mutex) :</strong> compteur = <code>${compteur}</code> (attendu : <code>${attendu}</code>). Des mises à jour sont écrasées lors d'accès concurrents.`;
-      } else if (mode === 'mutex') {
-        compteur = attendu;
-        document.getElementById('sim-output').innerHTML =
-          `<strong>Résultat (avec sync.Mutex) :</strong> compteur = <code>${compteur}</code> (attendu : <code>${attendu}</code>). Chaque goroutine verrouille avant de modifier la variable et déverrouille ensuite.`;
-      } else {
-        compteur = attendu;
-        document.getElementById('sim-output').innerHTML =
-          `<strong>Résultat (avec canal) :</strong> compteur = <code>${compteur}</code> (attendu : <code>${attendu}</code>). Les valeurs transitent par le canal sans partage direct de tranche mutable.`;
-      }
-    }
-
-    document.querySelectorAll('.demo-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('actif'));
-        btn.classList.add('actif');
-        lancerSim(btn.dataset.modeSim);
-      });
-    });
-
-    lancerSim('race');
-  </script>
 
 </body>
 </html>
