@@ -209,6 +209,30 @@ const pages = [
       "L'interblocage (deadlock)", "Et les map de Go ?", "Synthèse",
     ],
   },
+  { titre: "TD", lien: "pages/progSysteme/TD/td.html", matiere: "prog-systeme", type: "TD", sommaire: true },
+  {
+    titre: "TD1 : accès concurrents aux ressources",
+    lien: "pages/progSysteme/TD/td1.html",
+    matiere: "prog-systeme",
+    type: "TD",
+    parent: "pages/progSysteme/TD/td.html",
+    sections: [
+      "Principe général et questions du TD1", "Analyse des codes ex0.go et ex1-1.go à ex1-5.go",
+      "ex2.go : producteur, transmetteur, consommateur",
+    ],
+  },
+  {
+    titre: "TD3 : ordonnancement des tâches en Go",
+    lien: "pages/progSysteme/TD/td3.html",
+    matiere: "prog-systeme",
+    type: "TD",
+    parent: "pages/progSysteme/TD/td.html",
+    sections: [
+      "Principe général et architecture du projet", "Le moteur de simulation (ordo.go) et les données (tasks.json)",
+      "Les cinq fonctions d'ordonnancement implémentées", "Visualisation interactive des histogrammes (sur tasks.json)",
+      "Synthèse des techniques d'ordonnancement",
+    ],
+  },
 
   // R308
   {
@@ -324,6 +348,29 @@ const pages = [
       "Message signé", "Démo : signer et vérifier", "Synthèse",
     ],
   },
+  {
+    titre: "Exercice 7 : code de Hamming, méthode sur papier",
+    lien: "pages/math/crypto/tp/ex7.html",
+    matiere: "crypto",
+    type: "TP",
+    parent: "pages/math/crypto/tp.html",
+    sections: [
+      "Principe général (rappel du cours)", "Ajouter les bits de parité au message",
+      "Analyser un message reçu", "Démo : coder et contrôler", "Synthèse",
+    ],
+  },
+  {
+  titre: "Exercice 8 : implémentation du code de Hamming",
+  lien: "pages/math/crypto/tp/ex8.html",
+  matiere: "crypto",
+  type: "TP",
+  parent: "pages/math/crypto/tp.html",
+  sections: [
+    "Principe : le codage comme produit matriciel", "Conversion en binaire",
+    "Nombre de bits de parité", "Matrice génératrice de Hamming",
+    "Démo : générer la matrice pour un message", "Synthèse",
+  ],
+},
 ];
 
 
