@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpringBoot : développement web moderne en Java (R301) | BUT Info Nantes</title>
+  <meta name="description" content="Cours Pareto sur Spring Boot : auto-configuration, injection de dépendances, architecture en couches, API REST (@RestController), Spring Data JPA et bonnes pratiques.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/web/springboot.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="SpringBoot : développement web moderne en Java (R301)">
+  <meta property="og:description" content="Cours Pareto sur Spring Boot : auto-configuration, injection de dépendances, architecture en couches, API REST (@RestController), Spring Data JPA et bonnes pratiques.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/web/springboot.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../../assets/site.webmanifest">
+
+  <link rel="stylesheet" href="../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script>
+    // Thème posé tout de suite pour éviter un flash de couleur ; le reste de site.js est en defer.
+    // Clé et valeurs par défaut : les mêmes que DEFAUT dans assets/js/site.js.
+    (function () { var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true }; try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {} var h = document.documentElement; h.dataset.theme = r.theme; h.dataset.mode = r.mode; h.dataset.syntaxe = r.syntaxe ? "on" : "off"; if (r.hc) h.dataset.hc = "on"; })();
+  </script>
+  <script src="../../assets/js/site.js" defer></script>
+  <script src="../../assets/js/script.js" defer></script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R301 - Développement web", "item": "https://butinfo-iutnantes.vercel.app/pages/web/indexWeb.html"}, {"@type": "ListItem", "position": 3, "name": "Cours", "item": "https://butinfo-iutnantes.vercel.app/pages/web/cours.html"}, {"@type": "ListItem", "position": 4, "name": "SpringBoot", "item": "https://butinfo-iutnantes.vercel.app/pages/web/springboot.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>SpringBoot</h1>
+  <p class="consigne">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="spring-boot" tabindex="0">termes soulignés en pointillé</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. POURQUOI SPRING BOOT -->
+  <section class="loi-card">
+    <h2>1. Pourquoi Spring Boot ?</h2>
+    <p>Avec les servlets et JPA bruts, on passe énormément de temps sur la plomberie : installer Tomcat, configurer <code>web.xml</code> et <code>persistence.xml</code>, ouvrir les transactions à la main, parser les paramètres HTTP et écrire les mêmes requêtes CRUD en boucle.</p>
+    <p><span class="terme" data-def="spring-boot" tabindex="0">Spring Boot</span> est un framework Java construit au-dessus de Spring qui élimine presque toute cette configuration grâce à trois idées clés :</p>
+    <ul>
+      <li><strong><span class="terme" data-def="autoconfig" tabindex="0">Auto-configuration</span> :</strong> Spring Boot détecte les bibliothèques présentes dans ton projet (Gradle ou Maven) et configure tout automatiquement avec des réglages par défaut intelligents.</li>
+      <li><strong>Les <span class="terme" data-def="starter" tabindex="0">Starters</span> :</strong> au lieu d'ajouter 15 dépendances à la main, tu ajoutes un seul pack (ex. <code>spring-boot-starter-web</code> pour le web, <code>spring-boot-starter-data-jpa</code> pour la base de données).</li>
+      <li><strong><span class="terme" data-def="serveur-embarque" tabindex="0">Serveur embarqué</span> :</strong> Tomcat est directement intégré dans ton application. Tu lances une simple méthode <code>main()</code> et ton serveur web démarre sur le port <code>8080</code>.</li>
+    </ul>
+
+<pre><code class="language-java">@SpringBootApplication // Active la config auto + le scan de tes classes
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}</code></pre>
+  </section>
+
+  <!-- 2. INJECTION DE DÉPENDANCES ET ARCHITECTURE EN COUCHES -->
+  <section class="loi-card">
+    <h2>2. Injection de dépendances et architecture en couches</h2>
+    <p>Le cœur de Spring, c'est l'<span class="terme" data-def="ioc" tabindex="0">Inversion de Contrôle (IoC)</span> et l'<span class="terme" data-def="di" tabindex="0">Injection de Dépendances (DI)</span>. Au lieu de faire <code>new ProductService()</code> partout dans ton code, tu laisses Spring créer, conserver et relier tes objets — appelés <span class="terme" data-def="bean-spring" tabindex="0">Beans</span> — à ta place.</p>
+    <p>Une application Spring Boot propre est découpée en <strong>3 couches</strong>, chacune repérée par une annotation :</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Couche</th><th>Annotation</th><th>Rôle</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Web / Présentation</strong></td><td><code>@RestController</code> ou <code>@Controller</code></td><td>Reçoit les requêtes HTTP, valide les entrées et renvoie JSON ou une vue HTML.</td></tr>
+          <tr><td><strong>Métier</strong></td><td><code>@Service</code></td><td>Contient les règles métier (calculs, vérifications, orchestration).</td></tr>
+          <tr><td><strong>Données</strong></td><td><code>@Repository</code></td><td>Communique avec la base de données (géré automatiquement par Spring Data JPA).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Injecter une dépendance proprement (par constructeur)</h3>
+<pre><code class="language-java">@Service
+public class ProductService {
+    private final ProductRepository repository;
+
+    // Spring injecte automatiquement l'instance de ProductRepository
+    public ProductService(ProductRepository repository) {
+        this.repository = repository;
+    }
+
+    public List&lt;Product&gt; listerTous() {
+        return repository.findAll();
+    }
+}</code></pre>
+    <div class="a-retenir">
+      <p>Privilégie toujours l'<strong>injection par constructeur</strong> avec un attribut <code>final</code> (plutôt que <code>@Autowired</code> sur un champ privé) : tes dépendances sont garanties présentes et faciles à tester en unitaire.</p>
+    </div>
+  </section>
+
+  <!-- 3. CRÉER UNE API WEB / REST -->
+  <section class="loi-card">
+    <h2>3. Créer une API web avec <code>@RestController</code></h2>
+    <p>Fini <code>extends HttpServlet</code>, <code>doGet()</code> et <code>PrintWriter</code> ! Avec Spring Web, une simple classe annotée <code>@RestController</code> associe chaque URL et verbe HTTP à une méthode Java, et convertit automatiquement tes objets Java en <span class="terme" data-def="json" tabindex="0">JSON</span> (et inversement).</p>
+
+<pre><code class="language-java">@RestController
+@RequestMapping("/api/products") // Préfixe commun à toutes les routes
+public class ProductController {
+
+    private final ProductService service;
+
+    public ProductController(ProductService service) {
+        this.service = service;
+    }
+
+    // GET /api/products?minPrice=10
+    @GetMapping
+    public List&lt;Product&gt; getAll(@RequestParam(defaultValue = "0") double minPrice) {
+        return service.findMinPrice(minPrice);
+    }
+
+    // GET /api/products/42
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;Product&gt; getById(@PathVariable Long id) {
+        return service.findById(id)
+                .map(ResponseEntity::ok)                        // 200 OK + JSON
+                .orElseGet(() -&gt; ResponseEntity.notFound().build()); // 404 Not Found
+    }
+
+    // POST /api/products (corps JSON transformé en objet Product)
+    @PostMapping
+    public ResponseEntity&lt;Product&gt; create(@RequestBody Product product) {
+        Product saved = service.save(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved); // 201 Created
+    }
+
+    // DELETE /api/products/42
+    @DeleteMapping("/{id}")
+    public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();              // 204 No Content
+    }
+}</code></pre>
+
+    <div class="astuce">
+      <p><strong><code>@RestController</code> vs <code>@Controller</code> :</strong> <code>@RestController</code> renvoie directement des données (JSON) pour une <span class="terme" data-def="api-rest" tabindex="0">API REST</span>. Si tu veux renvoyer une page HTML côté serveur (avec un moteur de templates comme Thymeleaf), utilise <code>@Controller</code> et retourne le nom de la vue.</p>
+    </div>
+  </section>
+
+  <!-- 4. SPRING DATA JPA -->
+  <section class="loi-card">
+    <h2>4. Persistance sans effort : Spring Data JPA</h2>
+    <p>Spring Boot s'appuie directement sur les <strong>entités JPA</strong> (<code>@Entity</code>, <code>@Id</code>, relations) vues dans le cours précédent, mais supprime tout le code répétitif autour de l'<code>EntityManager</code> grâce aux interfaces <code>JpaRepository</code>.</p>
+    <p>Tu écris uniquement une <strong>interface</strong> : Spring génère toute la classe d'implémentation à l'exécution !</p>
+
+<pre><code class="language-java">public interface ProductRepository extends JpaRepository&lt;Product, Long&gt; {
+
+    // Requête générée automatiquement à partir du nom de la méthode !
+    List&lt;Product&gt; findByNameContainingIgnoreCase(String motCle);
+    List&lt;Product&gt; findByPriceLessThanOrderByPriceAsc(double maxPrice);
+
+    // Ou requête JPQL personnalisée si besoin
+    @Query("SELECT p FROM Product p WHERE p.quantity &gt; :min")
+    List&lt;Product&gt; findEnStock(@Param("min") int min);
+}</code></pre>
+
+    <ul>
+      <li><strong>CRUD gratuit :</strong> en héritant de <code>JpaRepository&lt;Product, Long&gt;</code>, tu obtiens immédiatement <code>findAll()</code>, <code>findById(id)</code> (qui renvoie un <code>Optional</code>), <code>save(p)</code> (INSERT ou UPDATE), <code>deleteById(id)</code>, <code>count()</code> et <code>existsById(id)</code>.</li>
+      <li><strong>Transactions automatiques :</strong> place <code>@Transactional</code> sur une méthode de ton <code>@Service</code> pour que Spring ouvre, valide (<code>commit</code>) ou annule (<code>rollback</code> en cas d'exception) la transaction tout seul.</li>
+    </ul>
+  </section>
+
+  <!-- 5. CONFIGURATION ET BONNES PRATIQUES -->
+  <section class="loi-card">
+    <h2>5. Configuration, DTO et bonnes pratiques</h2>
+    <p>Toute la configuration du projet se centralise dans un seul fichier : <code>src/main/resources/application.properties</code> (ou <code>application.yml</code>).</p>
+
+<pre><code class="language-text"># Port du serveur Tomcat embarqué
+server.port=8080
+
+# Connexion base de données H2 en mémoire
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.username=sa
+spring.datasource.password=
+
+# Comportement Hibernate / JPA
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true</code></pre>
+
+    <h3>Les 3 réflexes professionnels à adopter dès le début</h3>
+    <ul>
+      <li><strong>Séparer Entités et <span class="terme" data-def="dto" tabindex="0">DTO</span> :</strong> ne renvoie jamais directement une entité JPA sensible (ex. <code>User</code> avec son mot de passe haché) dans ton contrôleur ; utilise un <code>record</code> Java dédié comme DTO pour choisir exactement quels champs exposer.</li>
+      <li><strong>Valider les entrées :</strong> annote les champs du DTO (<code>@NotBlank</code>, <code>@Positive</code>) et ajoute <code>@Valid</code> devant <code>@RequestBody</code> pour rejeter automatiquement les requêtes invalides (erreur HTTP <code>400</code>).</li>
+      <li><strong>Centraliser les erreurs :</strong> une classe annotée <code>@RestControllerAdvice</code> avec des méthodes <code>@ExceptionHandler</code> transforme proprement tes exceptions Java en réponses HTTP claires (404, 400, 409...) au lieu d'exposer une stacktrace au client.</li>
+    </ul>
+
+    <div class="piege">
+      <p><strong>Ne mets jamais tes vrais mots de passe de base de données dans Git !</strong> En production, les identifiants passent par des variables d'environnement (ex. <code>${DB_PASSWORD}</code>) et les mots de passe des utilisateurs sont toujours stockés hachés avec un <span class="terme" data-def="sel" tabindex="0">sel</span> (ex. BCrypt via Spring Security).</p>
+    </div>
+  </section>
+
+  <!-- 6. SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>6. Synthèse (Loi de Pareto 80/20)</h2>
+    <p>Comment Spring Boot simplifie tout ce que tu as vu en Servlet, JSP et JPA :</p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Besoin</th><th>Avant (Servlet / JPA brut)</th><th>Avec Spring Boot</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Serveur web</strong></td><td>Installer Tomcat, déployer un <code>.war</code>.</td><td>Tomcat embarqué, lancé par <code>main()</code>.</td></tr>
+          <tr><td><strong>Configuration</strong></td><td><code>web.xml</code> + <code>persistence.xml</code>.</td><td>Auto-configuration + <code>application.properties</code>.</td></tr>
+          <tr><td><strong>Câblage des classes</strong></td><td><code>new Dao()</code> / <code>new Service()</code> à la main.</td><td>IoC / Injection de dépendances par constructeur.</td></tr>
+          <tr><td><strong>Routes HTTP</strong></td><td><code>HttpServlet</code>, <code>doGet</code>/<code>doPost</code>, <code>getParameter</code>.</td><td><code>@RestController</code>, <code>@GetMapping</code>, <code>@PathVariable</code>, <code>@RequestBody</code>.</td></tr>
+          <tr><td><strong>Accès aux données</strong></td><td><code>EntityManagerFactory</code>, <code>EntityManager</code>, <code>begin/commit</code>.</td><td><code>interface ... extends JpaRepository</code> + <code>@Transactional</code>.</td></tr>
+          <tr><td><strong>Réponses &amp; erreurs</strong></td><td><code>setStatus</code> + <code>PrintWriter</code> manuel.</td><td><code>ResponseEntity&lt;T&gt;</code> (JSON auto) + <code>@RestControllerAdvice</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Méthodes et annotations indispensables</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Méthode / Annotation</th><th>À quoi elle sert</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>@SpringBootApplication</code> + <code>SpringApplication.run(...)</code></td><td>Point d'entrée : démarre Spring, le scan des composants et le serveur web embarqué.</td></tr>
+          <tr><td><code>@RestController</code> / <code>@Service</code> / <code>@Repository</code></td><td>Déclarent les 3 couches de l'application pour que Spring les gère comme des beans.</td></tr>
+          <tr><td><code>@RequestMapping</code>, <code>@GetMapping</code>, <code>@PostMapping</code>, <code>@PutMapping</code>, <code>@DeleteMapping</code></td><td>Associent une URL et une méthode HTTP à une méthode Java du contrôleur.</td></tr>
+          <tr><td><code>@PathVariable</code> / <code>@RequestParam</code> / <code>@RequestBody</code></td><td>Lisent une variable d'URL (<code>/{id}</code>), un paramètre (<code>?q=...</code>) ou le corps JSON d'une requête.</td></tr>
+          <tr><td><code>ResponseEntity.ok(obj)</code> / <code>.status(201).body(obj)</code> / <code>.notFound().build()</code></td><td>Construisent une réponse HTTP complète avec le bon code de statut et le corps JSON.</td></tr>
+          <tr><td><code>repository.findAll()</code> / <code>findById(id)</code></td><td>Récupèrent toutes les entités ou une entité par son ID (retourne un <code>Optional&lt;T&gt;</code>).</td></tr>
+          <tr><td><code>repository.save(entite)</code></td><td>Insère une nouvelle entité ou met à jour une entité existante en base.</td></tr>
+          <tr><td><code>repository.deleteById(id)</code> / <code>existsById(id)</code></td><td>Supprime une ligne par son ID ou vérifie son existence.</td></tr>
+          <tr><td><code>@Transactional</code></td><td>Exécute une méthode de service dans une transaction (commit auto, rollback si erreur).</td></tr>
+          <tr><td><code>@Valid</code> + <code>@RestControllerAdvice</code> / <code>@ExceptionHandler</code></td><td>Valident les données reçues et renvoient des messages d'erreur HTTP propres.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS VULGARISÉES -->
+  <div id="tooltip">
+    <div id="def-spring-boot" class="def-bloc">
+      <h3>Spring Boot</h3>
+      <p>Un framework Java qui accélère la création d'applications web et d'API en automatisant la configuration, le serveur web et la connexion à la base de données.</p>
+    </div>
+
+    <div id="def-autoconfig" class="def-bloc">
+      <h3>Auto-configuration</h3>
+      <p>Mécanisme de Spring Boot qui observe les bibliothèques ajoutées à ton projet (ex. H2 + JPA) et configure automatiquement les connexions et composants nécessaires, sans XML.</p>
+    </div>
+
+    <div id="def-starter" class="def-bloc">
+      <h3>Starter Spring Boot</h3>
+      <p>Un « pack tout-en-un » de dépendances déjà compatibles entre elles (ex. <code>spring-boot-starter-web</code> embarque Tomcat, Spring MVC et Jackson pour le JSON).</p>
+    </div>
+
+    <div id="def-serveur-embarque" class="def-bloc">
+      <h3>Serveur embarqué</h3>
+      <p>Le serveur HTTP (Tomcat par défaut) est inclus directement à l'intérieur de ton programme Java : plus besoin de l'installer séparément sur ta machine.</p>
+    </div>
+
+    <div id="def-ioc" class="def-bloc">
+      <h3>Inversion de Contrôle (IoC)</h3>
+      <p>Principe où ce n'est plus ton code qui fabrique et orchestre ses objets avec <code>new</code>, mais le framework (Spring) qui prend la main sur leur création et leur cycle de vie.</p>
+    </div>
+
+    <div id="def-di" class="def-bloc">
+      <h3>Injection de Dépendances (DI)</h3>
+      <p>Le fait que Spring fournisse automatiquement à une classe les objets dont elle a besoin (par exemple donner le <code>Repository</code> au <code>Service</code> via son constructeur).</p>
+    </div>
+
+    <div id="def-bean-spring" class="def-bloc">
+      <h3>Bean Spring</h3>
+      <p>Un objet Java instancié, configuré et géré par le conteneur Spring (par défaut un singleton partagé dans l'application).</p>
+    </div>
+
+    <div id="def-json" class="def-bloc">
+      <h3>JSON (JavaScript Object Notation)</h3>
+      <p>Un format texte léger en paires clé-valeur (ex. <code>{"id": 1, "name": "Clavier"}</code>), standard universel pour échanger des données entre un serveur et un client web ou mobile.</p>
+    </div>
+
+    <div id="def-api-rest" class="def-bloc">
+      <h3>API REST</h3>
+      <p>Une interface web qui expose des ressources via des URL claires (ex. <code>/api/products/1</code>) et les verbes HTTP (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>), généralement en JSON.</p>
+    </div>
+
+    <div id="def-dto" class="def-bloc">
+      <h3>DTO (Data Transfer Object)</h3>
+      <p>Un petit objet Java (souvent un <code>record</code>) qui sert uniquement à transporter les données entre le contrôleur et le client, sans exposer directement la structure interne de la base.</p>
+    </div>
+
+    <div id="def-sel" class="def-bloc">
+      <h3>Hachage + Sel (Salt)</h3>
+      <p>Transformer un mot de passe en une empreinte irréversible (hachage) en y ajoutant une chaîne aléatoire unique (le sel) pour empêcher les attaquants de retrouver le mot de passe même s'ils volent la base.</p>
+    </div>
+  </div>
+
+  <script>
+    // Infobulles : survol à la souris, toucher sur téléphone, focus au clavier
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    function placer(x, y, clientX, clientY) {
+      const decalage = 15;
+      const marge = 12;
+      const tipWidth = tooltip.offsetWidth;
+      const tipHeight = tooltip.offsetHeight;
+
+      let gauche = x + decalage;
+      let haut = y + decalage;
+
+      if (clientX + decalage + tipWidth > window.innerWidth - marge) {
+        gauche = x - tipWidth - decalage;
+      }
+      if (gauche < window.scrollX + marge) {
+        gauche = window.scrollX + marge;
+      }
+      if (clientY + decalage + tipHeight > window.innerHeight - marge) {
+        haut = y - tipHeight - decalage;
+      }
+      if (haut < window.scrollY + marge) {
+        haut = window.scrollY + marge;
+      }
+
+      tooltip.style.left = gauche + 'px';
+      tooltip.style.top = haut + 'px';
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => { if (!tactile.matches) afficher(cle); });
+      terme.addEventListener('mousemove', (e) => {
+        if (!tactile.matches) placer(e.pageX, e.pageY, e.clientX, e.clientY);
+      });
+      terme.addEventListener('mouseleave', () => { if (!tactile.matches) masquer(); });
+
+      terme.addEventListener('focus', () => {
+        afficher(cle);
+        if (!tactile.matches) {
+          const r = terme.getBoundingClientRect();
+          placer(r.left + window.scrollX, r.bottom + window.scrollY, r.left, r.bottom);
+        }
+      });
+      terme.addEventListener('blur', masquer);
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) { masquer(); return; }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => { if (tactile.matches) masquer(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') masquer(); });
+  </script>
+
+</body>
+</html>

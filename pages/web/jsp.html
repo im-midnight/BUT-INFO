@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSP : Jakarta Server Pages (R301) | BUT Info Nantes</title>
+  <meta name="description" content="Cours Pareto sur les JSP : cycle de vie, balises et directives, objets implicites, scopes, architecture MVC avec Servlet, EL, JSTL et JavaBeans.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/web/jsp.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="JSP : Jakarta Server Pages (R301)">
+  <meta property="og:description" content="Cours Pareto sur les JSP : cycle de vie, balises et directives, objets implicites, scopes, architecture MVC avec Servlet, EL, JSTL et JavaBeans.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/web/jsp.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../../assets/site.webmanifest">
+
+  <link rel="stylesheet" href="../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script>
+    // Thème posé tout de suite pour éviter un flash de couleur ; le reste de site.js est en defer.
+    // Clé et valeurs par défaut : les mêmes que DEFAUT dans assets/js/site.js.
+    (function () { var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true }; try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {} var h = document.documentElement; h.dataset.theme = r.theme; h.dataset.mode = r.mode; h.dataset.syntaxe = r.syntaxe ? "on" : "off"; if (r.hc) h.dataset.hc = "on"; })();
+  </script>
+  <script src="../../assets/js/site.js" defer></script>
+  <script src="../../assets/js/script.js" defer></script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R301 - Développement web", "item": "https://butinfo-iutnantes.vercel.app/pages/web/indexWeb.html"}, {"@type": "ListItem", "position": 3, "name": "Cours", "item": "https://butinfo-iutnantes.vercel.app/pages/web/cours.html"}, {"@type": "ListItem", "position": 4, "name": "JSP", "item": "https://butinfo-iutnantes.vercel.app/pages/web/jsp.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>JSP (Jakarta Server Pages)</h1>
+  <p class="consigne">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="jsp" tabindex="0">termes soulignés en pointillé</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. POURQUOI LES JSP -->
+  <section class="loi-card">
+    <h2>1. Pourquoi les JSP ?</h2>
+    <p>Avec une servlet seule, écrire une page HTML entière est vite pénible : on doit tout concaténer dans des appels <code>out.println("&lt;h1&gt;...&lt;/h1&gt;")</code>, et la logique métier se retrouve mélangée à l'affichage.</p>
+    <p>Une <span class="terme" data-def="jsp" tabindex="0">JSP</span> (<em>Jakarta Server Page</em>) inverse le point de vue : on écrit une page HTML normale, dans laquelle on glisse uniquement les morceaux dynamiques (variables, boucles, conditions).</p>
+    <div class="a-retenir">
+      <p>Dans une architecture <span class="terme" data-def="mvc" tabindex="0">MVC</span>, la répartition des rôles est stricte :</p>
+      <ul>
+        <li><strong>Modèle (<span class="terme" data-def="dao" tabindex="0">DAO</span> / objets métier) :</strong> gère les données.</li>
+        <li><strong>Contrôleur (Servlet) :</strong> reçoit la requête HTTP, appelle le modèle et choisit la suite.</li>
+        <li><strong>Vue (JSP) :</strong> se contente d'afficher les données préparées par la servlet.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2. CYCLE DE VIE -->
+  <section class="loi-card">
+    <h2>2. Cycle de vie : une JSP est une servlet</h2>
+    <p>Le navigateur ne reçoit <strong>jamais</strong> le code Java d'une JSP. À la toute première visite sur <code>mon.jsp</code>, le <span class="terme" data-def="conteneur" tabindex="0">conteneur web</span> (Tomcat, via son moteur Jasper) exécute automatiquement une chaîne en 6 étapes :</p>
+    <ol>
+      <li><strong>Traduction (<span class="terme" data-def="transpilation" tabindex="0">transpilation</span>) :</strong> <code>mon.jsp</code> est traduit en un fichier source Java <code>mon_jsp.java</code> qui implémente l'interface <code>HttpJspPage</code> (fille de <code>JspPage</code>, elle-même fille de <code>Servlet</code>).</li>
+      <li><strong>Compilation :</strong> <code>mon_jsp.java</code> est compilé en <span class="terme" data-def="bytecode" tabindex="0">bytecode</span> (<code>mon_jsp.class</code>).</li>
+      <li><strong>Chargement et instanciation :</strong> la <span class="terme" data-def="jvm" tabindex="0">JVM</span> charge la classe et crée <strong>une seule instance</strong> de cette servlet.</li>
+      <li><strong>Initialisation :</strong> <code>jspInit()</code> est appelée une unique fois au démarrage de la JSP.</li>
+      <li><strong>Traitement des requêtes :</strong> à <strong>chaque</strong> requête client, le conteneur appelle <code>_jspService(request, response)</code> et renvoie le HTML généré.</li>
+      <li><strong>Destruction :</strong> à l'arrêt de l'application, <code>jspDestroy()</code> libère les ressources.</li>
+    </ol>
+    <div class="astuce">
+      <p>Comme tout s'exécute côté serveur, une erreur dans une JSP se débogue dans les logs du serveur (Tomcat), pas dans la console du navigateur.</p>
+    </div>
+  </section>
+
+  <!-- 3. BALISES ET DIRECTIVES -->
+  <section class="loi-card">
+    <h2>3. Les balises JSP essentielles</h2>
+    <p>Une page JSP combine du HTML statique avec cinq familles d'éléments de script et de <span class="terme" data-def="directive" tabindex="0">directives</span> :</p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Syntaxe</th><th>Nom</th><th>Rôle</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>&lt;%@ page ... %&gt;</code></td><td><strong>Directive page</strong></td><td>Configure la JSP : encodage (<code>contentType</code>, <code>pageEncoding</code>), <code>import</code> de classes Java, <code>errorPage</code>, <code>isELIgnored</code>.</td></tr>
+          <tr><td><code>&lt;%@ include file="..." %&gt;</code></td><td><strong>Directive include</strong></td><td>Copie-colle un autre fichier dans la JSP <mark>au moment de la compilation</mark> (partage les variables locales).</td></tr>
+          <tr><td><code>&lt;%@ taglib uri="..." prefix="..." %&gt;</code></td><td><strong>Directive taglib</strong></td><td>Importe une bibliothèque de balises comme la <span class="terme" data-def="jstl" tabindex="0">JSTL</span>.</td></tr>
+          <tr><td><code>&lt;% ... %&gt;</code></td><td><strong><span class="terme" data-def="scriptlet" tabindex="0">Scriptlet</span></strong></td><td>Code Java exécuté à chaque requête dans <code>_jspService()</code>. Peut être fragmenté autour du HTML.</td></tr>
+          <tr><td><code>&lt;%= ... %&gt;</code></td><td><strong>Expression</strong></td><td>Évalue une expression Java et l'affiche directement dans le HTML (sans point-virgule).</td></tr>
+          <tr><td><code>&lt;%! ... %&gt;</code></td><td><strong>Déclaration</strong></td><td>Déclare un attribut ou une méthode au niveau de la <strong>classe</strong> (hors de <code>_jspService()</code>).</td></tr>
+          <tr><td><code>&lt;%-- ... --%&gt;</code></td><td><strong>Commentaire JSP</strong></td><td>Ignoré à la compilation : invisible dans le code source reçu par le navigateur (contrairement à <code>&lt;!-- --&gt;</code>).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Exemple minimal avec directive, scriptlet et expression</h3>
+<pre><code class="language-jsp">&lt;%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="fr"&gt;
+&lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;title&gt;Liste JSP&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Ma liste de 3 éléments&lt;/h1&gt;
+  &lt;ul&gt;
+    &lt;% for (int i = 1; i &lt;= 3; i++) { %&gt;
+      &lt;li&gt;Élément &lt;%= i %&gt;&lt;/li&gt;
+    &lt;% } %&gt;
+  &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <div class="piege">
+      <p><strong>Attention aux déclarations <code>&lt;%! ... %&gt;</code> :</strong> comme la JSP est compilée en une seule instance de servlet partagée par tous les clients, une variable déclarée dans <code>&lt;%! %&gt;</code> est <strong>partagée entre tous les utilisateurs</strong>. Ne jamais y stocker de données propres à un visiteur !</p>
+    </div>
+  </section>
+
+  <!-- 4. OBJETS IMPLICITES ET SCOPES -->
+  <section class="loi-card">
+    <h2>4. Objets implicites et portées (scopes)</h2>
+    <p>Dans un scriptlet ou une expression, neuf <span class="terme" data-def="objet-implicite" tabindex="0">objets implicites</span> existent déjà sans que tu aies à les déclarer. Les 5 que tu utiliseras 90 % du temps sont <code>request</code>, <code>response</code>, <code>session</code>, <code>application</code> et <code>out</code> (plus <code>pageContext</code>, <code>config</code>, <code>page</code> et <code>exception</code> sur une page d'erreur).</p>
+
+    <h3>Les 4 niveaux de portée (<span class="terme" data-def="scope" tabindex="0">scopes</span>)</h3>
+    <p>Pour faire circuler des données entre pages et servlets, on les stocke comme attributs dans l'une des quatre portées imbriquées, de la plus courte à la plus longue :</p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Scope</th><th>Objet JSP</th><th>Durée de vie</th><th>Usage typique</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>page</code></td><td><code>pageContext</code></td><td>Uniquement la JSP courante.</td><td>Variable temporaire de calcul sur la page.</td></tr>
+          <tr><td><code>request</code></td><td><code>request</code></td><td>Une seule requête HTTP (survit au <span class="terme" data-def="forward" tabindex="0">forward</span>).</td><td>Transmettre une liste d'une Servlet vers une JSP.</td></tr>
+          <tr><td><code>session</code></td><td><code>session</code></td><td>Toute la visite d'un même utilisateur.</td><td>Login connecté, panier d'achat.</td></tr>
+          <tr><td><code>application</code></td><td><code>application</code></td><td>Toute la vie du serveur, pour tous les clients.</td><td>Configuration globale, compteur global de visites.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. ARCHITECTURE MVC & NAVIGATION -->
+  <section class="loi-card">
+    <h2>5. Relier Servlet et JSP en MVC (Forward vs Redirect)</h2>
+    <p>C'est le schéma le plus important de R3.01 : l'utilisateur appelle toujours une <strong>servlet</strong>, jamais une JSP qui ferait elle-même des requêtes au DAO.</p>
+    <ol>
+      <li><strong>Lecture (<code>GET</code>) :</strong> la servlet récupère les données du DAO, les pose dans la requête avec <code>request.setAttribute("products", liste)</code>, puis passe la main en interne à la JSP avec un <span class="terme" data-def="forward" tabindex="0">forward</span>.</li>
+      <li><strong>Modification (<code>POST</code>) :</strong> un formulaire HTML dans la JSP envoie une action en <code>POST</code> vers la servlet. La servlet modifie les données puis renvoie une <span class="terme" data-def="redirect" tabindex="0">redirection</span> (<code>sendRedirect</code>) vers le <code>GET</code> pour éviter qu'un rafraîchissement ne renvoie deux fois le formulaire.</li>
+    </ol>
+
+<pre><code class="language-java">// Dans la Servlet (Contrôleur)
+protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
+    req.setAttribute("products", productDao.getAll());
+    // Transfert interne : l'URL ne change pas, les attributs de req sont conservés
+    req.getRequestDispatcher("/JSP/Products/products_view.jsp")
+       .forward(req, resp);
+}
+
+protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+        throws IOException {
+    int id = Integer.parseInt(req.getParameter("id"));
+    productDao.incrementQuantity(id);
+    // Redirection HTTP (302) : nouvelle requête GET propre
+    resp.sendRedirect(req.getContextPath() + "/products/controller");
+}</code></pre>
+
+    <h3>Inclusion statique vs dynamique</h3>
+    <ul>
+      <li><code>&lt;%@ include file="header.jsp" %&gt;</code> (<strong>statique</strong>) : fusionné à la compilation. Plus rapide, partage les variables Java locales. Idéal pour un en-tête ou pied de page fixe.</li>
+      <li><code>&lt;jsp:include page="nav.jsp" /&gt;</code> (<strong>dynamique</strong>) : exécuté à chaque requête. Ne partage pas les variables locales, mais accepte des paramètres via <code>&lt;jsp:param&gt;</code> et suit les changements dynamiques.</li>
+      <li><code>&lt;jsp:forward page="erreur.jsp" /&gt;</code> : arrête la JSP courante et transfère le contrôle côté serveur à une autre page (en conservant <code>request</code>).</li>
+    </ul>
+  </section>
+
+  <!-- 6. MODERNISER SES JSP : EL, JSTL ET JAVABEANS -->
+  <section class="loi-card">
+    <h2>6. Écrire des vues propres : EL, JSTL et JavaBeans</h2>
+    <p>Mélanger de gros blocs <code>&lt;% ... %&gt;</code> dans du HTML rend vite les pages illisibles. Pour supprimer le code Java des vues, JSP propose trois outils complémentaires :</p>
+
+    <h3>1. Les <span class="terme" data-def="javabean" tabindex="0">JavaBeans</span> et les actions standard</h3>
+    <p>Un JavaBean est une simple classe Java dans un package nommé (jamais le <em>default package</em>) avec : des attributs <code>private</code>, un <strong>constructeur public sans paramètre</strong> et des <strong>getters/setters publics</strong>. Les balises <code>&lt;jsp:useBean&gt;</code>, <code>&lt;jsp:getProperty&gt;</code> et <code>&lt;jsp:setProperty property="*" /&gt;</code> permettent d'instancier et de remplir automatiquement un bean depuis un formulaire (si les noms des champs HTML correspondent aux attributs Java, avec conversion automatique vers <code>int</code>, <code>double</code>, <code>boolean</code>...).</p>
+
+    <h3>2. L'<span class="terme" data-def="el" tabindex="0">Expression Language (EL)</span> : <code>${ ... }</code></h3>
+    <p>L'EL remplace les expressions <code>&lt;%= ... %&gt;</code> et les casts pénibles. Écrire <code>${product.name}</code> cherche automatiquement l'attribut <code>product</code> dans l'ordre <strong>page → request → session → application</strong>, puis appelle <code>getName()</code>.</p>
+    <ul>
+      <li><strong>Objets EL courants :</strong> <code>${param.recherche}</code> (paramètre d'URL/formulaire), <code>${sessionScope.login}</code>, <code>${requestScope.products}</code>, <code>${cookie.login.value}</code>, <code>${pageContext.request.contextPath}</code> (préfixe de l'application).</li>
+      <li><strong>Opérateurs pratiques :</strong> <code>empty liste</code> (vrai si <code>null</code>, chaîne vide ou collection vide), ternaire <code>${age &gt;= 18 ? 'Majeur' : 'Mineur'}</code>, comparaisons (<code>==</code>/<code>eq</code>, <code>&lt;</code>/<code>lt</code>, <code>&amp;&amp;</code>/<code>and</code>).</li>
+    </ul>
+
+    <h3>3. La <span class="terme" data-def="jstl" tabindex="0">JSTL</span> (bibliothèque standard de balises)</h3>
+    <p>La JSTL remplace les boucles <code>for</code> et les <code>if</code> Java par des balises propres de type XML. On déclare la bibliothèque <code>core</code> en haut de la JSP, puis on utilise le préfixe <code>c:</code> (et <code>fmt:</code> pour l'<span class="terme" data-def="i18n" tabindex="0">i18n</span> et le formatage des dates/devises).</p>
+
+<pre><code class="language-jsp">&lt;%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %&gt;
+&lt;%@ taglib uri="jakarta.tags.core" prefix="c" %&gt;
+&lt;%-- (Anciennes versions Java EE / Tomcat &lt; 10 : uri="http://java.sun.com/jsp/jstl/core") --%&gt;
+
+&lt;ul&gt;
+  &lt;c:forEach items="${requestScope.products}" var="product" varStatus="st"&gt;
+    &lt;li class="${st.index % 2 == 0 ? 'pair' : 'impair'}"&gt;
+      &lt;c:out value="${product.name}" /&gt; — ${product.price} €
+      &lt;c:if test="${product.price &lt; 30}"&gt;
+        &lt;strong&gt;(Promo !)&lt;/strong&gt;
+      &lt;/c:if&gt;
+    &lt;/li&gt;
+  &lt;/c:forEach&gt;
+&lt;/ul&gt;</code></pre>
+
+    <div class="a-retenir">
+      <p>Utiliser <code>&lt;c:out value="${...}" /&gt;</code> échappe automatiquement les caractères HTML (<code>&lt;</code>, <code>&gt;</code>) : cela protège ta page contre les failles <span class="terme" data-def="xss" tabindex="0">XSS</span> lorsqu'on affiche un texte saisi par un utilisateur.</p>
+    </div>
+  </section>
+
+  <!-- 7. SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>7. Synthèse (Loi de Pareto 80/20)</h2>
+    <p>L'essentiel à maîtriser pour réussir tes TP et partiels sur les JSP :</p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Notion clé</th><th>L'essentiel à retenir</th><th>Point de vigilance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Rôle (MVC)</strong></td><td>La JSP est la <strong>Vue</strong> (affichage HTML dynamique). La Servlet reste le Contrôleur.</td><td>Ne pas mettre de requêtes DAO ou logique métier complexe dans la JSP.</td></tr>
+          <tr><td><strong>Cycle de vie</strong></td><td>Traduction en <code>_jsp.java</code> → compilation → <code>jspInit()</code> → <code>_jspService()</code> → <code>jspDestroy()</code>.</td><td>Une seule instance : éviter les variables d'instance dans <code>&lt;%! %&gt;</code>.</td></tr>
+          <tr><td><strong>Balises de base</strong></td><td><code>&lt;%@ %&gt;</code> directive, <code>&lt;% %&gt;</code> scriptlet, <code>&lt;%= %&gt;</code> expression, <code>&lt;%-- --%&gt;</code> commentaire.</td><td>Pas de <code>;</code> dans <code>&lt;%= expr %&gt;</code>.</td></tr>
+          <tr><td><strong>4 Scopes</strong></td><td><code>page</code> &lt; <code>request</code> &lt; <code>session</code> &lt; <code>application</code>.</td><td><code>request</code> survit au <code>forward</code>, mais disparaît au <code>sendRedirect</code>.</td></tr>
+          <tr><td><strong>Forward vs Redirect</strong></td><td><code>forward</code> = interne serveur (affiche une JSP). <code>sendRedirect</code> = nouvelle requête client (après un <code>POST</code>).</td><td>Toujours faire un <code>sendRedirect</code> après modification en <code>POST</code>.</td></tr>
+          <tr><td><strong>EL &amp; JSTL</strong></td><td><code>${objet.prop}</code> lit les données sans scriptlet ; <code>&lt;c:forEach&gt;</code>, <code>&lt;c:if&gt;</code>, <code>&lt;c:out&gt;</code> structurent la vue.</td><td>Les classes JavaBeans doivent avoir un package, un constructeur vide et des getters/setters publics.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Méthodes, balises et expressions indispensables</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Méthode / Balise</th><th>À quoi elle sert</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>request.setAttribute("cle", val)</code> / <code>getAttribute("cle")</code></td><td>Transmettre un objet (liste, bean...) d'une Servlet vers une JSP pendant un <code>forward</code>.</td></tr>
+          <tr><td><code>request.getRequestDispatcher("/vue.jsp").forward(req, resp)</code></td><td>Transférer en interne la requête vers la JSP qui va générer le HTML.</td></tr>
+          <tr><td><code>response.sendRedirect(url)</code></td><td>Demander au navigateur de charger une autre URL (utilisé après un <code>POST</code> ou si l'utilisateur n'est pas connecté).</td></tr>
+          <tr><td><code>request.getParameter("nom")</code></td><td>Récupérer la valeur texte d'un champ de formulaire ou d'un paramètre d'URL.</td></tr>
+          <tr><td><code>request.getSession(false)</code></td><td>Récupérer la session existante sans en créer de nouvelle (renvoie <code>null</code> si non connecté).</td></tr>
+          <tr><td><code>session.setAttribute("login", val)</code></td><td>Mémoriser une donnée propre à l'utilisateur pendant toute sa navigation.</td></tr>
+          <tr><td><code>${pageContext.request.contextPath}</code></td><td>Obtenir le chemin racine de l'application (ex. <code>/demo</code>) pour construire des liens et actions de formulaire fiables.</td></tr>
+          <tr><td><code>&lt;c:forEach items="${liste}" var="item"&gt;</code></td><td>Parcourir une liste ou un tableau en JSTL sans écrire de boucle Java.</td></tr>
+          <tr><td><code>&lt;c:if test="${condition}"&gt;</code> / <code>&lt;c:choose&gt;</code></td><td>Afficher conditionnellement du HTML (choix simple ou choix multiple avec <code>&lt;c:when&gt;</code> / <code>&lt;c:otherwise&gt;</code>).</td></tr>
+          <tr><td><code>&lt;c:out value="${texte}" /&gt;</code></td><td>Afficher une variable en échappant le HTML (protection contre les injections XSS).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS VULGARISÉES -->
+  <div id="tooltip">
+    <div id="def-jsp" class="def-bloc">
+      <h3>JSP (Jakarta Server Pages)</h3>
+      <p>Un fichier HTML enrichi de balises spéciales qui permettent d'insérer des données calculées par Java. Le serveur le transforme automatiquement en servlet avant de l'exécuter.</p>
+    </div>
+
+    <div id="def-mvc" class="def-bloc">
+      <h3>MVC (Modèle - Vue - Contrôleur)</h3>
+      <p>Une façon d'organiser une application en 3 rôles séparés : le <strong>Modèle</strong> gère les données, le <strong>Contrôleur</strong> orchestre les actions et la <strong>Vue</strong> s'occupe uniquement de l'affichage.</p>
+    </div>
+
+    <div id="def-dao" class="def-bloc">
+      <h3>DAO (Data Access Object)</h3>
+      <p>Une classe dédiée uniquement à lire, ajouter, modifier ou supprimer des données (en mémoire ou en base de données), pour isoler le reste du code du stockage.</p>
+    </div>
+
+    <div id="def-conteneur" class="def-bloc">
+      <h3>Conteneur web (ex. Tomcat)</h3>
+      <p>Le moteur serveur qui héberge l'application web, traduit les JSP en servlets, gère les requêtes HTTP et appelle les bonnes méthodes.</p>
+    </div>
+
+    <div id="def-transpilation" class="def-bloc">
+      <h3>Transpilation (traduction)</h3>
+      <p>Transformer automatiquement un fichier écrit dans un format (ici <code>.jsp</code>) en un fichier source dans un autre langage (ici du code Java <code>.java</code>) avant de le compiler.</p>
+    </div>
+
+    <div id="def-bytecode" class="def-bloc">
+      <h3>Bytecode (fichier <code>.class</code>)</h3>
+      <p>Le code intermédiaire produit par le compilateur Java. Il n'est pas lisible par un humain, mais compris par la JVM sur n'importe quel système d'exploitation.</p>
+    </div>
+
+    <div id="def-jvm" class="def-bloc">
+      <h3>JVM (Java Virtual Machine)</h3>
+      <p>Le programme qui exécute le bytecode Java sur ta machine ou sur le serveur.</p>
+    </div>
+
+    <div id="def-directive" class="def-bloc">
+      <h3>Directive JSP (<code>&lt;%@ ... %&gt;</code>)</h3>
+      <p>Une consigne donnée au serveur au moment où il traduit la JSP en servlet (ex. quels packages Java importer, quel encodage UTF-8 utiliser).</p>
+    </div>
+
+    <div id="def-scriptlet" class="def-bloc">
+      <h3>Scriptlet (<code>&lt;% ... %&gt;</code>)</h3>
+      <p>Un bloc de code Java collé directement dans une JSP et exécuté à chaque affichage de la page. Aujourd'hui on préfère le remplacer par EL et JSTL.</p>
+    </div>
+
+    <div id="def-objet-implicite" class="def-bloc">
+      <h3>Objet implicite</h3>
+      <p>Un objet Java que le serveur prépare et met automatiquement à disposition dans toute JSP (comme <code>request</code>, <code>session</code> ou <code>out</code>), sans avoir besoin de le déclarer.</p>
+    </div>
+
+    <div id="def-scope" class="def-bloc">
+      <h3>Scope (portée)</h3>
+      <p>La durée de vie et la visibilité d'une donnée stockée côté serveur : juste cette page (<code>page</code>), le temps d'une requête (<code>request</code>), le temps de la visite d'un utilisateur (<code>session</code>) ou pour tout le site (<code>application</code>).</p>
+    </div>
+
+    <div id="def-forward" class="def-bloc">
+      <h3>Forward (transfert interne)</h3>
+      <p>Le serveur passe le relais d'une servlet à une JSP en coulisses, sans prévenir le navigateur. L'URL affichée ne change pas et les données de <code>request</code> sont conservées.</p>
+    </div>
+
+    <div id="def-redirect" class="def-bloc">
+      <h3>Redirection HTTP (<code>sendRedirect</code>)</h3>
+      <p>Le serveur répond au navigateur « va plutôt voir à cette autre adresse » (code 302). Le navigateur fait alors une toute nouvelle requête, ce qui change l'URL et vide les attributs de l'ancienne requête.</p>
+    </div>
+
+    <div id="def-javabean" class="def-bloc">
+      <h3>JavaBean</h3>
+      <p>Une classe Java qui respecte 3 règles simples pour être manipulée facilement par les outils JSP : un constructeur vide public, des attributs privés et des getters/setters publics.</p>
+    </div>
+
+    <div id="def-el" class="def-bloc">
+      <h3>EL (Expression Language)</h3>
+      <p>Une notation courte entre <code>${ }</code> qui permet de lire facilement des attributs, propriétés d'objets ou paramètres dans une JSP sans écrire de Java.</p>
+    </div>
+
+    <div id="def-jstl" class="def-bloc">
+      <h3>JSTL (Jakarta Standard Tag Library)</h3>
+      <p>Une boîte à outils de balises prêtes à l'emploi (<code>&lt;c:forEach&gt;</code>, <code>&lt;c:if&gt;</code>, <code>&lt;c:out&gt;</code>...) qui permet de faire des boucles et conditions proprement dans une JSP.</p>
+    </div>
+
+    <div id="def-i18n" class="def-bloc">
+      <h3>i18n (Internationalisation)</h3>
+      <p>Adapter automatiquement un site à la langue et au pays du visiteur (textes traduits, format des dates et des devises). « i18n » vient des 18 lettres entre le <em>i</em> et le <em>n</em>.</p>
+    </div>
+
+    <div id="def-xss" class="def-bloc">
+      <h3>XSS (Cross-Site Scripting)</h3>
+      <p>Une faille de sécurité qui permet à un attaquant d'injecter du code JavaScript malveillant (ex. <code>&lt;script&gt;...&lt;/script&gt;</code>) dans une page web affichée à d'autres utilisateurs.</p>
+    </div>
+  </div>
+
+  <script>
+    // Infobulles : survol à la souris, toucher sur téléphone, focus au clavier
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    function placer(x, y, clientX, clientY) {
+      const decalage = 15;
+      const marge = 12;
+      const tipWidth = tooltip.offsetWidth;
+      const tipHeight = tooltip.offsetHeight;
+
+      let gauche = x + decalage;
+      let haut = y + decalage;
+
+      if (clientX + decalage + tipWidth > window.innerWidth - marge) {
+        gauche = x - tipWidth - decalage;
+      }
+      if (gauche < window.scrollX + marge) {
+        gauche = window.scrollX + marge;
+      }
+      if (clientY + decalage + tipHeight > window.innerHeight - marge) {
+        haut = y - tipHeight - decalage;
+      }
+      if (haut < window.scrollY + marge) {
+        haut = window.scrollY + marge;
+      }
+
+      tooltip.style.left = gauche + 'px';
+      tooltip.style.top = haut + 'px';
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => { if (!tactile.matches) afficher(cle); });
+      terme.addEventListener('mousemove', (e) => {
+        if (!tactile.matches) placer(e.pageX, e.pageY, e.clientX, e.clientY);
+      });
+      terme.addEventListener('mouseleave', () => { if (!tactile.matches) masquer(); });
+
+      terme.addEventListener('focus', () => {
+        afficher(cle);
+        if (!tactile.matches) {
+          const r = terme.getBoundingClientRect();
+          placer(r.left + window.scrollX, r.bottom + window.scrollY, r.left, r.bottom);
+        }
+      });
+      terme.addEventListener('blur', masquer);
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) { masquer(); return; }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => { if (tactile.matches) masquer(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') masquer(); });
+  </script>
+
+</body>
+</html>
