@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exercice 8.1 : Implémentation du code de Hamming, matrice génératrice (TP R309) | BUT Info Nantes</title>
-  <meta name="description" content="Conversion en binaire, nombre de bits de parité et construction de la matrice génératrice de Hamming en Python.">
+  <title>Exercice 8 : Implémentation du code de Hamming, matrices génératrice et de contrôle (TP R309) | BUT Info Nantes</title>
+  <meta name="description" content="Conversion en binaire, matrice génératrice, nombre de bits de parité d'un message reçu et matrice de contrôle de Hamming en Python.">
   <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex8.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BUT INFO2">
   <meta property="og:locale" content="fr_FR">
-  <meta property="og:title" content="Exercice 8.1 : Implémentation du code de Hamming, matrice génératrice (TP R309)">
-  <meta property="og:description" content="Conversion en binaire, nombre de bits de parité et construction de la matrice génératrice de Hamming en Python.">
+  <meta property="og:title" content="Exercice 8 : Implémentation du code de Hamming, matrices génératrice et de contrôle (TP R309)">
+  <meta property="og:description" content="Conversion en binaire, matrice génératrice, nombre de bits de parité d'un message reçu et matrice de contrôle de Hamming en Python.">
   <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex8.html">
   <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -48,6 +48,7 @@
     th, td { border: 1px solid var(--bordure-forte); padding: 0.5rem 0.6rem; text-align: center; vertical-align: middle; }
     th { background-color: var(--surface-2); }
     td.par { background-color: var(--surface-2); font-weight: bold; }
+    td.err { outline: 2px solid var(--primaire-fonce); outline-offset: -2px; font-weight: bold; }
     .note-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
     .warning-box { padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.92rem; }
     pre { white-space: pre-wrap; word-break: break-all; }
@@ -56,12 +57,12 @@
                   background: var(--surface); color: inherit; border: 1px solid var(--bordure-forte); border-radius: 6px; }
   </style>
   <script type="application/ld+json">
-  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R309 - Cryptographie et sécurité", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/indexCrypto.html"}, {"@type": "ListItem", "position": 3, "name": "TP", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp.html"}, {"@type": "ListItem", "position": 4, "name": "Exercice 8.1 : Implémentation du code de Hamming", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex8.html"}]}
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R309 - Cryptographie et sécurité", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/indexCrypto.html"}, {"@type": "ListItem", "position": 3, "name": "TP", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp.html"}, {"@type": "ListItem", "position": 4, "name": "Exercice 8 : Implémentation du code de Hamming", "item": "https://butinfo-iutnantes.vercel.app/pages/math/crypto/tp/ex8.html"}]}
   </script>
 </head>
 <body>
 
-  <h1>Exercice 8.1 : Implémentation du code de Hamming</h1>
+  <h1>Exercice 8 : Implémentation du code de Hamming</h1>
   <p style="text-align: center; color: var(--texte-doux);">
     <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="matrice-generatrice">termes soulignés en bleu</span> pour afficher leur définition.</em>
   </p>
@@ -236,6 +237,114 @@ print(mat_gen_hamming("test"))</code></pre>
     <div id="h-sortie"></div>
   </section>
 
+  <!-- PRINCIPE DU CONTRÔLE -->
+  <section class="loi-card">
+    <h2>Principe : le contrôle comme produit matriciel</h2>
+    <p>À la réception, on contrôle un mot $y$ de $n$ bits avec une seconde application <strong>linéaire</strong> $\psi : \mathbb{F}_2^n \to \mathbb{F}_2^k$, représentée par la <span class="terme" data-def="matrice-controle">matrice de contrôle</span> $H$ de dimension $(k, n)$ ($k$ = nombre de bits de parité du mot) :
+      $$ s = H \cdot y \pmod 2 $$
+    </p>
+    <p>Le vecteur $s$ de $k$ bits est le <span class="terme" data-def="syndrome">syndrome</span> : sa ligne $i$ est la somme de contrôle du bit de parité $p_{2^i}$. Pour Hamming$(7,4)$ :
+      $$ H = \begin{pmatrix} 1&0&1&0&1&0&1\\ 0&1&1&0&0&1&1\\ 0&0&0&1&1&1&1 \end{pmatrix} $$
+    </p>
+    <ul>
+      <li>Si $s$ est le vecteur nul ($k$ fois $0$), aucune erreur n'est détectée.</li>
+      <li>Sinon, en supposant une seule erreur, sa position est $\displaystyle pos = \sum_{i=0}^{k-1} s[i] \times 2^i$. Par exemple $s = (0, 1, 1)$ donne $0 + 2 + 4 = 6$ : le sixième bit est erroné.</li>
+      <li>La colonne $j$ de $H$ est l'écriture binaire de $j$ en <span class="terme" data-def="poids-faible">poids faible d'abord</span> : c'est ce qui rend la construction très directe.</li>
+    </ul>
+  </section>
+
+  <!-- 8.2.a -->
+  <section class="loi-card">
+    <h2>8.2.a Nombre de bits de parité du message reçu</h2>
+    <p>Dans un mot de Hamming de $n$ bits, les <span class="terme" data-def="parite">bits de parité</span> occupent les positions $1, 2, 4, 8, \ldots$ qui sont inférieures ou égales à $n$. Il suffit donc de <strong>compter les puissances de $2$ inférieures ou égales à $n$</strong> : c'est ce que fait <code>det_nb_bit_parite_recu</code>, avec un compteur <code>nbits</code> incrémenté à chaque $2^i \leq n$.</p>
+<pre><code>def det_nb_bit_parite_recu(mess_recu):
+    n = len(mess_recu)
+    nbits = 0
+    for i in range(n):
+        if pow(2,i) &lt;= n:
+            nbits+=1
+    return nbits
+
+print(det_nb_bit_parite_recu("1234567"))</code></pre>
+    <p class="ok">Sortie : <code>3</code> (les puissances de $2$ inférieures ou égales à $7$ sont $1, 2, 4$).</p>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Longueur $n$ du mot reçu</th><th>3</th><th>5 à 7</th><th>9 à 15</th><th>17 à 31</th></tr></thead>
+        <tbody>
+          <tr><td>Bits de parité $k$</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>On retrouve la table de 8.1.b lue dans l'autre sens : la taille du code $n = m + k$ détermine $k$. Pour le mot de l'exercice 7.2 ($n = 10$), les puissances $1, 2, 4, 8$ donnent bien $k = 4$.</p>
+    <div class="note-box">
+      <strong>$\leq$ ici, $<$ dans <code>mat_gen_hamming</code> :</strong> les deux écritures donnent le même résultat, car la longueur d'un mot de Hamming n'est jamais une puissance de $2$ (voir les valeurs de $n$ ci-dessus : $3$, $5$ à $7$, $9$ à $15$, $\ldots$).
+    </div>
+  </section>
+
+  <!-- 8.2.b -->
+  <section class="loi-card">
+    <h2>8.2.b Matrice de contrôle de Hamming</h2>
+    <p><code>mat_cont_hamming(mess_recu)</code> construit la matrice $(k, n)$ en trois étapes :</p>
+    <ol>
+      <li><strong>Dimensions :</strong> $n = $ <code>len(mess_recu)</code>, $k = $ <code>det_nb_bit_parite_recu(mess_recu)</code> ; matrice de $0$ de $k$ lignes et $n$ colonnes.</li>
+      <li><strong>Écriture binaire de chaque position :</strong> pour la colonne $i$ (position $i + 1$), <code>complet_convert_binaire(i+1, k)</code> donne la liste des $k$ bits en poids faible d'abord.</li>
+      <li><strong>Recopie :</strong> le bit $j$ de cette liste va à la ligne $j$ de la colonne $i$ (<code>matrice_controle[j][i] = valeur[j]</code>). La ligne $j$ contient donc un $1$ exactement aux positions dont l'écriture binaire a un $1$ à l'indice $j$ : c'est le groupe contrôlé par $p_{2^j}$.</li>
+    </ol>
+<pre><code>def mat_cont_hamming(mess_recu):
+    n = len(mess_recu)
+    k = det_nb_bit_parite_recu(mess_recu)
+
+    matrice_controle = [[0 for _ in range(n)] for _ in range(k)]
+
+    for i in range(n):
+        valeur = complet_convert_binaire(i+1,k)
+        for j in range (len(valeur)):
+            matrice_controle[j][i] = valeur[j]
+    return matrice_controle
+
+print(mat_cont_hamming("1234567"))</code></pre>
+
+    <h3 style="color: var(--primaire-fonce); font-size: 1.05rem;">Déroulé sur <code>"1234567"</code> : $n = 7$, $k = 3$</h3>
+    <p>Écriture binaire des positions $1$ à $7$ (colonnes $2^0, 2^1, 2^2$) :</p>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Position $i + 1$</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr></thead>
+        <tbody>
+          <tr><td>$2^0$</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>$2^1$</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>$2^2$</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Ce tableau est directement la matrice $H$ : chaque ligne est la ligne de contrôle d'un bit de parité.</p>
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Ligne</th><th>Rôle</th><th>col. 1</th><th>col. 2</th><th>col. 3</th><th>col. 4</th><th>col. 5</th><th>col. 6</th><th>col. 7</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td class="par">$p_1$</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+          <tr><td>1</td><td class="par">$p_2$</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>2</td><td class="par">$p_4$</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="ok">Sortie : <code>[[1, 0, 1, 0, 1, 0, 1], [0, 1, 1, 0, 0, 1, 1], [0, 0, 0, 1, 1, 1, 1]]</code>, soit exactement la matrice $H$ de l'énoncé.</p>
+
+    <div class="note-box">
+      <strong>Contrôle croisé avec 8.1.c :</strong> pour $m = 4$ ($n = 7$) et pour $m = 10$ ($n = 14$), le produit $H \cdot M$ des deux matrices générées vaut $0 \pmod 2$ : tout code produit par $M$ a donc un syndrome nul.
+    </div>
+    <div class="note-box">
+      <strong>Contrôle croisé avec l'exercice 7.2 :</strong> pour le mot reçu <code>1 0 1 1 0 0 1 0 0 0</code> ($n = 10$, $k = 4$), le syndrome $H \cdot y \bmod 2$ vaut $(1, 0, 0, 0)$, donc la position erronée est $1 \times 2^0 = 1$ : le bit de parité $p_1$, comme obtenu à la main.
+    </div>
+  </section>
+
+  <!-- DÉMO -->
+  <section class="loi-card">
+    <h2>Démo : contrôler un message reçu</h2>
+    <p>Entre un mot reçu en bits (de 3 à 31 bits, espaces ignorés) : la page construit $H$ comme <code>mat_cont_hamming</code>, calcule le syndrome $H \cdot y \bmod 2$ puis, s'il est non nul, la position de l'erreur et le mot corrigé (hypothèse d'une seule erreur).</p>
+    <input type="text" id="h-recu" class="demo-champ" value="1 0 1 1 0 0 1 0 0 0" aria-label="Message reçu en bits">
+    <div id="h-sortie-recu"></div>
+  </section>
+
   <!-- SYNTHÈSE -->
   <section class="loi-card">
     <h2>Synthèse</h2>
@@ -247,6 +356,9 @@ print(mat_gen_hamming("test"))</code></pre>
           <tr><td><code>complet_convert_binaire(n, f)</code></td><td>Idem, complétée à $f$ éléments</td><td>Ajout de $0$ en fin de liste (poids forts)</td></tr>
           <tr><td><code>det_nb_bit_parite(n)</code></td><td>Nombre $k$ de bits de parité</td><td>Plus petit $k$ avec $2^k \geq m + k + 1$</td></tr>
           <tr><td><code>mat_gen_hamming(mess)</code></td><td>Matrice génératrice $(n, m)$</td><td>Données : identité ; parité : bits de la position en binaire</td></tr>
+                  <tr><td><code>det_nb_bit_parite_recu(mess)</code></td><td>Nombre $k$ de bits de parité du mot reçu</td><td>Compter les puissances de $2$ inférieures ou égales à $n$</td></tr>
+          <tr><td><code>mat_cont_hamming(mess)</code></td><td>Matrice de contrôle $(k, n)$</td><td>Colonne $j$ = écriture binaire de $j$, poids faible en haut</td></tr>
+          <tr><td>Syndrome $s = H \cdot y \bmod 2$</td><td>Détecter et localiser l'erreur</td><td>$s$ nul : aucune erreur ; sinon position $= \sum s[i]\,2^i$</td></tr>
         </tbody>
       </table>
     </div>
@@ -256,6 +368,14 @@ print(mat_gen_hamming("test"))</code></pre>
     <div id="def-matrice-generatrice" class="def-bloc">
       <h3>Matrice génératrice</h3>
       <p>Matrice $M$ de dimension $(n, m)$ telle que $c = M \cdot i$ donne le code de $n$ bits d'un message $i$ de $m$ bits. Sa colonne $j$ est le code du $j$-ième vecteur de base.</p>
+    </div>
+    <div id="def-matrice-controle" class="def-bloc">
+      <h3>Matrice de contrôle</h3>
+      <p>Matrice $H$ de dimension $(k, n)$ telle que $H \cdot y$ donne les $k$ sommes de contrôle d'un mot reçu $y$ de $n$ bits. Elle vaut le vecteur nul pour tout mot de Hamming sans erreur.</p>
+    </div>
+    <div id="def-syndrome" class="def-bloc">
+      <h3>Syndrome</h3>
+      <p>Résultat $s = H \cdot y \bmod 2$ du contrôle de parité sur un mot reçu. Nul si aucune erreur n'est détectée ; sinon, pour une erreur unique, sa valeur $\sum s[i]\,2^i$ est la position du bit erroné.</p>
     </div>
     <div id="def-parite" class="def-bloc">
       <h3>Bit de parité</h3>
@@ -334,7 +454,7 @@ print(mat_gen_hamming("test"))</code></pre>
     });
   </script>
 
-  <!-- DÉMO : même démarche que ex8.py -->
+  <!-- DÉMOS : même démarche que ex8.py -->
   <script>
     function convertBinaire(n) {
       if (n === 0) return [0];
@@ -401,6 +521,61 @@ print(mat_gen_hamming("test"))</code></pre>
     }
     document.getElementById('h-msg').addEventListener('input', majDemo);
     majDemo();
+
+    function detNbBitPariteRecu(n) {
+      let nbits = 0;
+      for (let i = 0; i < n; i++) { if (Math.pow(2, i) <= n) nbits++; }
+      return nbits;
+    }
+    function matContHamming(n) {
+      const k = detNbBitPariteRecu(n);
+      const H = Array.from({ length: k }, () => new Array(n).fill(0));
+      for (let i = 0; i < n; i++) {
+        const valeur = completConvertBinaire(i + 1, k);
+        for (let j = 0; j < valeur.length; j++) H[j][i] = valeur[j];
+      }
+      return { k: k, H: H };
+    }
+
+    function majDemoRecu() {
+      const sortie = document.getElementById('h-sortie-recu');
+      const y = document.getElementById('h-recu').value.replace(/[^01]/g, '').split('').map(Number);
+      const n = y.length;
+      if (n < 3 || n > 31) { sortie.textContent = 'Entre entre 3 et 31 bits.'; return; }
+      const r = matContHamming(n);
+      const s = r.H.map(ligne => ligne.reduce((acc, v, j) => acc + v * y[j], 0) % 2);
+      const pos = s.reduce((acc, v, i) => acc + v * Math.pow(2, i), 0);
+      const valide = (n & (n - 1)) !== 0;
+
+      let h = '<p>$n = ' + n + '$, $k = ' + r.k + '$.</p>';
+      if (!valide) h += '<div class="warning-box">Une longueur de ' + n + ' bits ne correspond à aucun code de Hamming (ce n\'est jamais une puissance de $2$) : le résultat n\'a pas de sens.</div>';
+      h += '<div class="table-container"><table><thead><tr><th>Ligne</th><th>Rôle</th>';
+      for (let j = 1; j <= n; j++) h += '<th>col. ' + j + '</th>';
+      h += '<th>Somme mod 2</th></tr></thead><tbody>';
+      h += '<tr><td colspan="2"><strong>Reçu $y$</strong></td>';
+      y.forEach((v, j) => { h += '<td' + (j + 1 === pos ? ' class="err"' : '') + '>' + v + '</td>'; });
+      h += '<td></td></tr>';
+      r.H.forEach((ligne, i) => {
+        h += '<tr><td>' + i + '</td><td class="par">$p_{' + Math.pow(2, i) + '}$</td>';
+        ligne.forEach((v, j) => { h += '<td' + (j + 1 === pos ? ' class="err"' : '') + '>' + v + '</td>'; });
+        h += '<td class="par">' + s[i] + '</td></tr>';
+      });
+      h += '</tbody></table></div>';
+      h += '<p>Syndrome : <code>' + s.join(' ') + '</code></p>';
+      if (pos === 0) {
+        h += '<p class="ok">Syndrome nul : aucune erreur détectée.</p>';
+      } else if (pos > n) {
+        h += '<p class="ok">Position ' + pos + ' hors du mot : il y a au moins deux erreurs, la correction est impossible.</p>';
+      } else {
+        const corrige = y.slice();
+        corrige[pos - 1] = 1 - corrige[pos - 1];
+        h += '<p class="ok">Position de l\'erreur : $' + pos + '$. Mot corrigé : <code>' + corrige.join(' ') + '</code></p>';
+      }
+      sortie.innerHTML = h;
+      if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([sortie]);
+    }
+    document.getElementById('h-recu').addEventListener('input', majDemoRecu);
+    majDemoRecu();
   </script>
 
 </body>
