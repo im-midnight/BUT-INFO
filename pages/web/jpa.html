@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="3f672217-240f-4800-ab25-eefe876d87b1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JPA : Jakarta Persistence API (R301) | BUT Info Nantes</title>
+  <meta name="description" content="Cours Pareto sur JPA et Hibernate : persistance, JDBC vs ORM, entités et annotations, relations (OneToOne, OneToMany, ManyToMany), Lazy vs Eager, EntityManager et JPQL.">
+  <link rel="canonical" href="https://butinfo-iutnantes.vercel.app/pages/web/jpa.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BUT INFO2">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="JPA : Jakarta Persistence API (R301)">
+  <meta property="og:description" content="Cours Pareto sur JPA et Hibernate : persistance, JDBC vs ORM, entités et annotations, relations (OneToOne, OneToMany, ManyToMany), Lazy vs Eager, EntityManager et JPQL.">
+  <meta property="og:url" content="https://butinfo-iutnantes.vercel.app/pages/web/jpa.html">
+  <meta property="og:image" content="https://butinfo-iutnantes.vercel.app/assets/img/partage.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="../../assets/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="../../assets/img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../../assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="../../assets/site.webmanifest">
+
+  <link rel="stylesheet" href="../../assets/css/themes.css">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script>
+    // Thème posé tout de suite pour éviter un flash de couleur ; le reste de site.js est en defer.
+    // Clé et valeurs par défaut : les mêmes que DEFAUT dans assets/js/site.js.
+    (function () { var r = { theme: "bleu", mode: "clair", hc: false, syntaxe: true }; try { Object.assign(r, JSON.parse(localStorage.getItem("butinfo-reglages") || "{}")); } catch (e) {} var h = document.documentElement; h.dataset.theme = r.theme; h.dataset.mode = r.mode; h.dataset.syntaxe = r.syntaxe ? "on" : "off"; if (r.hc) h.dataset.hc = "on"; })();
+  </script>
+  <script src="../../assets/js/site.js" defer></script>
+  <script src="../../assets/js/script.js" defer></script>
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "BUT INFO2", "item": "https://butinfo-iutnantes.vercel.app/"}, {"@type": "ListItem", "position": 2, "name": "R301 - Développement web", "item": "https://butinfo-iutnantes.vercel.app/pages/web/indexWeb.html"}, {"@type": "ListItem", "position": 3, "name": "Cours", "item": "https://butinfo-iutnantes.vercel.app/pages/web/cours.html"}, {"@type": "ListItem", "position": 4, "name": "JPA", "item": "https://butinfo-iutnantes.vercel.app/pages/web/jpa.html"}]}
+  </script>
+</head>
+<body>
+
+  <h1>JPA (Jakarta Persistence API)</h1>
+  <p class="consigne">
+    <em><span class="astuce-souris">Passe la souris sur</span><span class="astuce-tactile">Touche</span> les <span class="terme" data-def="orm" tabindex="0">termes soulignés en pointillé</span> pour afficher leur définition.</em>
+  </p>
+
+  <!-- 1. PERSISTANCE, JDBC ET ORM -->
+  <section class="loi-card">
+    <h2>1. Persistance, JDBC et approche ORM</h2>
+    <p>La <span class="terme" data-def="persistance" tabindex="0">persistance</span> consiste à sauvegarder des données durablement (après l'arrêt du serveur), le plus souvent dans un <span class="terme" data-def="sgbdr" tabindex="0">SGBD relationnel</span> (PostgreSQL, MySQL, H2...).</p>
+    <p>Problème : deux mondes s'opposent. En Java (POO), on manipule des <strong>objets</strong> liés entre eux, qui cachent leurs attributs et exposent des méthodes. Dans une base SQL, on stocke des <strong>lignes dans des tables</strong> reliées par des clés étrangères.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Approche</th><th>Niveau</th><th>Points forts</th><th>Limites</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong><span class="terme" data-def="jdbc" tabindex="0">JDBC</span></strong></td><td>Bas niveau</td><td>Très performant, contrôle total du SQL.</td><td>Verbeux (connexions, <code>PreparedStatement</code>, mapping manuel), dépend parfois du dialecte SQL.</td></tr>
+          <tr><td><strong><span class="terme" data-def="jpa" tabindex="0">JPA</span> (<span class="terme" data-def="orm" tabindex="0">ORM</span>)</strong></td><td>Haut niveau</td><td>Concis, on manipule des objets Java, très portable d'un SGBD à l'autre.</td><td>Légèrement plus lent, nécessite de comprendre le chargement des relations.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="a-retenir">
+      <p><strong>JPA n'est pas une bibliothèque, mais une <span class="terme" data-def="specification" tabindex="0">spécification</span></strong> (un ensemble d'interfaces et d'annotations dans <code>jakarta.persistence</code>). Pour l'exécuter, il faut une <strong>implémentation</strong> : la plus connue est <strong><span class="terme" data-def="hibernate" tabindex="0">Hibernate</span></strong> (devant EclipseLink ou OpenJPA).</p>
+      <p>JPA repose sur 3 piliers : les <strong>entités annotées</strong>, l'<strong>API <code>EntityManager</code></strong> pour le CRUD, et le langage de requête objet <strong><span class="terme" data-def="jpql" tabindex="0">JPQL</span></strong>.</p>
+    </div>
+  </section>
+
+  <!-- 2. ARCHITECTURE ET CONFIGURATION -->
+  <section class="loi-card">
+    <h2>2. Architecture et configuration (<code>persistence.xml</code>)</h2>
+    <p>En JPA standard (hors Spring Boot), toute la configuration de la base est décrite dans une <span class="terme" data-def="persistence-unit" tabindex="0">unité de persistance</span> placée dans <code>src/main/resources/META-INF/persistence.xml</code>. La chaîne d'objets au démarrage est toujours la même :</p>
+    <ol>
+      <li><code>Persistence</code> lit <code>persistence.xml</code> et construit une <code>EntityManagerFactory</code> (lourde : créée <strong>une seule fois</strong> pour toute l'application).</li>
+      <li>L'<code>EntityManagerFactory</code> fabrique des <code>EntityManager</code> (légers : un par traitement/requête).</li>
+      <li>L'<code>EntityManager</code> gère les entités, ouvre des <span class="terme" data-def="transaction" tabindex="0">transactions</span> (<code>EntityTransaction</code>) et exécute des requêtes (<code>TypedQuery</code>).</li>
+    </ol>
+
+<pre><code class="language-xml">&lt;persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0"&gt;
+  &lt;persistence-unit name="myPersistenceUnit"&gt;
+    &lt;provider&gt;org.hibernate.jpa.HibernatePersistenceProvider&lt;/provider&gt;
+    &lt;class&gt;iut.nantes.entities.Product&lt;/class&gt;
+    &lt;properties&gt;
+      &lt;property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/&gt;
+      &lt;property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:test"/&gt;
+      &lt;property name="jakarta.persistence.jdbc.user" value="sa"/&gt;
+      &lt;property name="jakarta.persistence.jdbc.password" value=""/&gt;
+      &lt;property name="hibernate.hbm2ddl.auto" value="update"/&gt;
+      &lt;property name="hibernate.show_sql" value="true"/&gt;
+    &lt;/properties&gt;
+  &lt;/persistence-unit&gt;
+&lt;/persistence&gt;</code></pre>
+
+    <div class="astuce">
+      <p>La propriété <code>hibernate.hbm2ddl.auto</code> contrôle la génération des tables depuis tes classes Java : <code>create</code> (recrée tout à chaque démarrage, pratique en test), <code>update</code> (met à jour le schéma), <code>validate</code> (vérifie sans rien modifier, recommandé en production).</p>
+    </div>
+  </section>
+
+  <!-- 3. ENTITÉS ET ANNOTATIONS -->
+  <section class="loi-card">
+    <h2>3. Définir une Entité JPA</h2>
+    <p>Une <span class="terme" data-def="entite" tabindex="0">entité</span> est une classe Java dont chaque instance correspond à une ligne dans une table SQL. Deux règles sont obligatoires : annoter la classe avec <code>@Entity</code>, définir une clé primaire avec <code>@Id</code>, et fournir un <strong>constructeur sans paramètre</strong> (pour qu'Hibernate puisse reconstruire l'objet depuis la base).</p>
+
+<pre><code class="language-java">@Entity
+@Table(name = "STUDENT")
+public class Student {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "STUDENT_NAME", length = 50, nullable = false, unique = false)
+    private String name;
+
+    @Transient // Non enregistré en base (ex: valeur calculée en mémoire)
+    private Integer age;
+
+    @Temporal(TemporalType.DATE) // Pour java.util.Date (inutile avec LocalDate)
+    private Date birthDate;
+
+    @Enumerated(EnumType.STRING) // Stocke "CDI" au lieu de l'index 0, 1, 2
+    private StatutContrat statut;
+
+    public Student() {} // Constructeur vide obligatoire pour JPA
+    // Getters et setters...
+}</code></pre>
+
+    <div class="piege">
+      <p><strong>Piège classique sur <code>@Enumerated</code> :</strong> par défaut, JPA utilise <code>EnumType.ORDINAL</code> et stocke la position numérique (0, 1, 2) de l'énumération. Si tu ajoutes une valeur au milieu de ton <code>enum</code>, toutes les anciennes lignes de la base deviennent fausses ! Utilise toujours <code>@Enumerated(EnumType.STRING)</code>.</p>
+    </div>
+  </section>
+
+  <!-- 4. RELATIONS ET LAZY VS EAGER -->
+  <section class="loi-card">
+    <h2>4. Les relations (cardinalités) et Lazy vs Eager</h2>
+    <p>JPA traduit les liens entre classes Java en clés étrangères et tables de jointure. Sur une relation bidirectionnelle, un côté est le <strong>propriétaire</strong> (il porte <code>@JoinColumn</code> ou <code>@JoinTable</code>, c'est lui qui met à jour la clé étrangère en base) et l'autre côté est le miroir avec <code>mappedBy</code>.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Cardinalité</th><th>Annotations</th><th>Traduction en base SQL</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>1 — 1</strong></td><td><code>@OneToOne</code> + <code>@JoinColumn</code></td><td>Une clé étrangère unique dans l'une des tables (ou partage de clé primaire).</td></tr>
+          <tr><td><strong>1 — N / N — 1</strong></td><td><code>@OneToMany(mappedBy="...")</code> et <code>@ManyToOne</code></td><td>La clé étrangère se trouve <strong>toujours du côté N</strong> (<code>@ManyToOne</code>).</td></tr>
+          <tr><td><strong>N — N</strong></td><td><code>@ManyToMany</code> + <code>@JoinTable</code></td><td>Une table d'association contenant les deux clés étrangères.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Exemple 1 — N : un Département contient plusieurs Employés</h3>
+<pre><code class="language-java">@Entity
+public class Department {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+
+    // Côté inverse (miroir) : le champ "department" dans Employee porte la clé étrangère
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List&lt;Employee&gt; employees = new ArrayList&lt;&gt;();
+}
+
+@Entity
+public class Employee {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+
+    // Côté propriétaire : crée la colonne department_id dans la table EMPLOYEE
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+}</code></pre>
+
+    <h3>Cas spécial : relation N — N avec attribut (ex. une note <code>rating</code>)</h3>
+    <p>En JPA, <code>@ManyToMany</code> ne peut pas porter d'attribut supplémentaire sur la table de jointure. On la transforme alors en une <strong>entité intermédiaire</strong> (ex. <code>CourseRating</code>) reliée par deux <code>@ManyToOne</code>, avec une <span class="terme" data-def="cle-composite" tabindex="0">clé primaire composite</span> (<code>@Embeddable</code> + <code>@EmbeddedId</code> + <code>@MapsId</code>).</p>
+
+    <h3>Chargement <span class="terme" data-def="lazy-eager" tabindex="0">LAZY vs EAGER</span></h3>
+    <ul>
+      <li><strong><code>FetchType.LAZY</code> (paresseux) :</strong> les objets liés ne sont chargés depuis la base qu'au moment où tu appelles réellement leur getter (ex. <code>dept.getEmployees()</code>). C'est le défaut sur <code>@OneToMany</code> et <code>@ManyToMany</code> — meilleur pour les performances.</li>
+      <li><strong><code>FetchType.EAGER</code> (immédiat) :</strong> tout est chargé en une fois en même temps que l'entité principale. Défaut sur <code>@ManyToOne</code> et <code>@OneToOne</code> — à éviter sur les collections sous peine de charger la moitié de la base à chaque requête.</li>
+    </ul>
+    <div class="astuce">
+      <p>L'option <code>cascade = CascadeType.ALL</code> propage automatiquement les opérations (persistance, suppression) du parent vers ses enfants ; <code>orphanRemoval = true</code> supprime en base un enfant retiré de la liste.</p>
+    </div>
+  </section>
+
+  <!-- 5. ENTITYMANAGER ET JPQL -->
+  <section class="loi-card">
+    <h2>5. Manipuler les données : <code>EntityManager</code> et JPQL</h2>
+    <p>L'<span class="terme" data-def="entity-manager" tabindex="0">EntityManager</span> est la passerelle entre tes objets Java et la base. Il suit le cycle de vie de chaque entité (<em>nouvelle</em>, <em>gérée</em>, <em>détachée</em> ou <em>supprimée</em>). Toute opération d'écriture (ajout, modification, suppression) doit se faire dans une <span class="terme" data-def="transaction" tabindex="0">transaction</span>.</p>
+
+<pre><code class="language-java">EntityManagerFactory emf = Persistence.createEntityManagerFactory("myPersistenceUnit");
+EntityManager em = emf.createEntityManager();
+
+// 1. CREATE, UPDATE et DELETE dans une transaction
+em.getTransaction().begin();
+
+Product p1 = new Product("Clavier", 35.0, 20);
+em.persist(p1);                     // INSERT : p1 devient "gérée" (managed)
+
+p1.setPrice(29.9);                  // UPDATE automatique au commit (dirty checking)
+
+Product aSupprimer = em.find(Product.class, 2L);
+if (aSupprimer != null) {
+    em.remove(aSupprimer);          // DELETE
+}
+
+em.getTransaction().commit();       // Envoie réellement le SQL à la base
+
+// 2. READ : par clé primaire ou par requête JPQL
+Product p = em.find(Product.class, 1L);
+
+TypedQuery&lt;Product&gt; query = em.createQuery(
+    "SELECT p FROM Product p WHERE p.price &lt;= :max", Product.class);
+query.setParameter("max", 50.0);
+List&lt;Product&gt; pasChers = query.getResultList();
+
+em.close();</code></pre>
+
+    <div class="piege">
+      <p><strong>Ne confonds pas SQL et <span class="terme" data-def="jpql" tabindex="0">JPQL</span> :</strong> en JPQL, on écrit le nom de la <strong>classe Java</strong> (<code>Product</code>, sensible à la casse) et de ses <strong>attributs Java</strong> (<code>p.price</code>), jamais les noms des tables ou colonnes SQL ! Utilise toujours des paramètres nommés (<code>:max</code>) et jamais de concaténation de chaînes pour éviter les <span class="terme" data-def="sqli" tabindex="0">injections SQL</span>.</p>
+    </div>
+  </section>
+
+  <!-- 6. SYNTHÈSE -->
+  <section class="loi-card">
+    <h2>6. Synthèse (Loi de Pareto 80/20)</h2>
+    <p>L'essentiel à retenir sur JPA pour modéliser et manipuler une base de données en Java :</p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Notion clé</th><th>L'essentiel à retenir</th><th>Point de vigilance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>JPA vs Hibernate</strong></td><td>JPA est la norme (<code>jakarta.persistence</code>) ; Hibernate est le moteur qui l'exécute.</td><td>Toujours importer <code>jakarta.persistence.*</code> (pas l'ancien <code>javax.*</code>).</td></tr>
+          <tr><td><strong>Entité</strong></td><td>Classe annotée <code>@Entity</code> avec une clé primaire <code>@Id</code> et un constructeur vide.</td><td>Utiliser <code>@Enumerated(EnumType.STRING)</code> et <code>@Transient</code> pour exclure un champ.</td></tr>
+          <tr><td><strong>Relations</strong></td><td><code>@OneToOne</code>, <code>@ManyToOne</code>/<code>@OneToMany</code>, <code>@ManyToMany</code>.</td><td>La clé étrangère est portée par <code>@JoinColumn</code> ; le côté miroir utilise <code>mappedBy</code>.</td></tr>
+          <tr><td><strong>N — N avec attribut</strong></td><td>Impossible directement : créer une 3e entité + clé composite <code>@Embeddable</code> / <code>@EmbeddedId</code>.</td><td>La clé composite doit implémenter <code>Serializable</code>, <code>equals()</code> et <code>hashCode()</code>.</td></tr>
+          <tr><td><strong>Lazy vs Eager</strong></td><td><code>LAZY</code> charge à la demande ; <code>EAGER</code> charge immédiatement.</td><td>Privilégier <code>LAZY</code> pour éviter de surcharger la base de requêtes inutiles.</td></tr>
+          <tr><td><strong>EntityManager &amp; JPQL</strong></td><td>Gère le CRUD dans une transaction et exécute des requêtes orientées objet (JPQL).</td><td>JPQL utilise les noms de classes/attributs Java et des paramètres nommés (<code>:param</code>).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Méthodes et annotations indispensables</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Méthode / Annotation</th><th>À quoi elle sert</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>Persistence.createEntityManagerFactory("nom")</code></td><td>Lit <code>persistence.xml</code> et crée la fabrique d'<code>EntityManager</code> au démarrage.</td></tr>
+          <tr><td><code>em.getTransaction().begin()</code> / <code>commit()</code> / <code>rollback()</code></td><td>Démarre, valide ou annule une transaction en base de données.</td></tr>
+          <tr><td><code>em.persist(entite)</code></td><td>Enregistre un nouvel objet en base (<code>INSERT</code>) et le fait suivre par JPA.</td></tr>
+          <tr><td><code>em.find(Classe.class, id)</code></td><td>Recherche une entité par sa clé primaire (renvoie <code>null</code> si absente).</td></tr>
+          <tr><td><code>em.merge(entite)</code></td><td>Rattache et met à jour une entité détachée dans le contexte de persistance.</td></tr>
+          <tr><td><code>em.remove(entite)</code></td><td>Supprime une entité gérée de la base de données (<code>DELETE</code>).</td></tr>
+          <tr><td><code>em.createQuery(jpql, Classe.class)</code></td><td>Crée une requête JPQL typée (<code>TypedQuery&lt;T&gt;</code>).</td></tr>
+          <tr><td><code>query.setParameter("nom", val)</code></td><td>Injecte proprement un paramètre dans une requête JPQL (anti-injection SQL).</td></tr>
+          <tr><td><code>query.getResultList()</code> / <code>getSingleResult()</code></td><td>Exécute la requête et retourne une liste d'entités ou un résultat unique.</td></tr>
+          <tr><td><code>@Entity</code>, <code>@Id</code>, <code>@GeneratedValue</code>, <code>@Column</code></td><td>Les 4 annotations de base pour transformer une classe Java en table SQL.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INFOBULLE CONTENANT LES DÉFINITIONS VULGARISÉES -->
+  <div id="tooltip">
+    <div id="def-persistance" class="def-bloc">
+      <h3>Persistance des données</h3>
+      <p>Le fait de conserver les données sur un support durable (comme une base de données) afin qu'elles ne disparaissent pas quand le programme s'arrête.</p>
+    </div>
+
+    <div id="def-sgbdr" class="def-bloc">
+      <h3>SGBD relationnel (SGBD-R)</h3>
+      <p>Un logiciel qui stocke les données sous forme de tables (lignes et colonnes) reliées entre elles, interrogées avec SQL (ex. PostgreSQL, MySQL, H2).</p>
+    </div>
+
+    <div id="def-jdbc" class="def-bloc">
+      <h3>JDBC (Java Database Connectivity)</h3>
+      <p>L'interface Java de base pour envoyer directement des requêtes SQL à une base de données et lire les résultats colonne par colonne.</p>
+    </div>
+
+    <div id="def-orm" class="def-bloc">
+      <h3>ORM (Object-Relational Mapping)</h3>
+      <p>Un traducteur automatique entre tes objets Java et les tables SQL : il écrit les requêtes <code>INSERT</code>, <code>SELECT</code>, <code>UPDATE</code> et <code>DELETE</code> à ta place.</p>
+    </div>
+
+    <div id="def-jpa" class="def-bloc">
+      <h3>JPA (Jakarta Persistence API)</h3>
+      <p>Le standard officiel de Java pour faire de l'ORM grâce à des annotations (<code>@Entity</code>, <code>@Id</code>...) et une API unifiée.</p>
+    </div>
+
+    <div id="def-specification" class="def-bloc">
+      <h3>Spécification</h3>
+      <p>Un cahier des charges officiel qui définit les noms des classes, interfaces et annotations, sans fournir le moteur interne. Plusieurs outils peuvent l'implémenter (comme Hibernate).</p>
+    </div>
+
+    <div id="def-hibernate" class="def-bloc">
+      <h3>Hibernate</h3>
+      <p>L'implémentation la plus utilisée de JPA : c'est le moteur concret qui génère le SQL et dialogue avec la base de données en coulisses.</p>
+    </div>
+
+    <div id="def-jpql" class="def-bloc">
+      <h3>JPQL (Jakarta Persistence Query Language)</h3>
+      <p>Un langage de requête qui ressemble à SQL, mais qui interroge tes <strong>classes et attributs Java</strong> au lieu des tables de la base. Hibernate le traduit ensuite dans le bon SQL.</p>
+    </div>
+
+    <div id="def-persistence-unit" class="def-bloc">
+      <h3>Unité de persistance (Persistence Unit)</h3>
+      <p>Un bloc de configuration dans <code>persistence.xml</code> qui regroupe une base de données, ses identifiants de connexion et la liste des entités JPA à gérer.</p>
+    </div>
+
+    <div id="def-transaction" class="def-bloc">
+      <h3>Transaction</h3>
+      <p>Un bloc d'opérations en base qui fonctionne en « tout ou rien » : si tout réussit, on valide (<code>commit</code>) ; en cas d'erreur, on annule tout (<code>rollback</code>) pour garder la base cohérente.</p>
+    </div>
+
+    <div id="def-entite" class="def-bloc">
+      <h3>Entité JPA</h3>
+      <p>Une classe Java annotée <code>@Entity</code> qui représente une table de la base de données. Chaque objet créé à partir de cette classe correspond à une ligne de la table.</p>
+    </div>
+
+    <div id="def-cle-composite" class="def-bloc">
+      <h3>Clé primaire composite</h3>
+      <p>Une clé primaire formée en combinant plusieurs colonnes ensemble (ex. <code>student_id</code> + <code>course_id</code> pour identifier de façon unique la note d'un étudiant à un cours).</p>
+    </div>
+
+    <div id="def-lazy-eager" class="def-bloc">
+      <h3>Chargement LAZY vs EAGER</h3>
+      <p>Deux stratégies pour charger les données liées : <strong>LAZY</strong> attend que ton code demande la relation pour lancer le <code>SELECT</code> ; <strong>EAGER</strong> récupère tout immédiatement dès le départ.</p>
+    </div>
+
+    <div id="def-entity-manager" class="def-bloc">
+      <h3>EntityManager</h3>
+      <p>L'objet principal de JPA qui joue le rôle de chef d'orchestre : c'est sur lui qu'on appelle <code>persist</code>, <code>find</code>, <code>remove</code> et <code>createQuery</code>.</p>
+    </div>
+
+    <div id="def-sqli" class="def-bloc">
+      <h3>Injection SQL</h3>
+      <p>Une attaque où un utilisateur malveillant saisit des morceaux de code SQL dans un champ (ex. <code>' OR 1=1--</code>) pour détourner une requête construite par concaténation.</p>
+    </div>
+  </div>
+
+  <script>
+    // Infobulles : survol à la souris, toucher sur téléphone, focus au clavier
+    const tooltip = document.getElementById('tooltip');
+    const termes = document.querySelectorAll('.terme');
+    const blocsDef = document.querySelectorAll('.def-bloc');
+    const tactile = window.matchMedia('(hover: none)');
+    let termeOuvert = null;
+
+    function afficher(cle) {
+      blocsDef.forEach(bloc => bloc.classList.remove('actif'));
+      const cible = document.getElementById('def-' + cle);
+      if (cible) {
+        cible.classList.add('actif');
+        tooltip.style.display = 'block';
+      }
+    }
+
+    function masquer() {
+      tooltip.style.display = 'none';
+      termeOuvert = null;
+    }
+
+    function placer(x, y, clientX, clientY) {
+      const decalage = 15;
+      const marge = 12;
+      const tipWidth = tooltip.offsetWidth;
+      const tipHeight = tooltip.offsetHeight;
+
+      let gauche = x + decalage;
+      let haut = y + decalage;
+
+      if (clientX + decalage + tipWidth > window.innerWidth - marge) {
+        gauche = x - tipWidth - decalage;
+      }
+      if (gauche < window.scrollX + marge) {
+        gauche = window.scrollX + marge;
+      }
+      if (clientY + decalage + tipHeight > window.innerHeight - marge) {
+        haut = y - tipHeight - decalage;
+      }
+      if (haut < window.scrollY + marge) {
+        haut = window.scrollY + marge;
+      }
+
+      tooltip.style.left = gauche + 'px';
+      tooltip.style.top = haut + 'px';
+    }
+
+    termes.forEach(terme => {
+      const cle = terme.getAttribute('data-def');
+      if (!cle) return;
+
+      terme.addEventListener('mouseenter', () => { if (!tactile.matches) afficher(cle); });
+      terme.addEventListener('mousemove', (e) => {
+        if (!tactile.matches) placer(e.pageX, e.pageY, e.clientX, e.clientY);
+      });
+      terme.addEventListener('mouseleave', () => { if (!tactile.matches) masquer(); });
+
+      terme.addEventListener('focus', () => {
+        afficher(cle);
+        if (!tactile.matches) {
+          const r = terme.getBoundingClientRect();
+          placer(r.left + window.scrollX, r.bottom + window.scrollY, r.left, r.bottom);
+        }
+      });
+      terme.addEventListener('blur', masquer);
+
+      terme.addEventListener('click', (e) => {
+        if (!tactile.matches) return;
+        e.stopPropagation();
+        if (termeOuvert === terme) { masquer(); return; }
+        termeOuvert = terme;
+        afficher(cle);
+      });
+    });
+
+    document.addEventListener('click', () => { if (tactile.matches) masquer(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') masquer(); });
+  </script>
+
+</body>
+</html>

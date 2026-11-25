@@ -8,7 +8,7 @@ const matieres = [
   {
     id: "dev-web",
     titre: "R301 - Développement web",
-    description: "Syntaxe Java, servlets, JSP.",
+    description: "Syntaxe Java, servlets, JSP, JPA, SpringBoot.",
     lien: "pages/web/indexWeb.html",
     semestre: "S3",
   },
@@ -83,11 +83,13 @@ const semestres = ["S3", "S4"];
 // L'ordre du tableau donne l'ordre « précédent / suivant » dans une matière.
 const pages = [
   // R301
+  { titre: "Cours", lien: "pages/web/cours.html", matiere: "dev-web", type: "Cours", sommaire: true },
   {
     titre: "Syntaxe Java",
     lien: "pages/web/syntaxe_java.html",
     matiere: "dev-web",
     type: "Cours",
+    parent: "pages/web/cours.html",
     sections: [
       "Le cycle de vie d'un programme", "La structure minimale",
       "Les variables et le typage statique", "Boucles et conditions",
@@ -101,9 +103,50 @@ const pages = [
     lien: "pages/web/servlet.html",
     matiere: "dev-web",
     type: "Cours",
+    parent: "pages/web/cours.html",
     sections: [
       "Qu'est-ce qu'une servlet ?", "Pourquoi la servlet ne parle pas directement au client ?",
       "Le cycle de vie d'une servlet", "Que produit une servlet ?",
+    ],
+  },
+  {
+    titre: "JSP",
+    lien: "pages/web/jsp.html",
+    matiere: "dev-web",
+    type: "Cours",
+    parent: "pages/web/cours.html",
+    sections: [
+      "Pourquoi les JSP ?", "Cycle de vie : une JSP est une servlet",
+      "Les balises JSP essentielles", "Objets implicites et portées (scopes)",
+      "Relier Servlet et JSP en MVC (Forward vs Redirect)",
+      "Écrire des vues propres : EL, JSTL et JavaBeans",
+      "Synthèse (Loi de Pareto 80/20)",
+    ],
+  },
+  {
+    titre: "JPA",
+    lien: "pages/web/jpa.html",
+    matiere: "dev-web",
+    type: "Cours",
+    parent: "pages/web/cours.html",
+    sections: [
+      "Persistance, JDBC et approche ORM", "Architecture et configuration (persistence.xml)",
+      "Définir une Entité JPA", "Les relations (cardinalités) et Lazy vs Eager",
+      "Manipuler les données : EntityManager et JPQL",
+      "Synthèse (Loi de Pareto 80/20)",
+    ],
+  },
+  {
+    titre: "SpringBoot",
+    lien: "pages/web/springboot.html",
+    matiere: "dev-web",
+    type: "Cours",
+    parent: "pages/web/cours.html",
+    sections: [
+      "Pourquoi Spring Boot ?", "Injection de dépendances et architecture en couches",
+      "Créer une API web avec @RestController", "Persistance sans effort : Spring Data JPA",
+      "Configuration, DTO et bonnes pratiques",
+      "Synthèse (Loi de Pareto 80/20)",
     ],
   },
   { titre: "TD", lien: "pages/web/TD/td.html", matiere: "dev-web", type: "TD", sommaire: true },
