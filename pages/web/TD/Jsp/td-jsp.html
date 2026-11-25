@@ -316,20 +316,20 @@ public class ProductController extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         String action = request.getParameter("action");
 
-        ProductMemoryDao productDao = (ProductMemoryDao) dao;
-        Optional&lt;Product&gt; product = productDao.get(id);
+
+        Optional&lt;Product&gt; product = dao.get(id);
 
         if(action.equals("add")){
             if(product.isPresent()){
                 product.get().setQuantity(product.get().getQuantity()+1);
-                productDao.save(product.get());
+                dao.save(product.get());
             }
         } else if (action.equals("subtract")) {
             if(product.isPresent()){
                 int quantity = product.get().getQuantity() - 1;
                 if (quantity &gt;= 0) {
                     product.get().setQuantity(quantity);
-                    productDao.save(product.get());
+                    dao.save(product.get());
                 }
             }
         }
